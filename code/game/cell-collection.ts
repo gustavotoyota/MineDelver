@@ -1,4 +1,4 @@
-import { WorldPos } from "./world-pos";
+import { WorldPos } from "./position";
 import {
   ItemRanges,
   putInItemRanges,

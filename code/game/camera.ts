@@ -1,6 +1,6 @@
 import { IVec2, Vec2 } from "../misc/vec2";
 import { IVec3, Vec3 } from "../misc/vec3";
-import { WorldPos } from "./world-pos";
+import { WorldPos } from "./position";
 
 export interface ICamera {
   pos: WorldPos;
@@ -27,11 +27,13 @@ export function screenToWorld(input: {
 
   worldPos.x =
     input.camera.pos.x +
-    ((input.screenPos.x - input.screenSize.x / 2) / input.cellSize) *
+    (input.screenPos.x - input.screenSize.x / 2) /
+      input.cellSize /
       input.camera.zoom;
   worldPos.y =
     input.camera.pos.y +
-    ((input.screenPos.y - input.screenSize.y / 2) / input.cellSize) *
+    (input.screenPos.y - input.screenSize.y / 2) /
+      input.cellSize /
       input.camera.zoom;
   worldPos.z = input.camera.pos.z;
 
@@ -48,11 +50,13 @@ export function worldToScreen(input: {
 
   screenPos.x =
     input.screenSize.x / 2 +
-    ((input.worldPos.x - input.camera.pos.x) / input.camera.zoom) *
+    (input.worldPos.x - input.camera.pos.x) *
+      input.camera.zoom *
       input.cellSize;
   screenPos.y =
     input.screenSize.y / 2 +
-    ((input.worldPos.y - input.camera.pos.y) / input.camera.zoom) *
+    (input.worldPos.y - input.camera.pos.y) *
+      input.camera.zoom *
       input.cellSize;
 
   return screenPos;

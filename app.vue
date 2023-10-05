@@ -7,15 +7,20 @@
 <script setup lang="ts">
 import { drawGame } from "./code/drawing/draw-game";
 import { Camera, getVisibleWorldRect, worldToScreen } from "./code/game/camera";
-import { cellHasBomb, loadCell, loadCellsInRect } from "./code/game/cell";
+import { cellHasBomb, loadCell, loadCellCluster } from "./code/game/cell";
 import { GameMap } from "./code/game/game-map";
+import { forEachPosInRect } from "./code/game/position";
 import { Vec2 } from "./code/misc/vec2";
 
 const canvasRef = ref<HTMLCanvasElement>();
 
 const camera = new Camera();
 
-const map = new GameMap();
+console.log(camera);
+
+const map = new GameMap({
+  seed: Math.round(Math.random() * Number.MAX_SAFE_INTEGER),
+});
 
 let canvasCtx: CanvasRenderingContext2D;
 
@@ -31,33 +36,33 @@ function renderFrame() {
     camera: camera,
     map: map,
     bgColor: "#000000",
-    drawCell: (input) => {
-      const screenPos = worldToScreen({
-        screenSize: new Vec2(800, 600),
-        camera: camera,
-        worldPos: input.worldPos,
-        cellSize: cellSize,
-      });
-
-      input.canvasCtx.drawImage(
-        groundImage,
-        screenPos.x - halfCellSize,
-        screenPos.y - halfCellSize,
-        cellSize,
-        cellSize
-      );
-
-      if (input.cellInfos.hasBomb) {
-        input.canvasCtx.drawImage(
-          wallImage,
-          screenPos.x - halfCellSize,
-          screenPos.y - halfCellSize,
-          cellSize,
-          cellSize
-        );
-      }
-    },
     cellSize: cellSize,
+    drawCell: [
+      (input) => {
+        input.canvasCtx.drawImage(
+          groundImage,
+          input.screenPos.x -
+            (groundImage.width + halfCellSize) * input.camera.zoom,
+          input.screenPos.y -
+            (groundImage.height + halfCellSize) * input.camera.zoom,
+          groundImage.width * input.camera.zoom,
+          groundImage.height * input.camera.zoom
+        );
+      },
+      (input) => {
+        if (input.cellInfos.hasBomb) {
+          input.canvasCtx.drawImage(
+            wallImage,
+            input.screenPos.x -
+              (wallImage.width + halfCellSize) * input.camera.zoom,
+            input.screenPos.y -
+              (wallImage.height + halfCellSize) * input.camera.zoom,
+            wallImage.width * input.camera.zoom,
+            wallImage.height * input.camera.zoom
+          );
+        }
+      },
+    ],
   });
 
   requestAnimationFrame(renderFrame);
@@ -86,23 +91,28 @@ onMounted(() => {
     cellSize: cellSize,
   });
 
-  loadCellsInRect({
+  forEachPosInRect({
     ...visibleWorldRect,
-    cellExists: (input) => map.cells.hasCell(input.pos),
-    loadCell: (input) => {
-      const cell = loadCell({
-        pos: input.pos,
-        cellHasBomb: (input) =>
-          cellHasBomb({
-            seed: map.seed,
+    func: (pos) => {
+      loadCellCluster({
+        startPos: pos,
+        cellExists: (input) => map.cells.hasCell(input.pos),
+        loadCell: (input) => {
+          const cell = loadCell({
             pos: input.pos,
-            bombProbability: 0.25,
-          }),
+            cellHasBomb: (input) =>
+              cellHasBomb({
+                seed: map.seed,
+                pos: input.pos,
+                bombProbability: 0.2,
+              }),
+          });
+
+          map.cells.setCell(input.pos, cell);
+
+          return cell.hasBomb;
+        },
       });
-
-      map.cells.setCell(input.pos, cell);
-
-      return cell.hasBomb;
     },
   });
 
@@ -111,3 +121,4 @@ onMounted(() => {
   renderFrame();
 });
 </script>
+./code/game/position

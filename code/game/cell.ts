@@ -1,7 +1,7 @@
 import { hashFNV1a } from "@/code/misc/hash";
 import { posMod } from "../misc/math";
 import { IRuntimeCellInfos } from "./runtime-cell-infos";
-import { WorldPos } from "./world-pos";
+import { WorldPos } from "./position";
 
 export function cellHasBomb(input: {
   seed: number;
@@ -52,31 +52,6 @@ export function loadCellCluster(input: {
       stack.push(new WorldPos(pos.x + 1, pos.y - 1, pos.z));
       stack.push(new WorldPos(pos.x + 1, pos.y, pos.z));
       stack.push(new WorldPos(pos.x + 1, pos.y + 1, pos.z));
-    }
-  }
-}
-
-export function loadCellsInRect(input: {
-  topLeft: WorldPos;
-  bottomRight: WorldPos;
-  cellExists: (input: { pos: WorldPos }) => boolean;
-  loadCell: (input: { pos: WorldPos }) => boolean; // Return true to queue adjacent cells
-}) {
-  for (
-    let y = Math.floor(input.topLeft.y);
-    y <= Math.ceil(input.bottomRight.y);
-    y++
-  ) {
-    for (
-      let x = Math.floor(input.topLeft.x);
-      x <= Math.ceil(input.bottomRight.x);
-      x++
-    ) {
-      loadCellCluster({
-        startPos: new WorldPos(x, y, input.topLeft.z),
-        cellExists: input.cellExists,
-        loadCell: input.loadCell,
-      });
     }
   }
 }
