@@ -1,20 +1,28 @@
-import { Position } from "./position";
+import { WorldPos } from "./world-pos";
 import {
   ItemRanges,
-  addToItemRanges,
+  putInItemRanges,
   getFromItemRanges,
-} from "../misc/item-ranges";
+} from "@/code/misc/item-ranges";
 
-export class CellCollection<T = undefined> {
+export interface ICellCollection<T> {
+  setRowCells(startPos: WorldPos, items: T[]): void;
+  setCell(pos: WorldPos, item: T): void;
+
+  getRowCells(startPos: WorldPos, count: number): (T | undefined)[];
+  getCell(pos: WorldPos): T | undefined;
+}
+
+export class CellCollection<T> implements ICellCollection<T> {
   private _cells: ItemRanges<ItemRanges<ItemRanges<T>>> = [];
 
-  addRowCells(startPos: Position, items: T[]) {
+  setRowCells(startPos: WorldPos, items: T[]) {
     let layer = getFromItemRanges(this._cells, startPos.z, 1)?.[0];
 
     if (layer == null) {
       layer = [];
 
-      addToItemRanges(this._cells, startPos.z, [layer]);
+      putInItemRanges(this._cells, startPos.z, [layer]);
     }
 
     let row = getFromItemRanges(layer, startPos.y, 1)?.[0];
@@ -22,16 +30,16 @@ export class CellCollection<T = undefined> {
     if (row == null) {
       row = [];
 
-      addToItemRanges(layer, startPos.y, [row]);
+      putInItemRanges(layer, startPos.y, [row]);
     }
 
-    addToItemRanges(row, startPos.x, items);
+    putInItemRanges(row, startPos.x, items);
   }
-  addCell(pos: Position, item: T) {
-    this.addRowCells(pos, [item]);
+  setCell(pos: WorldPos, item: T) {
+    this.setRowCells(pos, [item]);
   }
 
-  getRowCells(startPos: Position, count: number): (T | undefined)[] {
+  getRowCells(startPos: WorldPos, count: number): (T | undefined)[] {
     const layer = getFromItemRanges(this._cells, startPos.z, 1)?.[0];
 
     if (layer == null) {
@@ -46,7 +54,11 @@ export class CellCollection<T = undefined> {
 
     return getFromItemRanges(row, startPos.x, count);
   }
-  getCell(pos: Position): T | undefined {
+  getCell(pos: WorldPos): T | undefined {
     return this.getRowCells(pos, 1)[0];
+  }
+
+  hasCell(pos: WorldPos): boolean {
+    return this.getCell(pos) != null;
   }
 }

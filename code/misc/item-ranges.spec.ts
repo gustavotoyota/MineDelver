@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   ItemRanges,
-  addToItemRanges,
+  putInItemRanges,
   getFromItemRanges,
   removeFromItemRanges,
 } from "./item-ranges";
@@ -11,7 +11,7 @@ describe("ItemRanges", () => {
     it("should add a range to an empty list", () => {
       const ranges: ItemRanges<number> = [];
 
-      addToItemRanges(ranges, 2, [1, 2, 3]);
+      putInItemRanges(ranges, 2, [1, 2, 3]);
 
       expect(ranges).toEqual([{ from: 2, items: [1, 2, 3] }]);
     });
@@ -19,7 +19,7 @@ describe("ItemRanges", () => {
     it("should merge a range at the start of an existing one", () => {
       const ranges: ItemRanges<number> = [{ from: 4, items: [4, 5, 6] }];
 
-      addToItemRanges(ranges, 2, [1, 2, 3]);
+      putInItemRanges(ranges, 2, [1, 2, 3]);
 
       expect(ranges).toEqual([{ from: 2, items: [1, 2, 4, 5, 6] }]);
     });
@@ -27,7 +27,7 @@ describe("ItemRanges", () => {
     it("should merge a range at the end of an existing one", () => {
       const ranges: ItemRanges<number> = [{ from: 2, items: [1, 2, 3] }];
 
-      addToItemRanges(ranges, 4, [4, 5, 6]);
+      putInItemRanges(ranges, 4, [4, 5, 6]);
 
       expect(ranges).toEqual([{ from: 2, items: [1, 2, 4, 5, 6] }]);
     });
@@ -38,7 +38,7 @@ describe("ItemRanges", () => {
         { from: 6, items: [6, 7, 8] },
       ];
 
-      addToItemRanges(ranges, 3, [3, 4, 5, 6]);
+      putInItemRanges(ranges, 3, [3, 4, 5, 6]);
 
       expect(ranges).toEqual([{ from: 1, items: [1, 2, 3, 4, 5, 6, 7, 8] }]);
     });
@@ -49,7 +49,7 @@ describe("ItemRanges", () => {
         { from: 7, items: [7, 8, 9] },
       ];
 
-      addToItemRanges(ranges, 5, [5]);
+      putInItemRanges(ranges, 5, [5]);
 
       expect(ranges).toEqual([
         { from: 1, items: [1, 2, 3] },

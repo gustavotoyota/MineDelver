@@ -23,7 +23,7 @@ export function findRangeIndex<T>(ranges: ItemRanges<T>, from: number) {
   return rangeIndex;
 }
 
-export function addToItemRanges<T>(
+export function putInItemRanges<T>(
   ranges: ItemRanges<T>,
   from: number,
   items: T[]
