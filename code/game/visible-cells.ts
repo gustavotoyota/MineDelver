@@ -2,7 +2,7 @@ import { IGridSegment } from "../misc/grid-segment";
 import { IRect3 } from "../misc/rect3";
 import { IVec2 } from "../misc/vec2";
 import { ICamera, screenToWorld } from "./camera";
-import { ICellCollection } from "./cell-collection";
+import { Grid } from "./grid";
 import { IRuntimeCellInfos } from "./cells";
 import { WorldPos } from "./position";
 
@@ -36,13 +36,13 @@ export function getVisibleWorldRect(input: {
 
   return {
     min: {
-      x: Math.floor(topLeft.x),
-      y: Math.floor(topLeft.y),
+      x: Math.floor(topLeft.x - 1),
+      y: Math.floor(topLeft.y - 1),
       z: Math.floor(topLeft.z),
     },
     max: {
-      x: Math.ceil(bottomRight.x),
-      y: Math.ceil(bottomRight.y),
+      x: Math.ceil(bottomRight.x + 1),
+      y: Math.ceil(bottomRight.y + 1),
       z: Math.ceil(bottomRight.z),
     },
   };
@@ -50,7 +50,7 @@ export function getVisibleWorldRect(input: {
 
 export function getGridSegmentFromWorldRect(input: {
   worldRect: IRect3;
-  cells: ICellCollection<IRuntimeCellInfos>;
+  grid: Grid<IRuntimeCellInfos>;
 }): IGridSegment<IRuntimeCellInfos | undefined> {
   const grid: IGridSegment<IRuntimeCellInfos | undefined> = {
     from: {
@@ -68,7 +68,7 @@ export function getGridSegmentFromWorldRect(input: {
       const startX = input.worldRect.min.x;
       const endX = input.worldRect.max.x;
 
-      const row = input.cells.getRowCells(
+      const row = input.grid.getRowCells(
         new WorldPos(startX, y, z),
         endX - startX + 1
       );

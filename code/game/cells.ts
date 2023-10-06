@@ -1,7 +1,7 @@
 import { hashFNV1a } from "@/code/misc/hash";
 import { posMod } from "../misc/math";
 import { WorldPos } from "./position";
-import { ICellCollection } from "./cell-collection";
+import { Grid } from "./grid";
 
 export interface IRuntimeCellInfos {
   hasBomb?: boolean;
@@ -38,16 +38,16 @@ export function createCell(input: { hasBomb: boolean }): IRuntimeCellInfos {
 export function getOrCreateCell(input: {
   worldPos: WorldPos;
   cellHasBomb: (input: { worldPos: WorldPos }) => boolean;
-  cells: ICellCollection<IRuntimeCellInfos>;
+  grid: Grid<IRuntimeCellInfos>;
 }): IRuntimeCellInfos {
-  let cell = input.cells.getCell(input.worldPos);
+  let cell = input.grid.getCell(input.worldPos);
 
   if (cell === undefined) {
     cell = createCell({
       hasBomb: input.cellHasBomb({ worldPos: input.worldPos }),
     });
 
-    input.cells.setCell(input.worldPos, cell);
+    input.grid.setCell(input.worldPos, cell);
   }
 
   return cell;

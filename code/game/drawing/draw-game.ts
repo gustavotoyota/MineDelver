@@ -1,8 +1,9 @@
-import { ICamera, worldToScreen } from "@/code/game/camera";
+import { ICamera, screenToWorld, worldToScreen } from "@/code/game/camera";
 import { IRuntimeCellInfos } from "@/code/game/cells";
 import { WorldPos } from "~/code/game/position";
 import { IGridSegment } from "~/code/misc/grid-segment";
 import { IVec2, Vec2 } from "../../misc/vec2";
+import { Vec3 } from "~/code/misc/vec3";
 
 export interface IDrawCell {
   (input: {
@@ -20,18 +21,19 @@ export function drawGame(input: {
   cellSize: number;
   bgColor: string;
   gridSegment: IGridSegment<IRuntimeCellInfos | undefined>;
+  mouseScreenPos?: IVec2;
   drawLayerCell: IDrawCell[];
 }) {
+  const screenSize = new Vec2(
+    input.canvasCtx.canvas.width,
+    input.canvasCtx.canvas.height
+  );
+
   // Clear the canvas
 
   input.canvasCtx.save();
   input.canvasCtx.fillStyle = input.bgColor;
-  input.canvasCtx.fillRect(
-    0,
-    0,
-    input.canvasCtx.canvas.width,
-    input.canvasCtx.canvas.height
-  );
+  input.canvasCtx.fillRect(0, 0, screenSize.x, screenSize.y);
   input.canvasCtx.restore();
 
   // Draw the map
@@ -50,10 +52,7 @@ export function drawGame(input: {
         );
 
         const screenPos = worldToScreen({
-          screenSize: new Vec2(
-            input.canvasCtx.canvas.width,
-            input.canvasCtx.canvas.height
-          ),
+          screenSize: screenSize,
           camera: input.camera,
           worldPos: worldPos,
           cellSize: input.cellSize,
@@ -68,5 +67,38 @@ export function drawGame(input: {
         });
       }
     }
+  }
+
+  // Draw the hovered cell
+
+  if (input.mouseScreenPos !== undefined) {
+    const mouseWorldPos = screenToWorld({
+      camera: input.camera,
+      cellSize: input.cellSize,
+      screenSize: screenSize,
+      screenPos: input.mouseScreenPos,
+    });
+
+    const mouseScreenPos = worldToScreen({
+      camera: input.camera,
+      cellSize: input.cellSize,
+      screenSize: screenSize,
+      worldPos: new Vec3(
+        Math.round(mouseWorldPos.x),
+        Math.round(mouseWorldPos.y),
+        Math.round(mouseWorldPos.z)
+      ),
+    });
+
+    input.canvasCtx.save();
+    input.canvasCtx.strokeStyle = "white";
+    input.canvasCtx.lineWidth = 2;
+    input.canvasCtx.strokeRect(
+      mouseScreenPos.x - input.cellSize / 2,
+      mouseScreenPos.y - input.cellSize / 2,
+      input.cellSize,
+      input.cellSize
+    );
+    input.canvasCtx.restore();
   }
 }

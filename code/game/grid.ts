@@ -1,19 +1,7 @@
 import { WorldPos } from "./position";
 import { Segments, putInSegments, getFromSegments } from "~/code/misc/segments";
 
-export interface ICellCollection<T> {
-  setCell(pos: WorldPos, item: T): void;
-  getCell(pos: WorldPos): T | undefined;
-
-  setRowCells(startPos: WorldPos, items: T[]): void;
-  getRowCells(startPos: WorldPos, count: number): (T | undefined)[];
-
-  getOrCreateCell(pos: WorldPos, create: () => T): T;
-
-  hasCell(pos: WorldPos): boolean;
-}
-
-export class CellCollection<T> implements ICellCollection<T> {
+export class Grid<T> {
   private _cells: Segments<Segments<Segments<T>>> = [];
 
   setRowCells(startPos: WorldPos, items: T[]) {

@@ -5,6 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
+  heap:
+    specifier: ^0.2.7
+    version: 0.2.7
   lodash:
     specifier: ^4.17.21
     version: 4.17.21
@@ -13,6 +16,9 @@ devDependencies:
   '@nuxt/devtools':
     specifier: latest
     version: 1.0.0-beta.0(nuxt@3.7.4)(vite@4.4.10)
+  '@types/heap':
+    specifier: ^0.2.32
+    version: 0.2.32
   '@types/lodash':
     specifier: ^4.14.199
     version: 4.14.199
@@ -1581,6 +1587,10 @@ packages:
 
   /@types/estree@1.0.2:
     resolution: {integrity: sha512-VeiPZ9MMwXjO32/Xu7+OwflfmeoRwkE/qzndw42gGtgJwZopBnzy2gD//NN1+go1mADzkDcqf/KnFRSjTJ8xJA==}
+    dev: true
+
+  /@types/heap@0.2.32:
+    resolution: {integrity: sha512-GeKFLHmmYx6RIhSMFSXDj7UUVETilQv/JELLiqCYq1ntH0UBVA4a3AIJz2bsUNvLHIDTo2V0QA0CQ4UtfTmrNg==}
     dev: true
 
   /@types/http-proxy@1.17.12:
@@ -3266,6 +3276,10 @@ packages:
   /hash-sum@2.0.0:
     resolution: {integrity: sha512-WdZTbAByD+pHfl/g9QSsBIIwy8IT+EsPiKDs0KNX+zSHhdDLFKdZu0BQHljvO+0QI/BasbMSUa8wYNCZTvhslg==}
     dev: true
+
+  /heap@0.2.7:
+    resolution: {integrity: sha512-2bsegYkkHO+h/9MGbn6KWcE45cHZgPANo5LXF7EvWdT0yT2EguSVO1nDgU5c8+ZOPwp2vMNa7YFsJhVcDR9Sdg==}
+    dev: false
 
   /hookable@5.5.3:
     resolution: {integrity: sha512-Yc+BQe8SvoXH1643Qez1zqLRmbA5rCL+sSmk6TVos0LWVfNIB7PGncdlId77WzLGSIB5KaWgTaNTs2lNVEI6VQ==}

@@ -1,5 +1,4 @@
-import { IRect3 } from "../misc/rect3";
-import { ICellCollection } from "./cell-collection";
+import { Grid } from "./grid";
 import {
   IRuntimeCellInfos,
   cellHasBomb,
@@ -9,12 +8,12 @@ import {
 import { drawCellImage } from "./drawing/draw-cell";
 import { IDrawCell } from "./drawing/draw-game";
 import { Images } from "./images";
-import { WorldPos, forEachPosInRect3D } from "./position";
+import { WorldPos } from "./position";
 
 export function loadCellClusterDefault(input: {
   seed: number;
   startPos: WorldPos;
-  cells: ICellCollection<IRuntimeCellInfos>;
+  grid: Grid<IRuntimeCellInfos>;
 }) {
   loadCellCluster({
     startPos: input.startPos,
@@ -31,7 +30,7 @@ export function loadCellClusterDefault(input: {
                 ? 0
                 : 0.15,
           }),
-        cells: input.cells,
+        grid: input.grid,
       }),
   });
 }
