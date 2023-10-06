@@ -6,6 +6,7 @@ export interface IRuntimeCellInfos {
   hasBomb?: boolean;
   numAdjacentBombs?: number;
   revealed?: boolean;
+  entities?: string[];
 }
 
 export function cellHasBomb(input: {
@@ -85,7 +86,7 @@ export function revealCellCluster(input: {
 
     const cell = input.getCell({ worldPos });
 
-    if (cell === undefined || cell.hasBomb) {
+    if (cell === undefined || cell.hasBomb || cell.revealed) {
       continue;
     }
 

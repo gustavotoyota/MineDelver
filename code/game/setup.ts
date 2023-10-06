@@ -25,7 +25,7 @@ function loadCellDefault(input: {
         bombProbability:
           Math.abs(input_.worldPos.x) <= 1 && Math.abs(input_.worldPos.y) <= 1
             ? 0
-            : 0.2,
+            : 0.1,
       }),
   });
 
@@ -103,6 +103,16 @@ export function drawLayerCellDefault(input: {
           screenPos: input_.screenPos,
           camera: input_.camera,
           image: input.images.getImage("wall")!,
+        });
+      }
+
+      if (input_.cellInfos.entities?.includes("player")) {
+        drawCellImage({
+          canvasCtx: input_.canvasCtx,
+          halfCellSize: input.halfCellSize,
+          screenPos: input_.screenPos,
+          camera: input_.camera,
+          image: input.images.getImage("character")!,
         });
       }
     },

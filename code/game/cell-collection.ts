@@ -6,11 +6,13 @@ import {
 } from "@/code/misc/item-ranges";
 
 export interface ICellCollection<T> {
-  setRowCells(startPos: WorldPos, items: T[]): void;
   setCell(pos: WorldPos, item: T): void;
-
-  getRowCells(startPos: WorldPos, count: number): (T | undefined)[];
   getCell(pos: WorldPos): T | undefined;
+
+  setRowCells(startPos: WorldPos, items: T[]): void;
+  getRowCells(startPos: WorldPos, count: number): (T | undefined)[];
+
+  getOrCreateCell(pos: WorldPos, create: () => T): T;
 
   hasCell(pos: WorldPos): boolean;
 }
@@ -58,6 +60,18 @@ export class CellCollection<T> implements ICellCollection<T> {
   }
   getCell(pos: WorldPos): T | undefined {
     return this.getRowCells(pos, 1)[0];
+  }
+
+  getOrCreateCell(pos: WorldPos, create: () => T): T {
+    let cell = this.getCell(pos);
+
+    if (cell == null) {
+      cell = create();
+
+      this.setCell(pos, cell);
+    }
+
+    return cell;
   }
 
   hasCell(pos: WorldPos): boolean {
