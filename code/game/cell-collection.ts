@@ -11,6 +11,8 @@ export interface ICellCollection<T> {
 
   getRowCells(startPos: WorldPos, count: number): (T | undefined)[];
   getCell(pos: WorldPos): T | undefined;
+
+  hasCell(pos: WorldPos): boolean;
 }
 
 export class CellCollection<T> implements ICellCollection<T> {

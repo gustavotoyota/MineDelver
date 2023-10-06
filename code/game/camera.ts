@@ -61,37 +61,3 @@ export function worldToScreen(input: {
 
   return screenPos;
 }
-
-export function getVisibleWorldRect(input: {
-  camera: ICamera;
-  cellSize: number;
-  screenSize: IVec2;
-}): { topLeft: WorldPos; bottomRight: WorldPos } {
-  const topLeft = screenToWorld({
-    camera: input.camera,
-    screenPos: { x: 0, y: 0 },
-    cellSize: input.cellSize,
-    screenSize: {
-      x: input.screenSize.x,
-      y: input.screenSize.y,
-    },
-  });
-
-  const bottomRight = screenToWorld({
-    camera: input.camera,
-    screenPos: {
-      x: input.screenSize.x,
-      y: input.screenSize.y,
-    },
-    cellSize: input.cellSize,
-    screenSize: {
-      x: input.screenSize.x,
-      y: input.screenSize.y,
-    },
-  });
-
-  return {
-    topLeft,
-    bottomRight,
-  };
-}

@@ -4,7 +4,7 @@ export type WorldPos = IVec3;
 
 export const WorldPos = Vec3;
 
-export function forEachPosInRect(input: {
+export function forEachPosInRect3D(input: {
   topLeft: WorldPos;
   bottomRight: WorldPos;
   func: (pos: WorldPos) => void;

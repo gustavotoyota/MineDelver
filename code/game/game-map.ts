@@ -1,5 +1,5 @@
 import { CellCollection } from "./cell-collection";
-import { IRuntimeCellInfos } from "./runtime-cell-infos";
+import { IRuntimeCellInfos } from "./cells";
 
 export interface IGameMap {
   seed: number;

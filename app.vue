@@ -5,11 +5,18 @@
 </template>
 
 <script setup lang="ts">
-import { drawGame } from "./code/drawing/draw-game";
-import { Camera, getVisibleWorldRect, worldToScreen } from "./code/game/camera";
-import { cellHasBomb, loadCell, loadCellCluster } from "./code/game/cell";
+import { c } from "vitest/dist/reporters-5f784f42";
+import { Camera } from "./code/game/camera";
+import { revealCellCluster } from "./code/game/cells";
+import { drawGame } from "./code/game/drawing/draw-game";
 import { GameMap } from "./code/game/game-map";
-import { forEachPosInRect } from "./code/game/position";
+import { Images } from "./code/game/images";
+import { WorldPos } from "./code/game/position";
+import {
+  drawLayerCellDefault,
+  loadVisibleCellsDefault,
+} from "./code/game/setup";
+import { getVisibleWorldRect } from "./code/game/visible-cells";
 import { Vec2 } from "./code/misc/vec2";
 
 const canvasRef = ref<HTMLCanvasElement>();
@@ -24,62 +31,46 @@ const map = new GameMap({
 
 let canvasCtx: CanvasRenderingContext2D;
 
-let groundImage: HTMLImageElement;
-let wallImage: HTMLImageElement;
+const images = new Images();
 
 const cellSize = 48;
 const halfCellSize = cellSize / 2;
 
 function renderFrame() {
+  const visibleWorldRect = getVisibleWorldRect({
+    screenSize: new Vec2(canvasCtx.canvas.width, canvasCtx.canvas.height),
+    camera: camera,
+    cellSize: cellSize,
+  });
+
   drawGame({
     canvasCtx: canvasCtx!,
     camera: camera,
-    map: map,
+    cells: map.cells,
     bgColor: "#000000",
     cellSize: cellSize,
-    drawCell: [
-      (input) => {
-        input.canvasCtx.drawImage(
-          groundImage,
-          input.screenPos.x -
-            (groundImage.width + halfCellSize) * input.camera.zoom,
-          input.screenPos.y -
-            (groundImage.height + halfCellSize) * input.camera.zoom,
-          groundImage.width * input.camera.zoom,
-          groundImage.height * input.camera.zoom
-        );
-      },
-      (input) => {
-        if (input.cellInfos.hasBomb) {
-          input.canvasCtx.drawImage(
-            wallImage,
-            input.screenPos.x -
-              (wallImage.width + halfCellSize) * input.camera.zoom,
-            input.screenPos.y -
-              (wallImage.height + halfCellSize) * input.camera.zoom,
-            wallImage.width * input.camera.zoom,
-            wallImage.height * input.camera.zoom
-          );
-        }
-      },
-    ],
+    visibleWorldRect: visibleWorldRect,
+    drawLayerCell: drawLayerCellDefault({
+      images: images,
+      halfCellSize: halfCellSize,
+    }),
   });
 
   requestAnimationFrame(renderFrame);
 }
 
-onMounted(() => {
-  groundImage = new Image();
-  groundImage.src = "/assets/ground.png";
+onMounted(async () => {
+  images.addImage("ground", "/assets/ground.png");
+  images.addImage("wall", "/assets/wall.png");
+  images.addImage("character", "/assets/character.png");
 
-  wallImage = new Image();
-  wallImage.src = "/assets/wall.png";
+  await images.allImagesLoaded();
 
   if (canvasRef.value == null) {
     throw new Error("Canvas is null");
   }
 
-  canvasCtx = canvasRef.value.getContext("2d");
+  canvasCtx = canvasRef.value.getContext("2d")!;
 
   if (canvasCtx == null) {
     throw new Error("Canvas context is null");
@@ -91,29 +82,15 @@ onMounted(() => {
     cellSize: cellSize,
   });
 
-  forEachPosInRect({
-    ...visibleWorldRect,
-    func: (pos) => {
-      loadCellCluster({
-        startPos: pos,
-        cellExists: (input) => map.cells.hasCell(input.pos),
-        loadCell: (input) => {
-          const cell = loadCell({
-            pos: input.pos,
-            cellHasBomb: (input) =>
-              cellHasBomb({
-                seed: map.seed,
-                pos: input.pos,
-                bombProbability: 0.2,
-              }),
-          });
+  loadVisibleCellsDefault({
+    seed: map.seed,
+    cells: map.cells,
+    visibleWorldRect: visibleWorldRect,
+  });
 
-          map.cells.setCell(input.pos, cell);
-
-          return cell.hasBomb;
-        },
-      });
-    },
+  revealCellCluster({
+    startPos: new WorldPos(),
+    getCell: (input) => map.cells.getCell(input.worldPos),
   });
 
   console.log(map.cells);
@@ -121,4 +98,3 @@ onMounted(() => {
   renderFrame();
 });
 </script>
-./code/game/position
