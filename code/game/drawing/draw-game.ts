@@ -1,27 +1,25 @@
 import { ICamera, worldToScreen } from "@/code/game/camera";
 import { IRuntimeCellInfos } from "@/code/game/cells";
 import { WorldPos } from "~/code/game/position";
-import { IRect3 } from "../../misc/rect3";
+import { IGridSegment } from "~/code/misc/grid-segment";
 import { IVec2, Vec2 } from "../../misc/vec2";
-import { ICellCollection } from "../cell-collection";
 
 export interface IDrawCell {
   (input: {
     canvasCtx: CanvasRenderingContext2D;
     worldPos: WorldPos;
     screenPos: IVec2;
-    cellInfos: IRuntimeCellInfos; // Here for optimization
+    cellInfos: IRuntimeCellInfos | undefined; // Here for optimization
     camera: ICamera;
   }): void;
 }
 
 export function drawGame(input: {
   canvasCtx: CanvasRenderingContext2D;
-  cells: ICellCollection<IRuntimeCellInfos>;
   camera: ICamera;
   cellSize: number;
   bgColor: string;
-  visibleWorldRect: IRect3;
+  gridSegment: IGridSegment<IRuntimeCellInfos | undefined>;
   drawLayerCell: IDrawCell[];
 }) {
   // Clear the canvas
@@ -39,27 +37,17 @@ export function drawGame(input: {
   // Draw the map
 
   for (let layer = 0; layer < input.drawLayerCell.length; layer++) {
-    for (
-      let y = Math.floor(input.visibleWorldRect.topLeft.y);
-      y <= Math.ceil(input.visibleWorldRect.bottomRight.y);
-      y++
-    ) {
-      const startX = Math.floor(input.visibleWorldRect.topLeft.x);
-      const endX = Math.ceil(input.visibleWorldRect.bottomRight.x);
+    for (let y = 0; y < input.gridSegment.cells[0].length; y++) {
+      const row = input.gridSegment.cells[0][y];
 
-      const row = input.cells.getRowCells(
-        new WorldPos(startX, y, input.camera.pos.z),
-        endX - startX + 1
-      );
+      for (let x = 0; x < row.length; x++) {
+        const cellInfos = row[x];
 
-      for (let x = startX; x <= endX; x++) {
-        const cellInfos = row[x - startX];
-
-        if (cellInfos === undefined) {
-          continue;
-        }
-
-        const worldPos = new WorldPos(x, y, input.camera.pos.z);
+        const worldPos = new WorldPos(
+          input.gridSegment.from.x + x,
+          input.gridSegment.from.y + y,
+          input.gridSegment.from.z
+        );
 
         const screenPos = worldToScreen({
           screenSize: new Vec2(

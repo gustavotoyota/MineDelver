@@ -1,4 +1,3 @@
-import { IVec2 } from "../misc/vec2";
 import { WorldPos } from "./position";
 
 export interface Entity {

@@ -1,9 +1,12 @@
 import { hashFNV1a } from "@/code/misc/hash";
 import { posMod } from "../misc/math";
 import { WorldPos } from "./position";
+import { ICellCollection } from "./cell-collection";
 
 export interface IRuntimeCellInfos {
   hasBomb?: boolean;
+  bombProcessed?: boolean;
+
   numAdjacentBombs?: number;
   revealed?: boolean;
   entities?: string[];
@@ -28,67 +31,77 @@ export function cellHasBomb(input: {
 
 export function createCell(input: { hasBomb: boolean }): IRuntimeCellInfos {
   return {
-    ...(input.hasBomb ? { hasBomb: true } : {}),
+    ...(input.hasBomb ? { hasBomb: true, bombProcessed: false } : {}),
   };
 }
 
-export function loadCell(input: {
+export function getOrCreateCell(input: {
   worldPos: WorldPos;
   cellHasBomb: (input: { worldPos: WorldPos }) => boolean;
+  cells: ICellCollection<IRuntimeCellInfos>;
 }): IRuntimeCellInfos {
-  return createCell({
-    hasBomb: input.cellHasBomb({ worldPos: input.worldPos }),
-  });
+  let cell = input.cells.getCell(input.worldPos);
+
+  if (cell === undefined) {
+    cell = createCell({
+      hasBomb: input.cellHasBomb({ worldPos: input.worldPos }),
+    });
+
+    input.cells.setCell(input.worldPos, cell);
+  }
+
+  return cell;
 }
 
-export function loadCellCluster(input: {
-  startPos: WorldPos;
-  getCell: (input: { worldPos: WorldPos }) => IRuntimeCellInfos | undefined;
-  loadCell: (input: { worldPos: WorldPos }) => IRuntimeCellInfos;
+function processBomb(input: {
+  cell: IRuntimeCellInfos;
+  worldPos: WorldPos;
+  getOrCreateCell: (input: { worldPos: WorldPos }) => IRuntimeCellInfos;
 }) {
-  const stack = [input.startPos];
+  if (input.cell.bombProcessed === undefined) {
+    return;
+  }
 
-  while (stack.length > 0) {
-    const worldPos = stack.pop()!;
+  delete input.cell.bombProcessed;
 
-    let cell = input.getCell({ worldPos });
+  const neighbourPositions = [
+    new WorldPos(input.worldPos.x - 1, input.worldPos.y - 1, input.worldPos.z),
+    new WorldPos(input.worldPos.x - 1, input.worldPos.y, input.worldPos.z),
+    new WorldPos(input.worldPos.x - 1, input.worldPos.y + 1, input.worldPos.z),
+    new WorldPos(input.worldPos.x, input.worldPos.y - 1, input.worldPos.z),
+    new WorldPos(input.worldPos.x, input.worldPos.y + 1, input.worldPos.z),
+    new WorldPos(input.worldPos.x + 1, input.worldPos.y - 1, input.worldPos.z),
+    new WorldPos(input.worldPos.x + 1, input.worldPos.y, input.worldPos.z),
+    new WorldPos(input.worldPos.x + 1, input.worldPos.y + 1, input.worldPos.z),
+  ];
 
-    if (cell === undefined) {
-      cell = input.loadCell({ worldPos: worldPos });
+  const neighbourCells = neighbourPositions.map((pos) =>
+    input.getOrCreateCell({ worldPos: pos })
+  );
 
-      if (cell.hasBomb) {
-        stack.push(new WorldPos(worldPos.x - 1, worldPos.y - 1, worldPos.z));
-        stack.push(new WorldPos(worldPos.x - 1, worldPos.y, worldPos.z));
-        stack.push(new WorldPos(worldPos.x - 1, worldPos.y + 1, worldPos.z));
-        stack.push(new WorldPos(worldPos.x, worldPos.y - 1, worldPos.z));
-        stack.push(new WorldPos(worldPos.x, worldPos.y + 1, worldPos.z));
-        stack.push(new WorldPos(worldPos.x + 1, worldPos.y - 1, worldPos.z));
-        stack.push(new WorldPos(worldPos.x + 1, worldPos.y, worldPos.z));
-        stack.push(new WorldPos(worldPos.x + 1, worldPos.y + 1, worldPos.z));
-      }
-    }
-
-    if (worldPos !== input.startPos) {
-      cell.numAdjacentBombs = (cell.numAdjacentBombs ?? 0) + 1;
+  for (const [i, neighbourCell] of neighbourCells.entries()) {
+    if (neighbourCell.hasBomb) {
+      processBomb({
+        cell: neighbourCell,
+        worldPos: neighbourPositions[i],
+        getOrCreateCell: input.getOrCreateCell,
+      });
+    } else {
+      neighbourCell.numAdjacentBombs =
+        (neighbourCell.numAdjacentBombs ?? 0) + 1;
     }
   }
 }
 
-export function revealCellCluster(input: {
+export function loadCellCluster(input: {
   startPos: WorldPos;
-  getCell: (input: { worldPos: WorldPos }) => IRuntimeCellInfos | undefined;
+  getOrCreateCell: (input: { worldPos: WorldPos }) => IRuntimeCellInfos;
 }) {
   const stack = [input.startPos];
   const visited = new Set<string>();
 
   while (stack.length > 0) {
     const worldPos = stack.pop()!;
-
-    const cell = input.getCell({ worldPos });
-
-    if (cell === undefined || cell.hasBomb || cell.revealed) {
-      continue;
-    }
 
     const key = `${worldPos.x}:${worldPos.y}:${worldPos.z}`;
 
@@ -98,19 +111,42 @@ export function revealCellCluster(input: {
 
     visited.add(key);
 
+    let cell = input.getOrCreateCell({ worldPos });
+
     cell.revealed = true;
 
-    if (cell.numAdjacentBombs !== undefined) {
-      continue;
-    }
+    // Load neighbours
 
-    stack.push(new WorldPos(worldPos.x - 1, worldPos.y - 1, worldPos.z));
-    stack.push(new WorldPos(worldPos.x - 1, worldPos.y, worldPos.z));
-    stack.push(new WorldPos(worldPos.x - 1, worldPos.y + 1, worldPos.z));
-    stack.push(new WorldPos(worldPos.x, worldPos.y - 1, worldPos.z));
-    stack.push(new WorldPos(worldPos.x, worldPos.y + 1, worldPos.z));
-    stack.push(new WorldPos(worldPos.x + 1, worldPos.y - 1, worldPos.z));
-    stack.push(new WorldPos(worldPos.x + 1, worldPos.y, worldPos.z));
-    stack.push(new WorldPos(worldPos.x + 1, worldPos.y + 1, worldPos.z));
+    const neighbourPositions = [
+      new WorldPos(worldPos.x - 1, worldPos.y - 1, worldPos.z),
+      new WorldPos(worldPos.x - 1, worldPos.y, worldPos.z),
+      new WorldPos(worldPos.x - 1, worldPos.y + 1, worldPos.z),
+      new WorldPos(worldPos.x, worldPos.y - 1, worldPos.z),
+      new WorldPos(worldPos.x, worldPos.y + 1, worldPos.z),
+      new WorldPos(worldPos.x + 1, worldPos.y - 1, worldPos.z),
+      new WorldPos(worldPos.x + 1, worldPos.y, worldPos.z),
+      new WorldPos(worldPos.x + 1, worldPos.y + 1, worldPos.z),
+    ];
+
+    const neighbourCells = neighbourPositions.map((pos) =>
+      input.getOrCreateCell({ worldPos: pos })
+    );
+
+    // Check if some neighbours have bombs
+
+    if (neighbourCells.some((cell) => cell.hasBomb)) {
+      neighbourCells
+        .map((cell, i) => ({ worldPos: neighbourPositions[i], cell }))
+        .filter((input) => input.cell.hasBomb)
+        .forEach((input_) => {
+          processBomb({
+            cell: input_.cell,
+            worldPos: input_.worldPos,
+            getOrCreateCell: input.getOrCreateCell,
+          });
+        });
+    } else {
+      stack.push(...neighbourPositions);
+    }
   }
 }

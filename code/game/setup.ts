@@ -3,7 +3,7 @@ import { ICellCollection } from "./cell-collection";
 import {
   IRuntimeCellInfos,
   cellHasBomb,
-  loadCell,
+  getOrCreateCell,
   loadCellCluster,
 } from "./cells";
 import { drawCellImage } from "./drawing/draw-cell";
@@ -11,58 +11,27 @@ import { IDrawCell } from "./drawing/draw-game";
 import { Images } from "./images";
 import { WorldPos, forEachPosInRect3D } from "./position";
 
-function loadCellDefault(input: {
+export function loadCellClusterDefault(input: {
   seed: number;
-  cells: ICellCollection<IRuntimeCellInfos>;
-  worldPos: WorldPos;
-}): IRuntimeCellInfos {
-  const cell = loadCell({
-    worldPos: input.worldPos,
-    cellHasBomb: (input_) =>
-      cellHasBomb({
-        seed: input.seed,
-        worldPos: input_.worldPos,
-        bombProbability:
-          Math.abs(input_.worldPos.x) <= 1 && Math.abs(input_.worldPos.y) <= 1
-            ? 0
-            : 0.1,
-      }),
-  });
-
-  input.cells.setCell(input.worldPos, cell);
-
-  return cell;
-}
-
-function loadCellClusterDefault(input: {
-  seed: number;
-  cells: ICellCollection<IRuntimeCellInfos>;
   startPos: WorldPos;
+  cells: ICellCollection<IRuntimeCellInfos>;
 }) {
   loadCellCluster({
     startPos: input.startPos,
-    getCell: (input_) => input.cells.getCell(input_.worldPos),
-    loadCell: (input_) =>
-      loadCellDefault({
-        seed: input.seed,
-        cells: input.cells,
+    getOrCreateCell: (input_) =>
+      getOrCreateCell({
         worldPos: input_.worldPos,
-      }),
-  });
-}
-
-export function loadVisibleCellsDefault(input: {
-  seed: number;
-  cells: ICellCollection<IRuntimeCellInfos>;
-  visibleWorldRect: IRect3;
-}) {
-  forEachPosInRect3D({
-    ...input.visibleWorldRect,
-    func: (pos) =>
-      loadCellClusterDefault({
-        seed: input.seed,
+        cellHasBomb: (input_) =>
+          cellHasBomb({
+            seed: input.seed,
+            worldPos: input_.worldPos,
+            bombProbability:
+              Math.abs(input_.worldPos.x) <= 1 &&
+              Math.abs(input_.worldPos.y) <= 1
+                ? 0
+                : 0.15,
+          }),
         cells: input.cells,
-        startPos: pos,
       }),
   });
 }
@@ -81,7 +50,7 @@ export function drawLayerCellDefault(input: {
         image: input.images.getImage("ground")!,
       });
 
-      if (input_.cellInfos.numAdjacentBombs !== undefined) {
+      if (input_.cellInfos?.numAdjacentBombs !== undefined) {
         input_.canvasCtx.save();
         input_.canvasCtx.fillStyle = "white";
         input_.canvasCtx.textAlign = "center";
@@ -96,7 +65,7 @@ export function drawLayerCellDefault(input: {
       }
     },
     (input_) => {
-      if (!input_.cellInfos.revealed) {
+      if (!input_.cellInfos?.revealed) {
         drawCellImage({
           canvasCtx: input_.canvasCtx,
           halfCellSize: input.halfCellSize,
@@ -106,7 +75,7 @@ export function drawLayerCellDefault(input: {
         });
       }
 
-      if (input_.cellInfos.entities?.includes("player")) {
+      if (input_.cellInfos?.entities?.includes("player")) {
         drawCellImage({
           canvasCtx: input_.canvasCtx,
           halfCellSize: input.halfCellSize,
