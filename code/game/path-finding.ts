@@ -11,6 +11,26 @@ interface PosInfo {
   guessScore: number;
 }
 
+export function reconstructPath(input: {
+  posInfos: Map<string, PosInfo>;
+  currentPos: IVec2;
+  sourcePos: IVec2;
+}) {
+  const path: IVec2[] = [];
+
+  let pos = input.currentPos;
+
+  while (!equal2D(pos, input.sourcePos)) {
+    path.push(pos);
+
+    pos = input.posInfos.get(`${pos.x}:${pos.y}`)!.prevPos;
+  }
+
+  path.reverse();
+
+  return path;
+}
+
 export function getShortestPath(input: {
   sourcePos: IVec3;
   targetPos: IVec2;
@@ -45,19 +65,11 @@ export function getShortestPath(input: {
     closedSet.add(key);
 
     if (equal2D(currentPosInfo.pos, input.targetPos)) {
-      const path: IVec2[] = [];
-
-      let pos = currentPosInfo.pos;
-
-      while (!equal2D(pos, input.sourcePos)) {
-        path.push(pos);
-
-        pos = posInfos.get(`${pos.x}:${pos.y}`)!.prevPos;
-      }
-
-      path.reverse();
-
-      return path;
+      return reconstructPath({
+        posInfos: posInfos,
+        currentPos: currentPosInfo.pos,
+        sourcePos: input.sourcePos,
+      });
     }
 
     const neighbourPositions = [
@@ -86,6 +98,17 @@ export function getShortestPath(input: {
       );
 
       if (!neighbourCell?.revealed) {
+        if (equal2D(neighbourPos, input.targetPos)) {
+          return [
+            ...reconstructPath({
+              posInfos: posInfos,
+              currentPos: currentPosInfo.pos,
+              sourcePos: input.sourcePos,
+            }),
+            { ...input.targetPos },
+          ];
+        }
+
         continue;
       }
 
@@ -102,8 +125,8 @@ export function getShortestPath(input: {
         posInfos.set(key, neighbourInfo);
       }
 
-      const movementWeight = dist2D(currentPosInfo.pos, neighbourPos);
-      const pathScore = currentInfo.pathScore + movementWeight;
+      const actionWeight = dist2D(currentPosInfo.pos, neighbourPos);
+      const pathScore = currentInfo.pathScore + actionWeight;
 
       if (pathScore < neighbourInfo.pathScore) {
         neighbourInfo.prevPos = { ...currentPosInfo.pos };

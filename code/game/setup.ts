@@ -41,6 +41,10 @@ export function drawLayerCellDefault(input: {
 }): IDrawCell[] {
   return [
     (input_) => {
+      if (input_.cellInfos === undefined || input_.cellInfos.hidden) {
+        return;
+      }
+
       drawCellImage({
         canvasCtx: input_.canvasCtx,
         halfCellSize: input.halfCellSize,
@@ -49,7 +53,10 @@ export function drawLayerCellDefault(input: {
         image: input.images.getImage("ground")!,
       });
 
-      if (input_.cellInfos?.numAdjacentBombs !== undefined) {
+      if (
+        input_.cellInfos?.revealed &&
+        input_.cellInfos?.numAdjacentBombs !== undefined
+      ) {
         input_.canvasCtx.save();
         input_.canvasCtx.fillStyle = "white";
         input_.canvasCtx.textAlign = "center";
@@ -64,6 +71,10 @@ export function drawLayerCellDefault(input: {
       }
     },
     (input_) => {
+      if (input_.cellInfos === undefined || input_.cellInfos.hidden) {
+        return;
+      }
+
       if (!input_.cellInfos?.revealed) {
         drawCellImage({
           canvasCtx: input_.canvasCtx,

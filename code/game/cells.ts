@@ -4,6 +4,8 @@ import { WorldPos } from "./position";
 import { Grid } from "./grid";
 
 export interface IRuntimeCellInfos {
+  hidden?: boolean;
+
   hasBomb?: boolean;
   bombProcessed?: boolean;
 
@@ -31,6 +33,7 @@ export function cellHasBomb(input: {
 
 export function createCell(input: { hasBomb: boolean }): IRuntimeCellInfos {
   return {
+    hidden: true,
     ...(input.hasBomb ? { hasBomb: true, bombProcessed: false } : {}),
   };
 }
@@ -79,14 +82,8 @@ function processBomb(input: {
     input.getOrCreateCell({ worldPos: pos })
   );
 
-  for (const [i, neighbourCell] of neighbourCells.entries()) {
-    if (neighbourCell.hasBomb) {
-      processBomb({
-        cell: neighbourCell,
-        worldPos: neighbourPositions[i],
-        getOrCreateCell: input.getOrCreateCell,
-      });
-    } else {
+  for (const neighbourCell of neighbourCells) {
+    if (!neighbourCell.hasBomb) {
       neighbourCell.numAdjacentBombs =
         (neighbourCell.numAdjacentBombs ?? 0) + 1;
     }
@@ -96,7 +93,7 @@ function processBomb(input: {
 export function loadCellCluster(input: {
   startPos: WorldPos;
   getOrCreateCell: (input: { worldPos: WorldPos }) => IRuntimeCellInfos;
-}) {
+}): boolean {
   const stack = [input.startPos];
   const visited = new Set<string>();
 
@@ -112,6 +109,10 @@ export function loadCellCluster(input: {
     visited.add(key);
 
     let cell = input.getOrCreateCell({ worldPos });
+
+    if (cell.hasBomb) {
+      return false;
+    }
 
     cell.revealed = true;
 
@@ -132,6 +133,12 @@ export function loadCellCluster(input: {
       input.getOrCreateCell({ worldPos: pos })
     );
 
+    // Make neighbours visible
+
+    for (const neighbourCell of neighbourCells.filter((cell) => cell.hidden)) {
+      delete neighbourCell.hidden;
+    }
+
     // Check if some neighbours have bombs
 
     if (neighbourCells.some((cell) => cell.hasBomb)) {
@@ -149,4 +156,6 @@ export function loadCellCluster(input: {
       stack.push(...neighbourPositions);
     }
   }
+
+  return true;
 }

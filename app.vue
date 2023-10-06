@@ -4,46 +4,30 @@
       ref="canvasRef"
       width="768"
       height="576"
-      @mousemove="
-        (event) => {
-          mouseScreenPos = new Vec2(event.offsetX, event.offsetY);
-
-          mouseWorldPos = screenToWorld({
-            camera: camera,
-            cellSize: cellSize,
-            screenSize: new Vec2(canvasRef!.width, canvasRef!.height),
-            screenPos: mouseScreenPos,
-          });
-
-          mouseWorldPos.x = Math.round(mouseWorldPos.x);
-          mouseWorldPos.y = Math.round(mouseWorldPos.y);
-        }
-      "
+      @mousemove="(event) => updateMousePos(event)"
       @mouseleave="
         () => {
           mouseScreenPos = undefined;
           mouseWorldPos = undefined;
         }
       "
-      @click="
-        () => {
-          if (mouseWorldPos == null) {
-            return;
-          }
+      @mousedown="
+        (event) => {
+          updateMousePos(event);
           
           const shortestPath = getShortestPath({
             grid: grid,
             sourcePos: entities.get('player')!.pos,
-            targetPos: mouseWorldPos,
+            targetPos: mouseWorldPos!,
           });
 
           if (shortestPath == null) {
             return;
           }
 
-          enqueueMovements({
-            movementData: movementData,
-            movements: shortestPath.toReversed(),
+          enqueueActions({
+            actionManager: actionManager,
+            actions: shortestPath.toReversed(),
             playerEntity: entities.get('player')!,
             grid
           });
@@ -61,7 +45,7 @@ import { drawGame } from "./code/game/drawing/draw-game";
 import { Entities } from "./code/game/entities";
 import { Grid } from "./code/game/grid";
 import { Images } from "./code/game/images";
-import { MovementData, enqueueMovements } from "./code/game/movement";
+import { ActionManager, enqueueActions } from "./code/game/actions";
 import { getShortestPath } from "./code/game/path-finding";
 import { WorldPos } from "./code/game/position";
 import {
@@ -101,7 +85,15 @@ const halfCellSize = cellSize / 2;
 let mouseScreenPos: IVec2 | undefined;
 let mouseWorldPos: IVec3 | undefined;
 
-const movementData = new MovementData();
+const actionManager = new ActionManager({
+  loadCellCluster: (input) => {
+    loadCellClusterDefault({
+      seed: seed,
+      grid: grid,
+      startPos: input.startPos,
+    });
+  },
+});
 
 useEventListener(
   () => window,
@@ -125,14 +117,28 @@ useEventListener(
       newPlayerPos.x += 1;
     }
 
-    enqueueMovements({
-      movementData: movementData,
-      movements: [newPlayerPos],
+    enqueueActions({
+      actionManager: actionManager,
+      actions: [newPlayerPos],
       playerEntity: player,
       grid: grid,
     });
   }
 );
+
+function updateMousePos(event: MouseEvent) {
+  mouseScreenPos = new Vec2(event.offsetX, event.offsetY);
+
+  mouseWorldPos = screenToWorld({
+    camera: camera,
+    cellSize: cellSize,
+    screenSize: new Vec2(canvasRef.value!.width, canvasRef.value!.height),
+    screenPos: mouseScreenPos,
+  });
+
+  mouseWorldPos.x = Math.round(mouseWorldPos.x);
+  mouseWorldPos.y = Math.round(mouseWorldPos.y);
+}
 
 function renderFrame() {
   const visibleWorldRect = getVisibleWorldRect({
@@ -190,4 +196,4 @@ onMounted(async () => {
   renderFrame();
 });
 </script>
-./code/game/grid
+./code/game/grid ./code/game/actions

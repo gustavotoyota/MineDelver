@@ -79,6 +79,14 @@ export function drawGame(input: {
       screenPos: input.mouseScreenPos,
     });
 
+    mouseWorldPos.x = Math.round(mouseWorldPos.x);
+    mouseWorldPos.y = Math.round(mouseWorldPos.y);
+
+    const mouseCell =
+      input.gridSegment.cells[0][mouseWorldPos.y - input.gridSegment.from.y][
+        mouseWorldPos.x - input.gridSegment.from.x
+      ];
+
     const mouseScreenPos = worldToScreen({
       camera: input.camera,
       cellSize: input.cellSize,
@@ -91,7 +99,7 @@ export function drawGame(input: {
     });
 
     input.canvasCtx.save();
-    input.canvasCtx.strokeStyle = "white";
+    input.canvasCtx.strokeStyle = mouseCell?.revealed ? "white" : "green";
     input.canvasCtx.lineWidth = 2;
     input.canvasCtx.strokeRect(
       mouseScreenPos.x - input.cellSize / 2,
