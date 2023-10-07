@@ -32,3 +32,7 @@ export function distManhattan2D(a: IVec2, b: IVec2): number {
 export function distChebyshev2D(a: IVec2, b: IVec2): number {
   return Math.max(Math.abs(a.x - b.x), Math.abs(a.y - b.y));
 }
+
+export function vec2Add(a: IVec2, b: IVec2): IVec2 {
+  return { x: a.x + b.x, y: a.y + b.y };
+}

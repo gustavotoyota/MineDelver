@@ -16,8 +16,12 @@ export class PlayerMovementManager {
     this._movements = [];
   }
 
-  private _executeNextMovement(): IVec2 | undefined {
+  private _executeNextMovement(input: { sourcePos: IVec2 }): IVec2 | undefined {
     if (this._movements.length === 0) {
+      return;
+    }
+
+    if (!equal2D(this._playerEntity.worldPos.value, input.sourcePos)) {
       return;
     }
 
@@ -26,9 +30,16 @@ export class PlayerMovementManager {
       this._playerEntity.worldPos.value.z
     );
 
-    this._playerEntity.walk({ targetPos: newPlayerPos }).then(() => {
+    const result = this._playerEntity.walk({ targetPos: newPlayerPos });
+
+    if (result == null) {
+      this.cancelMovements();
+      return;
+    }
+
+    result.then(() => {
       if (equal2D(newPlayerPos, this._playerEntity.worldPos.value)) {
-        this._executeNextMovement();
+        this._executeNextMovement({ sourcePos: newPlayerPos });
       } else {
         this.cancelMovements();
       }
@@ -38,8 +49,8 @@ export class PlayerMovementManager {
   enqueueMovements(movements: IVec2[]) {
     this.cancelMovements();
 
-    this._movements = [...movements];
+    this._movements = movements.toReversed();
 
-    this._executeNextMovement();
+    this._executeNextMovement({ sourcePos: this._playerEntity.worldPos.value });
   }
 }

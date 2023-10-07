@@ -25,7 +25,7 @@
             return;
           }
 
-          playerMovementManager.enqueueMovements(shortestPath.toReversed());
+          playerMovementManager.enqueueMovements(shortestPath);
         }
       "
     ></canvas>
@@ -54,6 +54,7 @@ import { WorldPos } from "./code/game/map/position";
 import { IVec2, Vec2 } from "./code/misc/vec2";
 import { IVec3, Vec3 } from "./code/misc/vec3";
 import { PlayerMovementManager } from "./code/game/entities/map/player/movement-manager";
+import { getBombCountColor } from "./code/game/entities/map/bomb-count";
 
 function getOrCreateCell_(input_: { worldPos: WorldPos }) {
   return getOrCreateCell({
@@ -157,7 +158,9 @@ const mapEntity = new GameMap({
       input_.cellInfos?.numAdjacentBombs !== undefined
     ) {
       input_.canvasCtx.save();
-      input_.canvasCtx.fillStyle = "white";
+      input_.canvasCtx.fillStyle = getBombCountColor(
+        input_.cellInfos.numAdjacentBombs
+      );
       input_.canvasCtx.textAlign = "center";
       input_.canvasCtx.textBaseline = "middle";
       input_.canvasCtx.font = `${28 * input_.camera.zoom}px "Segoe UI"`;

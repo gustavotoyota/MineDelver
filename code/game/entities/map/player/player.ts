@@ -14,7 +14,12 @@ import { WorldPos } from "~/code/game/map/position";
 import { onCellRender } from "../../entities";
 import { worldToScreen } from "~/code/game/camera";
 import { drawCellImage } from "~/code/game/graphics/draw-cell";
-import { IVec2, equal2D } from "~/code/misc/vec2";
+import {
+  IVec2,
+  distChebyshev2D,
+  distManhattan2D,
+  equal2D,
+} from "~/code/misc/vec2";
 
 export class PlayerEntity extends CellEntity {
   private _images: Images;
@@ -68,13 +73,17 @@ export class PlayerEntity extends CellEntity {
     });
   }
 
-  walk(input: { targetPos: IVec2 }): Promise<void> {
+  isWalking(): boolean {
+    return this._walkPromise != null;
+  }
+
+  walk(input: { targetPos: IVec2 }): Promise<void> | undefined {
     if (this._walkPromise != null) {
       return this._walkPromise;
     }
 
-    if (equal2D(input.targetPos, this.worldPos.value)) {
-      return Promise.resolve();
+    if (distChebyshev2D(input.targetPos, this.worldPos.value) !== 1) {
+      return;
     }
 
     const targetPos = vec2To3(input.targetPos, this.worldPos.value.z);
