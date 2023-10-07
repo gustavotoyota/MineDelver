@@ -2,6 +2,7 @@ import { hashFNV1a } from "@/code/misc/hash";
 import { posMod } from "@/code/misc/math";
 import { WorldPos } from "./position";
 import { Grid } from "./grid";
+import { ICellEntity } from "../entities/cell-entity";
 
 export interface IRuntimeCellInfos {
   hidden?: boolean;
@@ -11,7 +12,8 @@ export interface IRuntimeCellInfos {
 
   numAdjacentBombs?: number;
   revealed?: boolean;
-  creatures?: string[];
+
+  entities?: ICellEntity[];
 }
 
 export function cellHasBomb(input: {

@@ -7,8 +7,8 @@
       @mousemove="(event) => updateMousePos(event)"
       @mouseleave="
         () => {
-          mouseScreenPos.value = undefined;
-          mouseWorldPos.value = undefined;
+          mouseScreenPos = undefined;
+          mouseWorldPos = undefined;
         }
       "
       @mousedown="
@@ -17,8 +17,8 @@
           
           const shortestPath = getShortestPath({
             grid: grid,
-            sourcePos: creatures.get('player')!.pos,
-            targetPos: mouseWorldPos.value!,
+            sourcePos: playerEntity.worldPos.value,
+            targetPos: mouseWorldPos!,
           });
 
           if (shortestPath == null) {
@@ -28,7 +28,7 @@
           enqueueActions({
             actionManager: actionManager,
             actions: shortestPath.toReversed(),
-            playerCreature: creatures.get('player')!,
+            playerEntity: playerEntity,
             grid
           });
         }
@@ -38,13 +38,14 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from "vue";
 import { useEventListener } from "./code/composables/use-event-listener";
 import { Camera, screenToWorld } from "./code/game/camera";
 import { ActionManager, enqueueActions } from "./code/game/creatures/actions";
-import { Creatures } from "./code/game/creatures/creatures";
-import { Entities } from "./code/game/entities";
-import { GameMap, IDrawCell } from "./code/game/entities/game-map";
+import { Entities } from "./code/game/entities/entities";
+import { GameMap, IRenderCell } from "./code/game/entities/game-map";
 import { HPBar } from "./code/game/entities/hp-bar";
+import { Player } from "./code/game/entities/player";
 import { drawCellImage } from "./code/game/graphics/draw-cell";
 import { Images } from "./code/game/images";
 import {
@@ -56,12 +57,27 @@ import {
 import { Grid } from "./code/game/map/grid";
 import { getShortestPath } from "./code/game/map/path-finding";
 import { WorldPos } from "./code/game/map/position";
-import { useObservable } from "./code/misc/observable";
-import { useRef } from "./code/misc/ref";
+import { StateMachine } from "./code/game/state-machine";
 import { IVec2, Vec2 } from "./code/misc/vec2";
 import { IVec3, Vec3 } from "./code/misc/vec3";
 
-function loadCellClusterDefault(input: {
+function getOrCreateCell_(input_: { worldPos: WorldPos }) {
+  return getOrCreateCell({
+    worldPos: input_.worldPos,
+    cellHasBomb: (input_) =>
+      cellHasBomb({
+        seed: seed,
+        worldPos: input_.worldPos,
+        bombProbability:
+          Math.abs(input_.worldPos.x) <= 1 && Math.abs(input_.worldPos.y) <= 1
+            ? 0
+            : 0.15,
+      }),
+    grid: grid,
+  });
+}
+
+function loadCellCluster_(input: {
   seed: number;
   startPos: WorldPos;
   grid: Grid<IRuntimeCellInfos>;
@@ -69,139 +85,116 @@ function loadCellClusterDefault(input: {
   loadCellCluster({
     startPos: input.startPos,
     getOrCreateCell: (input_) =>
-      getOrCreateCell({
+      getOrCreateCell_({
         worldPos: input_.worldPos,
-        cellHasBomb: (input_) =>
-          cellHasBomb({
-            seed: input.seed,
-            worldPos: input_.worldPos,
-            bombProbability:
-              Math.abs(input_.worldPos.x) <= 1 &&
-              Math.abs(input_.worldPos.y) <= 1
-                ? 0
-                : 0.15,
-          }),
-        grid: input.grid,
       }),
   });
 }
 
-function drawLayerCellDefault(input: {
-  halfCellSize: number;
-  images: Images;
-}): IDrawCell[] {
-  return [
-    (input_) => {
-      if (input_.cellInfos === undefined || input_.cellInfos.hidden) {
-        return;
-      }
-
-      drawCellImage({
-        canvasCtx: input_.canvasCtx,
-        halfCellSize: input.halfCellSize,
-        screenPos: input_.screenPos,
-        camera: input_.camera,
-        image: input.images.getImage("ground")!,
-      });
-
-      if (
-        input_.cellInfos?.revealed &&
-        input_.cellInfos?.numAdjacentBombs !== undefined
-      ) {
-        input_.canvasCtx.save();
-        input_.canvasCtx.fillStyle = "white";
-        input_.canvasCtx.textAlign = "center";
-        input_.canvasCtx.textBaseline = "middle";
-        input_.canvasCtx.font = `${28 * input_.camera.zoom}px "Segoe UI"`;
-        input_.canvasCtx.fillText(
-          input_.cellInfos.numAdjacentBombs.toString(),
-          input_.screenPos.x,
-          input_.screenPos.y
-        );
-        input_.canvasCtx.restore();
-      }
-    },
-    (input_) => {
-      if (input_.cellInfos === undefined || input_.cellInfos.hidden) {
-        return;
-      }
-
-      if (!input_.cellInfos?.revealed) {
-        drawCellImage({
-          canvasCtx: input_.canvasCtx,
-          halfCellSize: input.halfCellSize,
-          screenPos: input_.screenPos,
-          camera: input_.camera,
-          image: input.images.getImage("wall")!,
-        });
-      }
-
-      if (input_.cellInfos?.creatures?.includes("player")) {
-        drawCellImage({
-          canvasCtx: input_.canvasCtx,
-          halfCellSize: input.halfCellSize,
-          screenPos: input_.screenPos,
-          camera: input_.camera,
-          image: input.images.getImage("character")!,
-        });
-      }
-    },
-  ];
-}
-
 const canvasRef = ref<HTMLCanvasElement>();
 
-const camera = useRef(new Camera());
+const camera = ref(new Camera());
 
-const playerHP = useRef(100);
+const playerHP = ref(3);
+const playerMaxHP = ref(3);
 
 const seed = Math.round(Math.random() * Number.MAX_SAFE_INTEGER);
-const grid = new Grid<IRuntimeCellInfos>();
 
-grid.setCell(new WorldPos(), {
-  creatures: ["player"],
-});
-
-const creatures = new Creatures();
-creatures.set("player", { pos: new WorldPos() });
-
-const canvasCtx = useRef<CanvasRenderingContext2D>();
+const canvasCtx = ref<CanvasRenderingContext2D>();
 
 const images = new Images();
 
-const cellSize = useRef(48);
-const halfCellSize = useObservable(cellSize, (value) => value / 2);
+const cellSize = ref(48);
+const halfCellSize = computed(() => cellSize.value / 2);
 
 const entities = new Entities();
 
-const mouseScreenPos = useRef<IVec2>();
-const mouseWorldPos = useRef<IVec3>();
+const mouseScreenPos = ref<IVec2>();
+const mouseWorldPos = ref<IVec3>();
 
-entities.add(
-  new GameMap({
-    grid: grid,
-    images: images,
-    cellSize: cellSize,
-    camera: camera,
-    mouseScreenPos: mouseScreenPos,
-    bgColor: useRef("black"),
-    drawLayerCell: drawLayerCellDefault({
-      halfCellSize: halfCellSize.value,
-      images: images,
+const playerEntity = new Player({
+  animMachine: new StateMachine({
+    initialState: ref("idle"),
+    data: reactive({
+      hp: playerHP,
+      maxHP: playerMaxHP,
     }),
-  })
-);
+    transitions: [
+      { from: "idle", to: "move", condition: (data) => data.hp > 0 },
+    ],
+  }),
+  hp: playerHP,
+  maxHP: playerMaxHP,
+  worldPos: ref(new Vec3(0, 0, 0)),
+  images: images,
+});
+
+const grid = new Grid<IRuntimeCellInfos>();
+
+grid.setCell(new WorldPos(), { entities: [playerEntity] });
+
+const mapEntity = new GameMap({
+  grid: grid,
+  cellSize: cellSize,
+  camera: camera,
+  mouseScreenPos: mouseScreenPos,
+  bgColor: ref("black"),
+  cellEntities: new Entities([playerEntity]),
+  renderCell: (input_) => {
+    if (input_.cellInfos === undefined || input_.cellInfos.hidden) {
+      return;
+    }
+
+    drawCellImage({
+      canvasCtx: input_.canvasCtx,
+      halfCellSize: halfCellSize.value,
+      screenPos: input_.screenPos,
+      camera: input_.camera,
+      image: images.getImage("ground")!,
+    });
+
+    if (
+      input_.cellInfos?.revealed &&
+      input_.cellInfos?.numAdjacentBombs !== undefined
+    ) {
+      input_.canvasCtx.save();
+      input_.canvasCtx.fillStyle = "white";
+      input_.canvasCtx.textAlign = "center";
+      input_.canvasCtx.textBaseline = "middle";
+      input_.canvasCtx.font = `${28 * input_.camera.zoom}px "Segoe UI"`;
+      input_.canvasCtx.fillText(
+        input_.cellInfos.numAdjacentBombs.toString(),
+        input_.screenPos.x,
+        input_.screenPos.y
+      );
+      input_.canvasCtx.restore();
+    }
+
+    if (!input_.cellInfos?.revealed) {
+      drawCellImage({
+        canvasCtx: input_.canvasCtx,
+        halfCellSize: halfCellSize.value,
+        screenPos: input_.screenPos,
+        camera: input_.camera,
+        image: images.getImage("wall")!,
+      });
+    }
+  },
+});
+
+entities.add(mapEntity);
 
 entities.add(
   new HPBar({
     hp: playerHP,
-    pos: useRef(new Vec2(0, 0)),
+    maxHP: playerMaxHP,
+    pos: ref(new Vec2(10, 10)),
   })
 );
 
 const actionManager = new ActionManager({
   loadCellCluster: (input) => {
-    loadCellClusterDefault({
+    loadCellCluster_({
       seed: seed,
       grid: grid,
       startPos: input.startPos,
@@ -209,7 +202,7 @@ const actionManager = new ActionManager({
   },
 });
 
-loadCellClusterDefault({
+loadCellCluster_({
   seed: seed,
   grid: grid,
   startPos: new WorldPos(),
@@ -219,13 +212,7 @@ useEventListener(
   () => window,
   "keydown",
   (event) => {
-    const player = creatures.get("player");
-
-    if (player == null) {
-      throw new Error("Player creature is null");
-    }
-
-    const newPlayerPos = { ...player.pos };
+    const newPlayerPos = { ...playerEntity.worldPos.value };
 
     if (event.code === "ArrowUp") {
       newPlayerPos.y -= 1;
@@ -240,7 +227,7 @@ useEventListener(
     enqueueActions({
       actionManager: actionManager,
       actions: [newPlayerPos],
-      playerCreature: player,
+      playerEntity: playerEntity,
       grid: grid,
     });
   }
@@ -264,7 +251,7 @@ function updateMousePos(event: MouseEvent) {
 }
 
 function renderFrame() {
-  camera.value.pos = { ...creatures.get("player")!.pos };
+  camera.value.pos = { ...playerEntity.worldPos.value };
 
   entities.render({ canvasCtx: canvasCtx.value! });
 
@@ -291,3 +278,4 @@ onMounted(async () => {
   renderFrame();
 });
 </script>
+./code/game/entities/entities
