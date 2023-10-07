@@ -1,15 +1,14 @@
 import { WatchStopHandle } from "vue";
 
-interface Transition<S, D extends object> {
-  from: S;
-  to: S;
-  condition: (data: D) => boolean;
+interface Transition<S, D> {
+  condition: (input: { state: S; data: D }) => boolean;
+  to: (input: { prevState: S; data: D }) => S;
 }
 
-export class StateMachine<S, D extends object> {
+export class StateMachine<D, S = string> {
   private _state: Ref<S>;
-  private _data: D;
-  private _transitions: Map<S, Transition<S, D>[]>;
+  private _data: Ref<D>;
+  private _transitions: Transition<S, D>[];
 
   private _listeners: ((value: { state: S; data: D }) => void)[] = [];
 
@@ -17,39 +16,39 @@ export class StateMachine<S, D extends object> {
 
   constructor(input: {
     initialState: Ref<S>;
-    data: D;
+    data: Ref<D>;
     transitions: Transition<S, D>[];
   }) {
     this._state = input.initialState;
     this._data = input.data;
 
-    this._transitions = new Map<S, Transition<S, D>[]>();
+    this._transitions = input.transitions;
 
-    input.transitions.forEach((transition) => {
-      let transitions = this._transitions.get(transition.from);
+    this._unwatch = watch(
+      this._data,
+      () => {
+        for (const transition of this._transitions) {
+          if (
+            transition.condition({
+              state: this._state.value,
+              data: this._data.value,
+            })
+          ) {
+            this._state.value = transition.to({
+              prevState: this._state.value,
+              data: this._data.value,
+            });
 
-      if (transitions == null) {
-        transitions = [];
+            this._listeners.forEach((listener) =>
+              listener({ state: this._state.value, data: this._data.value })
+            );
 
-        this._transitions.set(transition.from, transitions);
-      }
-
-      transitions.push(transition);
-    });
-
-    this._unwatch = watch(this._data, () => {
-      const transitions = this._transitions.get(this._state.value);
-
-      for (const transition of transitions ?? []) {
-        if (transition.condition(this._data)) {
-          this._state.value = transition.to;
-
-          this._listeners.forEach((listener) =>
-            listener({ state: this._state.value, data: this._data })
-          );
+            break;
+          }
         }
-      }
-    });
+      },
+      { deep: true }
+    );
   }
 
   destroy(): void {
@@ -57,6 +56,10 @@ export class StateMachine<S, D extends object> {
   }
 
   get state() {
-    return this._state;
+    return this._state.value;
+  }
+
+  get data() {
+    return this._data.value;
   }
 }

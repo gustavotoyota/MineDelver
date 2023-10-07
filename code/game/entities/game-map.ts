@@ -1,7 +1,6 @@
 import { IVec2, Vec2 } from "~/code/misc/vec2";
 import { Vec3 } from "~/code/misc/vec3";
 import { ICamera, screenToWorld, worldToScreen } from "../camera";
-import { Images } from "../images";
 import { IRuntimeCellInfos } from "../map/cells";
 import { Grid } from "../map/grid";
 import { WorldPos } from "../map/position";
@@ -107,6 +106,27 @@ export class GameMap implements IEntity {
             cellInfos: cellInfos,
             camera: this._camera.value,
           });
+        }
+      }
+
+      for (let y = 0; y < gridSegment.cells[0].length; y++) {
+        const row = gridSegment.cells[0][y];
+
+        for (let x = 0; x < row.length; x++) {
+          const cellInfos = row[x];
+
+          const worldPos = new WorldPos(
+            gridSegment.from.x + x,
+            gridSegment.from.y + y,
+            gridSegment.from.z
+          );
+
+          const screenPos = worldToScreen({
+            screenSize: screenSize,
+            camera: this._camera.value,
+            worldPos: worldPos,
+            cellSize: this._cellSize.value,
+          });
 
           for (const entity of cellInfos?.entities ?? []) {
             entityHooks.get(entity)?.onCellRender?.forEach((listener) => {
@@ -114,8 +134,10 @@ export class GameMap implements IEntity {
                 canvasCtx: input.canvasCtx,
                 worldPos: worldPos,
                 screenPos: screenPos,
+                screenSize: screenSize,
                 cellInfos: cellInfos,
                 camera: this._camera.value,
+                cellSize: this._cellSize.value,
                 halfCellSize: this._cellSize.value / 2,
               });
             });

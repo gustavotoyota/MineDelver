@@ -85,7 +85,13 @@ function processBomb(input: {
   );
 
   for (const neighbourCell of neighbourCells) {
-    if (!neighbourCell.hasBomb) {
+    if (neighbourCell.hasBomb) {
+      processBomb({
+        cell: neighbourCell,
+        worldPos: neighbourPositions[neighbourCells.indexOf(neighbourCell)],
+        getOrCreateCell: input.getOrCreateCell,
+      });
+    } else {
       neighbourCell.numAdjacentBombs =
         (neighbourCell.numAdjacentBombs ?? 0) + 1;
     }
@@ -98,6 +104,8 @@ export function loadCellCluster(input: {
 }): boolean {
   const stack = [input.startPos];
   const visited = new Set<string>();
+
+  delete input.getOrCreateCell({ worldPos: input.startPos }).hidden;
 
   while (stack.length > 0) {
     const worldPos = stack.pop()!;

@@ -28,18 +28,6 @@ export class Entities<T extends IEntity> {
     entityHooks.set(entity, _hooks);
   }
 
-  update() {
-    this.list.forEach((entity) => {
-      const hooks = entityHooks.get(entity);
-
-      if (hooks == null) {
-        return;
-      }
-
-      hooks.onUpdate?.forEach((listener) => listener());
-    });
-  }
-
   render(input: { canvasCtx: CanvasRenderingContext2D }) {
     this.list.forEach((entity) => {
       const hooks = entityHooks.get(entity);
@@ -77,10 +65,6 @@ export function onCreate(listener: () => void) {
   _hooks.onCreate ??= [];
   _hooks.onCreate.push(listener);
 }
-export function onUpdate(listener: () => void) {
-  _hooks.onUpdate ??= [];
-  _hooks.onUpdate.push(listener);
-}
 export function onRender(
   listener: (input: { canvasCtx: CanvasRenderingContext2D }) => void
 ) {
@@ -91,6 +75,7 @@ export function onCellRender(
   listener: (input: {
     worldPos: WorldPos;
     screenPos: IVec2;
+    screenSize: IVec2;
     canvasCtx: CanvasRenderingContext2D;
     camera: ICamera;
     cellSize: number;

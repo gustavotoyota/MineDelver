@@ -3,7 +3,7 @@ import { IVec2 } from "@/code/misc/vec2";
 import { IVec3, vec2To3 } from "@/code/misc/vec3";
 import { IRuntimeCellInfos } from "@/code/game/map/cells";
 import { Grid } from "@/code/game/map/grid";
-import { ICellEntity } from "../entities/cell-entity";
+import { PlayerEntity } from "./player";
 
 export interface IActionManager {
   queue: IVec2[];
@@ -41,7 +41,7 @@ export function cancelActions(actionManager: IActionManager) {
 
 export function executeNextAction(input: {
   actionManager: IActionManager;
-  playerEntity: ICellEntity;
+  playerEntity: PlayerEntity;
   grid: Grid<IRuntimeCellInfos>;
   loadCellCluster: (input: { startPos: IVec3 }) => void;
 }): IVec2 | undefined {
@@ -54,32 +54,7 @@ export function executeNextAction(input: {
     input.playerEntity.worldPos.value.z
   );
 
-  const newCell = input.grid.getCell(newPlayerPos);
-
-  if (newCell == null) {
-    throw new Error("New cell is null");
-  }
-
-  if (!newCell.revealed) {
-    input.loadCellCluster({ startPos: newPlayerPos });
-  }
-
-  const oldCell = input.grid.getCell(input.playerEntity.worldPos.value);
-
-  if (oldCell == null) {
-    throw new Error("Cell is null");
-  }
-
-  pull(oldCell.entities ?? [], input.playerEntity);
-
-  if (oldCell.entities?.length === 0) {
-    delete oldCell.entities;
-  }
-
-  newCell.entities ??= [];
-  newCell.entities.push(input.playerEntity);
-
-  input.playerEntity.worldPos.value = newPlayerPos;
+  input.playerEntity.walk({ targetPos: newPlayerPos });
 
   if (input.actionManager.queue.length > 0) {
     input.actionManager.timeout = setTimeout(() => {
@@ -91,7 +66,7 @@ export function executeNextAction(input: {
 export function enqueueActions(input: {
   actionManager: IActionManager;
   actions: IVec2[];
-  playerEntity: ICellEntity;
+  playerEntity: PlayerEntity;
   grid: Grid<IRuntimeCellInfos>;
 }) {
   cancelActions(input.actionManager);

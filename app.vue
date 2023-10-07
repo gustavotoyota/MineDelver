@@ -41,11 +41,13 @@
 import { ref } from "vue";
 import { useEventListener } from "./code/composables/use-event-listener";
 import { Camera, screenToWorld } from "./code/game/camera";
-import { ActionManager, enqueueActions } from "./code/game/creatures/actions";
+import {
+  ActionManager,
+  enqueueActions,
+} from "./code/game/entities/player/actions";
 import { Entities } from "./code/game/entities/entities";
 import { GameMap, IRenderCell } from "./code/game/entities/game-map";
 import { HPBar } from "./code/game/entities/hp-bar";
-import { Player } from "./code/game/entities/player";
 import { drawCellImage } from "./code/game/graphics/draw-cell";
 import { Images } from "./code/game/images";
 import {
@@ -60,6 +62,7 @@ import { WorldPos } from "./code/game/map/position";
 import { StateMachine } from "./code/game/state-machine";
 import { IVec2, Vec2 } from "./code/misc/vec2";
 import { IVec3, Vec3 } from "./code/misc/vec3";
+import { PlayerEntity } from "./code/game/entities/player/player";
 
 function getOrCreateCell_(input_: { worldPos: WorldPos }) {
   return getOrCreateCell({
@@ -82,7 +85,7 @@ function loadCellCluster_(input: {
   startPos: WorldPos;
   grid: Grid<IRuntimeCellInfos>;
 }) {
-  loadCellCluster({
+  return loadCellCluster({
     startPos: input.startPos,
     getOrCreateCell: (input_) =>
       getOrCreateCell_({
@@ -92,6 +95,8 @@ function loadCellCluster_(input: {
 }
 
 const canvasRef = ref<HTMLCanvasElement>();
+
+const currentTime = ref(Date.now());
 
 const camera = ref(new Camera());
 
@@ -112,24 +117,23 @@ const entities = new Entities();
 const mouseScreenPos = ref<IVec2>();
 const mouseWorldPos = ref<IVec3>();
 
-const playerEntity = new Player({
-  animMachine: new StateMachine({
-    initialState: ref("idle"),
-    data: reactive({
-      hp: playerHP,
-      maxHP: playerMaxHP,
-    }),
-    transitions: [
-      { from: "idle", to: "move", condition: (data) => data.hp > 0 },
-    ],
-  }),
+const grid = new Grid<IRuntimeCellInfos>();
+
+const playerEntity = new PlayerEntity({
   hp: playerHP,
   maxHP: playerMaxHP,
   worldPos: ref(new Vec3(0, 0, 0)),
   images: images,
+  grid: grid,
+  loadCellCluster: (input) =>
+    loadCellCluster_({
+      seed: seed,
+      grid: grid,
+      startPos: input.startPos,
+    }),
+  currentTime: currentTime,
+  walkDuration: ref(200),
 });
-
-const grid = new Grid<IRuntimeCellInfos>();
 
 grid.setCell(new WorldPos(), { entities: [playerEntity] });
 
@@ -202,6 +206,14 @@ const actionManager = new ActionManager({
   },
 });
 
+watch(playerHP, () => {
+  if (playerHP.value === 0) {
+    setTimeout(() => {
+      alert("You died!");
+    });
+  }
+});
+
 loadCellCluster_({
   seed: seed,
   grid: grid,
@@ -212,24 +224,26 @@ useEventListener(
   () => window,
   "keydown",
   (event) => {
-    const newPlayerPos = { ...playerEntity.worldPos.value };
+    if (event.code.startsWith("Arrow")) {
+      const newPlayerPos = { ...playerEntity.worldPos.value };
 
-    if (event.code === "ArrowUp") {
-      newPlayerPos.y -= 1;
-    } else if (event.code === "ArrowDown") {
-      newPlayerPos.y += 1;
-    } else if (event.code === "ArrowLeft") {
-      newPlayerPos.x -= 1;
-    } else if (event.code === "ArrowRight") {
-      newPlayerPos.x += 1;
+      if (event.code === "ArrowUp") {
+        newPlayerPos.y -= 1;
+      } else if (event.code === "ArrowDown") {
+        newPlayerPos.y += 1;
+      } else if (event.code === "ArrowLeft") {
+        newPlayerPos.x -= 1;
+      } else if (event.code === "ArrowRight") {
+        newPlayerPos.x += 1;
+      }
+
+      enqueueActions({
+        actionManager: actionManager,
+        actions: [newPlayerPos],
+        playerEntity: playerEntity,
+        grid: grid,
+      });
     }
-
-    enqueueActions({
-      actionManager: actionManager,
-      actions: [newPlayerPos],
-      playerEntity: playerEntity,
-      grid: grid,
-    });
   }
 );
 
@@ -251,7 +265,9 @@ function updateMousePos(event: MouseEvent) {
 }
 
 function renderFrame() {
-  camera.value.pos = { ...playerEntity.worldPos.value };
+  currentTime.value = Date.now();
+
+  camera.value.pos = { ...playerEntity.finalWorldPos };
 
   entities.render({ canvasCtx: canvasCtx.value! });
 
@@ -278,4 +294,3 @@ onMounted(async () => {
   renderFrame();
 });
 </script>
-./code/game/entities/entities
