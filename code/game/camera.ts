@@ -1,6 +1,6 @@
-import { IVec2, Vec2 } from "../misc/vec2";
-import { IVec3, Vec3 } from "../misc/vec3";
-import { WorldPos } from "./position";
+import { IVec2, Vec2 } from "@/code/misc/vec2";
+import { IVec3, Vec3 } from "@/code/misc/vec3";
+import { WorldPos } from "./map/position";
 
 export interface ICamera {
   pos: WorldPos;

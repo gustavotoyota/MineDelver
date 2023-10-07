@@ -1,7 +1,7 @@
-import { IGridSegment } from "../misc/grid-segment";
-import { IRect3 } from "../misc/rect3";
-import { IVec2 } from "../misc/vec2";
-import { ICamera, screenToWorld } from "./camera";
+import { IGridSegment } from "./grid-segment";
+import { IRect3 } from "../../misc/rect3";
+import { IVec2 } from "../../misc/vec2";
+import { ICamera, screenToWorld } from "../camera";
 import { Grid } from "./grid";
 import { IRuntimeCellInfos } from "./cells";
 import { WorldPos } from "./position";

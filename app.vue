@@ -7,8 +7,8 @@
       @mousemove="(event) => updateMousePos(event)"
       @mouseleave="
         () => {
-          mouseScreenPos = undefined;
-          mouseWorldPos = undefined;
+          mouseScreenPos.value = undefined;
+          mouseWorldPos.value = undefined;
         }
       "
       @mousedown="
@@ -17,8 +17,8 @@
           
           const shortestPath = getShortestPath({
             grid: grid,
-            sourcePos: entities.get('player')!.pos,
-            targetPos: mouseWorldPos!,
+            sourcePos: creatures.get('player')!.pos,
+            targetPos: mouseWorldPos.value!,
           });
 
           if (shortestPath == null) {
@@ -28,7 +28,7 @@
           enqueueActions({
             actionManager: actionManager,
             actions: shortestPath.toReversed(),
-            playerEntity: entities.get('player')!,
+            playerCreature: creatures.get('player')!,
             grid
           });
         }
@@ -40,50 +40,164 @@
 <script setup lang="ts">
 import { useEventListener } from "./code/composables/use-event-listener";
 import { Camera, screenToWorld } from "./code/game/camera";
-import { IRuntimeCellInfos } from "./code/game/cells";
-import { drawGame } from "./code/game/drawing/draw-game";
+import { ActionManager, enqueueActions } from "./code/game/creatures/actions";
+import { Creatures } from "./code/game/creatures/creatures";
 import { Entities } from "./code/game/entities";
-import { Grid } from "./code/game/grid";
+import { GameMap, IDrawCell } from "./code/game/entities/game-map";
+import { HPBar } from "./code/game/entities/hp-bar";
+import { drawCellImage } from "./code/game/graphics/draw-cell";
 import { Images } from "./code/game/images";
-import { ActionManager, enqueueActions } from "./code/game/actions";
-import { getShortestPath } from "./code/game/path-finding";
-import { WorldPos } from "./code/game/position";
 import {
-  drawLayerCellDefault,
-  loadCellClusterDefault,
-} from "./code/game/setup";
-import {
-  getGridSegmentFromWorldRect,
-  getVisibleWorldRect,
-} from "./code/game/visible-cells";
+  IRuntimeCellInfos,
+  cellHasBomb,
+  getOrCreateCell,
+  loadCellCluster,
+} from "./code/game/map/cells";
+import { Grid } from "./code/game/map/grid";
+import { getShortestPath } from "./code/game/map/path-finding";
+import { WorldPos } from "./code/game/map/position";
+import { useObservable } from "./code/misc/observable";
+import { useRef } from "./code/misc/ref";
 import { IVec2, Vec2 } from "./code/misc/vec2";
-import { IVec3 } from "./code/misc/vec3";
+import { IVec3, Vec3 } from "./code/misc/vec3";
+
+function loadCellClusterDefault(input: {
+  seed: number;
+  startPos: WorldPos;
+  grid: Grid<IRuntimeCellInfos>;
+}) {
+  loadCellCluster({
+    startPos: input.startPos,
+    getOrCreateCell: (input_) =>
+      getOrCreateCell({
+        worldPos: input_.worldPos,
+        cellHasBomb: (input_) =>
+          cellHasBomb({
+            seed: input.seed,
+            worldPos: input_.worldPos,
+            bombProbability:
+              Math.abs(input_.worldPos.x) <= 1 &&
+              Math.abs(input_.worldPos.y) <= 1
+                ? 0
+                : 0.15,
+          }),
+        grid: input.grid,
+      }),
+  });
+}
+
+function drawLayerCellDefault(input: {
+  halfCellSize: number;
+  images: Images;
+}): IDrawCell[] {
+  return [
+    (input_) => {
+      if (input_.cellInfos === undefined || input_.cellInfos.hidden) {
+        return;
+      }
+
+      drawCellImage({
+        canvasCtx: input_.canvasCtx,
+        halfCellSize: input.halfCellSize,
+        screenPos: input_.screenPos,
+        camera: input_.camera,
+        image: input.images.getImage("ground")!,
+      });
+
+      if (
+        input_.cellInfos?.revealed &&
+        input_.cellInfos?.numAdjacentBombs !== undefined
+      ) {
+        input_.canvasCtx.save();
+        input_.canvasCtx.fillStyle = "white";
+        input_.canvasCtx.textAlign = "center";
+        input_.canvasCtx.textBaseline = "middle";
+        input_.canvasCtx.font = `${28 * input_.camera.zoom}px "Segoe UI"`;
+        input_.canvasCtx.fillText(
+          input_.cellInfos.numAdjacentBombs.toString(),
+          input_.screenPos.x,
+          input_.screenPos.y
+        );
+        input_.canvasCtx.restore();
+      }
+    },
+    (input_) => {
+      if (input_.cellInfos === undefined || input_.cellInfos.hidden) {
+        return;
+      }
+
+      if (!input_.cellInfos?.revealed) {
+        drawCellImage({
+          canvasCtx: input_.canvasCtx,
+          halfCellSize: input.halfCellSize,
+          screenPos: input_.screenPos,
+          camera: input_.camera,
+          image: input.images.getImage("wall")!,
+        });
+      }
+
+      if (input_.cellInfos?.creatures?.includes("player")) {
+        drawCellImage({
+          canvasCtx: input_.canvasCtx,
+          halfCellSize: input.halfCellSize,
+          screenPos: input_.screenPos,
+          camera: input_.camera,
+          image: input.images.getImage("character")!,
+        });
+      }
+    },
+  ];
+}
 
 const canvasRef = ref<HTMLCanvasElement>();
 
-const camera = new Camera();
+const camera = useRef(new Camera());
+
+const playerHP = useRef(100);
 
 const seed = Math.round(Math.random() * Number.MAX_SAFE_INTEGER);
 const grid = new Grid<IRuntimeCellInfos>();
 
 grid.setCell(new WorldPos(), {
-  entities: ["player"],
+  creatures: ["player"],
 });
 
-const entities = new Entities();
-entities.set("player", {
-  pos: new WorldPos(),
-});
+const creatures = new Creatures();
+creatures.set("player", { pos: new WorldPos() });
 
-let canvasCtx: CanvasRenderingContext2D;
+const canvasCtx = useRef<CanvasRenderingContext2D>();
 
 const images = new Images();
 
-const cellSize = 48;
-const halfCellSize = cellSize / 2;
+const cellSize = useRef(48);
+const halfCellSize = useObservable(cellSize, (value) => value / 2);
 
-let mouseScreenPos: IVec2 | undefined;
-let mouseWorldPos: IVec3 | undefined;
+const entities = new Entities();
+
+const mouseScreenPos = useRef<IVec2>();
+const mouseWorldPos = useRef<IVec3>();
+
+entities.add(
+  new GameMap({
+    grid: grid,
+    images: images,
+    cellSize: cellSize,
+    camera: camera,
+    mouseScreenPos: mouseScreenPos,
+    bgColor: useRef("black"),
+    drawLayerCell: drawLayerCellDefault({
+      halfCellSize: halfCellSize.value,
+      images: images,
+    }),
+  })
+);
+
+entities.add(
+  new HPBar({
+    hp: playerHP,
+    pos: useRef(new Vec2(0, 0)),
+  })
+);
 
 const actionManager = new ActionManager({
   loadCellCluster: (input) => {
@@ -95,14 +209,20 @@ const actionManager = new ActionManager({
   },
 });
 
+loadCellClusterDefault({
+  seed: seed,
+  grid: grid,
+  startPos: new WorldPos(),
+});
+
 useEventListener(
   () => window,
   "keydown",
   (event) => {
-    const player = entities.get("player");
+    const player = creatures.get("player");
 
     if (player == null) {
-      throw new Error("Player entity is null");
+      throw new Error("Player creature is null");
     }
 
     const newPlayerPos = { ...player.pos };
@@ -120,52 +240,33 @@ useEventListener(
     enqueueActions({
       actionManager: actionManager,
       actions: [newPlayerPos],
-      playerEntity: player,
+      playerCreature: player,
       grid: grid,
     });
   }
 );
 
 function updateMousePos(event: MouseEvent) {
-  mouseScreenPos = new Vec2(event.offsetX, event.offsetY);
+  mouseScreenPos.value = new Vec2(event.offsetX, event.offsetY);
 
-  mouseWorldPos = screenToWorld({
-    camera: camera,
-    cellSize: cellSize,
+  mouseWorldPos.value = screenToWorld({
+    camera: camera.value,
+    cellSize: cellSize.value,
     screenSize: new Vec2(canvasRef.value!.width, canvasRef.value!.height),
-    screenPos: mouseScreenPos,
+    screenPos: mouseScreenPos.value,
   });
 
-  mouseWorldPos.x = Math.round(mouseWorldPos.x);
-  mouseWorldPos.y = Math.round(mouseWorldPos.y);
+  mouseWorldPos.value = new Vec3(
+    Math.round(mouseWorldPos.value.x),
+    Math.round(mouseWorldPos.value.y),
+    Math.round(mouseWorldPos.value.z)
+  );
 }
 
 function renderFrame() {
-  const visibleWorldRect = getVisibleWorldRect({
-    screenSize: new Vec2(canvasCtx.canvas.width, canvasCtx.canvas.height),
-    camera: camera,
-    cellSize: cellSize,
-  });
+  camera.value.pos = { ...creatures.get("player")!.pos };
 
-  const gridSegment = getGridSegmentFromWorldRect({
-    grid: grid,
-    worldRect: visibleWorldRect,
-  });
-
-  camera.pos = { ...entities.get("player")!.pos };
-
-  drawGame({
-    canvasCtx: canvasCtx!,
-    camera: camera,
-    bgColor: "#000000",
-    cellSize: cellSize,
-    gridSegment: gridSegment,
-    mouseScreenPos: mouseScreenPos,
-    drawLayerCell: drawLayerCellDefault({
-      images: images,
-      halfCellSize: halfCellSize,
-    }),
-  });
+  entities.render({ canvasCtx: canvasCtx.value! });
 
   requestAnimationFrame(renderFrame);
 }
@@ -181,19 +282,12 @@ onMounted(async () => {
     throw new Error("Canvas is null");
   }
 
-  canvasCtx = canvasRef.value.getContext("2d")!;
+  canvasCtx.value = canvasRef.value.getContext("2d")!;
 
   if (canvasCtx == null) {
     throw new Error("Canvas context is null");
   }
 
-  loadCellClusterDefault({
-    seed: seed,
-    grid: grid,
-    startPos: new WorldPos(),
-  });
-
   renderFrame();
 });
 </script>
-./code/game/grid ./code/game/actions

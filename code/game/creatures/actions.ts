@@ -1,9 +1,9 @@
 import { pull } from "lodash";
-import { IVec2 } from "../misc/vec2";
-import { IVec3, vec2To3 } from "../misc/vec3";
-import { IRuntimeCellInfos } from "./cells";
-import { Entity } from "./entities";
-import { Grid } from "./grid";
+import { IVec2 } from "@/code/misc/vec2";
+import { IVec3, vec2To3 } from "@/code/misc/vec3";
+import { IRuntimeCellInfos } from "@/code/game/map/cells";
+import { Creature } from "~/code/game/creatures/creatures";
+import { Grid } from "@/code/game/map/grid";
 
 export interface IActionManager {
   queue: IVec2[];
@@ -11,6 +11,12 @@ export interface IActionManager {
   timeout?: NodeJS.Timeout;
 
   loadCellCluster: (input: { startPos: IVec3 }) => void;
+}
+
+export interface IAction {
+  type: string;
+
+  [key: string]: any;
 }
 
 export class ActionManager implements IActionManager {
@@ -35,7 +41,7 @@ export function cancelActions(actionManager: IActionManager) {
 
 export function executeNextAction(input: {
   actionManager: IActionManager;
-  playerEntity: Entity;
+  playerCreature: Creature;
   grid: Grid<IRuntimeCellInfos>;
   loadCellCluster: (input: { startPos: IVec3 }) => void;
 }): IVec2 | undefined {
@@ -45,7 +51,7 @@ export function executeNextAction(input: {
 
   const newPlayerPos = vec2To3(
     input.actionManager.queue.pop()!,
-    input.playerEntity.pos.z
+    input.playerCreature.pos.z
   );
 
   const newCell = input.grid.getCell(newPlayerPos);
@@ -58,22 +64,22 @@ export function executeNextAction(input: {
     input.loadCellCluster({ startPos: newPlayerPos });
   }
 
-  const oldCell = input.grid.getCell(input.playerEntity.pos);
+  const oldCell = input.grid.getCell(input.playerCreature.pos);
 
   if (oldCell == null) {
     throw new Error("Cell is null");
   }
 
-  pull(oldCell.entities ?? [], "player");
+  pull(oldCell.creatures ?? [], "player");
 
-  if (oldCell.entities?.length === 0) {
-    delete oldCell.entities;
+  if (oldCell.creatures?.length === 0) {
+    delete oldCell.creatures;
   }
 
-  newCell.entities ??= [];
-  newCell.entities.push("player");
+  newCell.creatures ??= [];
+  newCell.creatures.push("player");
 
-  input.playerEntity.pos = newPlayerPos;
+  input.playerCreature.pos = newPlayerPos;
 
   if (input.actionManager.queue.length > 0) {
     input.actionManager.timeout = setTimeout(() => {
@@ -85,7 +91,7 @@ export function executeNextAction(input: {
 export function enqueueActions(input: {
   actionManager: IActionManager;
   actions: IVec2[];
-  playerEntity: Entity;
+  playerCreature: Creature;
   grid: Grid<IRuntimeCellInfos>;
 }) {
   cancelActions(input.actionManager);
@@ -94,7 +100,7 @@ export function enqueueActions(input: {
 
   executeNextAction({
     actionManager: input.actionManager,
-    playerEntity: input.playerEntity,
+    playerCreature: input.playerCreature,
     grid: input.grid,
     loadCellCluster: input.actionManager.loadCellCluster,
   });

@@ -1,6 +1,12 @@
 import Heap from "heap";
-import { IVec2, Vec2, dist2D, distChebyshev2D, equal2D } from "../misc/vec2";
-import { IVec3, vec2To3 } from "../misc/vec3";
+import {
+  IVec2,
+  Vec2,
+  dist2D,
+  distChebyshev2D,
+  equal2D,
+} from "@/code/misc/vec2";
+import { IVec3, vec2To3 } from "@/code/misc/vec3";
 import { IRuntimeCellInfos } from "./cells";
 import { Grid } from "./grid";
 
@@ -11,7 +17,7 @@ interface PosInfo {
   guessScore: number;
 }
 
-export function reconstructPath(input: {
+function _reconstructPath(input: {
   posInfos: Map<string, PosInfo>;
   currentPos: IVec2;
   sourcePos: IVec2;
@@ -65,7 +71,7 @@ export function getShortestPath(input: {
     closedSet.add(key);
 
     if (equal2D(currentPosInfo.pos, input.targetPos)) {
-      return reconstructPath({
+      return _reconstructPath({
         posInfos: posInfos,
         currentPos: currentPosInfo.pos,
         sourcePos: input.sourcePos,
@@ -100,7 +106,7 @@ export function getShortestPath(input: {
       if (!neighbourCell?.revealed) {
         if (equal2D(neighbourPos, input.targetPos)) {
           return [
-            ...reconstructPath({
+            ..._reconstructPath({
               posInfos: posInfos,
               currentPos: currentPosInfo.pos,
               sourcePos: input.sourcePos,

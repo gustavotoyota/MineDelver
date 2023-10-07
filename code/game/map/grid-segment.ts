@@ -1,4 +1,4 @@
-import { WorldPos } from "../game/position";
+import { WorldPos } from "./position";
 
 export interface IGridSegment<T> {
   from: WorldPos;

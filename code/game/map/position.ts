@@ -1,5 +1,5 @@
 import { IVec3, Vec3 } from "@/code/misc/vec3";
-import { IRect3 } from "../misc/rect3";
+import { IRect3 } from "~/code/misc/rect3";
 
 export type WorldPos = IVec3;
 
