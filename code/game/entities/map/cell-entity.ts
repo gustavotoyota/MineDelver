@@ -1,8 +1,8 @@
 import { IVec3 } from "~/code/misc/vec3";
-import { IEntity } from "./entities";
 import { pull } from "lodash";
-import { Grid } from "../map/grid";
-import { IRuntimeCellInfos } from "../map/cells";
+import { IEntity } from "../entities";
+import { IRuntimeCellInfos } from "../../map/cells";
+import { Grid } from "../../map/grid";
 
 export interface ICellEntity extends IEntity {
   worldPos: Ref<IVec3>;

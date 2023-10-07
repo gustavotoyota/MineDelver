@@ -1,5 +1,5 @@
+import { StateMachine } from "~/code/game/state-machine";
 import { IVec3 } from "~/code/misc/vec3";
-import { StateMachine } from "../../state-machine";
 
 export type PlayerWalkData =
   | {
@@ -9,6 +9,13 @@ export type PlayerWalkData =
       endTime: number;
     }
   | undefined;
+
+export function isPlayerWalking(input: {
+  walkData: PlayerWalkData;
+  currentTime: number;
+}): boolean {
+  return input.walkData != null && input.currentTime < input.walkData.endTime;
+}
 
 export interface PlayerAnimData {
   hp: number;

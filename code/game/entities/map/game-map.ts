@@ -1,15 +1,16 @@
 import { IVec2, Vec2 } from "~/code/misc/vec2";
 import { Vec3 } from "~/code/misc/vec3";
-import { ICamera, screenToWorld, worldToScreen } from "../camera";
-import { IRuntimeCellInfos } from "../map/cells";
-import { Grid } from "../map/grid";
-import { WorldPos } from "../map/position";
+import { ICellEntity } from "./cell-entity";
+import { WorldPos } from "../../map/position";
+import { IRuntimeCellInfos } from "../../map/cells";
+import { ICamera, screenToWorld, worldToScreen } from "../../camera";
+import { Entities, IEntity, entityHooks, onRender } from "../entities";
+import { Grid } from "../../map/grid";
 import {
   getGridSegmentFromWorldRect,
   getVisibleWorldRect,
-} from "../map/visible-cells";
-import { ICellEntity } from "./cell-entity";
-import { Entities, IEntity, entityHooks, onRender } from "./entities";
+} from "../../map/visible-cells";
+import { IGridSegment } from "../../map/grid-segment";
 
 export interface IRenderCell {
   (input: {
@@ -27,7 +28,8 @@ export class GameMap implements IEntity {
   private _cellSize: Ref<number>;
   private _mouseScreenPos: Ref<Vec2 | undefined>;
   private _bgColor: Ref<string>;
-  private _renderCell: IRenderCell;
+  private _renderGround: IRenderCell;
+  private _renderNonGround: IRenderCell;
   private _cellEntities: Entities<ICellEntity>;
 
   constructor(input: {
@@ -36,7 +38,8 @@ export class GameMap implements IEntity {
     cellSize: Ref<number>;
     mouseScreenPos: Ref<Vec2 | undefined>;
     bgColor: Ref<string>;
-    renderCell: IRenderCell;
+    renderGround: IRenderCell;
+    renderNonGround: IRenderCell;
     cellEntities: Entities<ICellEntity>;
   }) {
     this._camera = input.camera;
@@ -44,8 +47,47 @@ export class GameMap implements IEntity {
     this._mouseScreenPos = input.mouseScreenPos;
     this._grid = input.grid;
     this._bgColor = input.bgColor;
-    this._renderCell = input.renderCell;
+    this._renderGround = input.renderGround;
+    this._renderNonGround = input.renderNonGround;
     this._cellEntities = input.cellEntities;
+  }
+
+  private _drawLayer(input: {
+    gridSegment: IGridSegment<IRuntimeCellInfos | undefined>;
+    screenSize: IVec2;
+    canvasCtx: CanvasRenderingContext2D;
+    drawCell: (input: {
+      worldPos: WorldPos;
+      screenPos: IVec2;
+      cellInfos: IRuntimeCellInfos | undefined;
+    }) => void;
+  }) {
+    for (let y = 0; y < input.gridSegment.cells[0].length; y++) {
+      const row = input.gridSegment.cells[0][y];
+
+      for (let x = 0; x < row.length; x++) {
+        const cellInfos = row[x];
+
+        const worldPos = new WorldPos(
+          input.gridSegment.from.x + x,
+          input.gridSegment.from.y + y,
+          input.gridSegment.from.z
+        );
+
+        const screenPos = worldToScreen({
+          screenSize: input.screenSize,
+          camera: this._camera.value,
+          worldPos: worldPos,
+          cellSize: this._cellSize.value,
+        });
+
+        input.drawCell({
+          worldPos: worldPos,
+          screenPos: screenPos,
+          cellInfos: cellInfos,
+        });
+      }
+    }
   }
 
   setup(): void {
@@ -80,70 +122,50 @@ export class GameMap implements IEntity {
 
       // Draw the map
 
-      for (let y = 0; y < gridSegment.cells[0].length; y++) {
-        const row = gridSegment.cells[0][y];
-
-        for (let x = 0; x < row.length; x++) {
-          const cellInfos = row[x];
-
-          const worldPos = new WorldPos(
-            gridSegment.from.x + x,
-            gridSegment.from.y + y,
-            gridSegment.from.z
-          );
-
-          const screenPos = worldToScreen({
-            screenSize: screenSize,
-            camera: this._camera.value,
-            worldPos: worldPos,
-            cellSize: this._cellSize.value,
-          });
-
-          this._renderCell({
+      this._drawLayer({
+        canvasCtx: input.canvasCtx,
+        gridSegment: gridSegment,
+        screenSize: screenSize,
+        drawCell: (input_) => {
+          this._renderGround({
             canvasCtx: input.canvasCtx,
-            worldPos: worldPos,
-            screenPos: screenPos,
-            cellInfos: cellInfos,
+            worldPos: input_.worldPos,
+            screenPos: input_.screenPos,
+            cellInfos: input_.cellInfos,
             camera: this._camera.value,
           });
-        }
-      }
+        },
+      });
 
-      for (let y = 0; y < gridSegment.cells[0].length; y++) {
-        const row = gridSegment.cells[0][y];
-
-        for (let x = 0; x < row.length; x++) {
-          const cellInfos = row[x];
-
-          const worldPos = new WorldPos(
-            gridSegment.from.x + x,
-            gridSegment.from.y + y,
-            gridSegment.from.z
-          );
-
-          const screenPos = worldToScreen({
-            screenSize: screenSize,
+      this._drawLayer({
+        canvasCtx: input.canvasCtx,
+        gridSegment: gridSegment,
+        screenSize: screenSize,
+        drawCell: (input_) => {
+          this._renderNonGround({
+            canvasCtx: input.canvasCtx,
+            worldPos: input_.worldPos,
+            screenPos: input_.screenPos,
+            cellInfos: input_.cellInfos,
             camera: this._camera.value,
-            worldPos: worldPos,
-            cellSize: this._cellSize.value,
           });
 
-          for (const entity of cellInfos?.entities ?? []) {
+          for (const entity of input_.cellInfos?.entities ?? []) {
             entityHooks.get(entity)?.onCellRender?.forEach((listener) => {
               listener({
                 canvasCtx: input.canvasCtx,
-                worldPos: worldPos,
-                screenPos: screenPos,
+                worldPos: input_.worldPos,
+                screenPos: input_.screenPos,
                 screenSize: screenSize,
-                cellInfos: cellInfos,
+                cellInfos: input_.cellInfos,
                 camera: this._camera.value,
                 cellSize: this._cellSize.value,
                 halfCellSize: this._cellSize.value / 2,
               });
             });
           }
-        }
-      }
+        },
+      });
 
       // Draw the hovered cell
 

@@ -25,12 +25,7 @@
             return;
           }
 
-          enqueueActions({
-            actionManager: actionManager,
-            actions: shortestPath.toReversed(),
-            playerEntity: playerEntity,
-            grid
-          });
+          playerMovementManager.enqueueMovements(shortestPath.toReversed());
         }
       "
     ></canvas>
@@ -41,13 +36,10 @@
 import { ref } from "vue";
 import { useEventListener } from "./code/composables/use-event-listener";
 import { Camera, screenToWorld } from "./code/game/camera";
-import {
-  ActionManager,
-  enqueueActions,
-} from "./code/game/entities/player/actions";
 import { Entities } from "./code/game/entities/entities";
-import { GameMap, IRenderCell } from "./code/game/entities/game-map";
-import { HPBar } from "./code/game/entities/hp-bar";
+import { GameMap } from "./code/game/entities/map/game-map";
+import { PlayerEntity } from "./code/game/entities/map/player/player";
+import { HPBar } from "./code/game/entities/ui/hp-bar";
 import { drawCellImage } from "./code/game/graphics/draw-cell";
 import { Images } from "./code/game/images";
 import {
@@ -59,10 +51,9 @@ import {
 import { Grid } from "./code/game/map/grid";
 import { getShortestPath } from "./code/game/map/path-finding";
 import { WorldPos } from "./code/game/map/position";
-import { StateMachine } from "./code/game/state-machine";
 import { IVec2, Vec2 } from "./code/misc/vec2";
 import { IVec3, Vec3 } from "./code/misc/vec3";
-import { PlayerEntity } from "./code/game/entities/player/player";
+import { PlayerMovementManager } from "./code/game/entities/map/player/movement-manager";
 
 function getOrCreateCell_(input_: { worldPos: WorldPos }) {
   return getOrCreateCell({
@@ -135,6 +126,10 @@ const playerEntity = new PlayerEntity({
   walkDuration: ref(200),
 });
 
+const playerMovementManager = new PlayerMovementManager({
+  playerEntity: playerEntity,
+});
+
 grid.setCell(new WorldPos(), { entities: [playerEntity] });
 
 const mapEntity = new GameMap({
@@ -144,7 +139,7 @@ const mapEntity = new GameMap({
   mouseScreenPos: mouseScreenPos,
   bgColor: ref("black"),
   cellEntities: new Entities([playerEntity]),
-  renderCell: (input_) => {
+  renderGround: (input_) => {
     if (input_.cellInfos === undefined || input_.cellInfos.hidden) {
       return;
     }
@@ -173,6 +168,11 @@ const mapEntity = new GameMap({
       );
       input_.canvasCtx.restore();
     }
+  },
+  renderNonGround: (input_) => {
+    if (input_.cellInfos === undefined || input_.cellInfos.hidden) {
+      return;
+    }
 
     if (!input_.cellInfos?.revealed) {
       drawCellImage({
@@ -195,16 +195,6 @@ entities.add(
     pos: ref(new Vec2(10, 10)),
   })
 );
-
-const actionManager = new ActionManager({
-  loadCellCluster: (input) => {
-    loadCellCluster_({
-      seed: seed,
-      grid: grid,
-      startPos: input.startPos,
-    });
-  },
-});
 
 watch(playerHP, () => {
   if (playerHP.value === 0) {
@@ -237,12 +227,7 @@ useEventListener(
         newPlayerPos.x += 1;
       }
 
-      enqueueActions({
-        actionManager: actionManager,
-        actions: [newPlayerPos],
-        playerEntity: playerEntity,
-        grid: grid,
-      });
+      playerMovementManager.enqueueMovements([newPlayerPos]);
     }
   }
 );

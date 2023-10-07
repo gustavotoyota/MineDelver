@@ -1,20 +1,20 @@
-import { IVec2 } from "~/code/misc/vec2";
-import { IEntity, onCellRender } from "../entities";
-import { StateMachine } from "../../state-machine";
-import { IVec3 } from "~/code/misc/vec3";
-import { CellEntity, ICellEntity } from "../cell-entity";
-import { drawCellImage } from "../../graphics/draw-cell";
-import { Images } from "../../images";
-import { pull } from "lodash";
-import { Grid } from "../../map/grid";
-import { IRuntimeCellInfos } from "../../map/cells";
+import { IVec3, vec2To3 } from "~/code/misc/vec3";
+import { CellEntity } from "../cell-entity";
 import {
   PlayerAnimData,
   PlayerWalkData,
   createPlayerAnimMachine,
+  isPlayerWalking,
 } from "./anim-machine";
-import { WorldPos } from "../../map/position";
-import { worldToScreen } from "../../camera";
+import { Images } from "~/code/game/images";
+import { Grid } from "~/code/game/map/grid";
+import { IRuntimeCellInfos } from "~/code/game/map/cells";
+import { StateMachine } from "~/code/game/state-machine";
+import { WorldPos } from "~/code/game/map/position";
+import { onCellRender } from "../../entities";
+import { worldToScreen } from "~/code/game/camera";
+import { drawCellImage } from "~/code/game/graphics/draw-cell";
+import { IVec2, equal2D } from "~/code/misc/vec2";
 
 export class PlayerEntity extends CellEntity {
   private _images: Images;
@@ -34,6 +34,7 @@ export class PlayerEntity extends CellEntity {
 
   private _walkDuration: Ref<number>;
   private _walkData: Ref<PlayerWalkData>;
+  private _walkPromise: Promise<void> | undefined;
 
   constructor(input: {
     hp: Ref<number>;
@@ -67,37 +68,51 @@ export class PlayerEntity extends CellEntity {
     });
   }
 
-  walk(input: { targetPos: IVec3 }): Promise<void> {
-    const newCell = this._grid.getCell(input.targetPos);
+  walk(input: { targetPos: IVec2 }): Promise<void> {
+    if (this._walkPromise != null) {
+      return this._walkPromise;
+    }
+
+    if (equal2D(input.targetPos, this.worldPos.value)) {
+      return Promise.resolve();
+    }
+
+    const targetPos = vec2To3(input.targetPos, this.worldPos.value.z);
+
+    const newCell = this._grid.getCell(targetPos);
 
     if (newCell == null) {
       throw new Error("New cell is null");
     }
 
     if (!newCell.revealed) {
-      if (!this._loadCellCluster({ startPos: input.targetPos })) {
-        this._hp.value -= 1;
+      if (!this._loadCellCluster({ startPos: targetPos })) {
+        this._hp.value = Math.max(0, this._hp.value - 1);
       }
     }
 
     this._walkData.value = {
       sourcePos: { ...this.worldPos.value },
-      targetPos: { ...input.targetPos },
+      targetPos: { ...targetPos },
       startTime: this._currentTime.value,
       endTime: this._currentTime.value + this._walkDuration.value,
     };
 
-    return new Promise((resolve) => {
+    this._walkPromise = new Promise((resolve) => {
       setTimeout(() => {
-        this.move({ targetPos: input.targetPos });
+        this.move({ targetPos: targetPos });
+
+        this._walkPromise = undefined;
 
         resolve();
       }, this._walkDuration.value);
     });
+
+    return this._walkPromise;
   }
 
   get finalWorldPos(): IVec3 {
-    if (this._animMachine.state.startsWith("walk")) {
+    if (this._walkPromise != null) {
       const progress =
         (this._currentTime.value - this._walkData.value!.startTime) /
         (this._walkData.value!.endTime - this._walkData.value!.startTime);
@@ -122,32 +137,28 @@ export class PlayerEntity extends CellEntity {
 
   setup(): void {
     onCellRender((input) => {
-      if (this._animMachine.state.startsWith("walk")) {
+      let screenPos: IVec2;
+
+      if (this._walkPromise != null) {
         const newWorldPos = this.finalWorldPos;
 
-        const newScreenPos = worldToScreen({
+        screenPos = worldToScreen({
           worldPos: newWorldPos,
           camera: input.camera,
           cellSize: input.cellSize,
           screenSize: input.screenSize,
         });
-
-        drawCellImage({
-          canvasCtx: input.canvasCtx,
-          halfCellSize: input.halfCellSize,
-          screenPos: newScreenPos,
-          camera: input.camera,
-          image: this._images.getImage("character")!,
-        });
       } else {
-        drawCellImage({
-          canvasCtx: input.canvasCtx,
-          halfCellSize: input.halfCellSize,
-          screenPos: input.screenPos,
-          camera: input.camera,
-          image: this._images.getImage("character")!,
-        });
+        screenPos = input.screenPos;
       }
+
+      drawCellImage({
+        canvasCtx: input.canvasCtx,
+        halfCellSize: input.halfCellSize,
+        screenPos: screenPos,
+        camera: input.camera,
+        image: this._images.getImage("character")!,
+      });
     });
   }
 }

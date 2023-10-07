@@ -2,7 +2,7 @@ import { hashFNV1a } from "@/code/misc/hash";
 import { posMod } from "@/code/misc/math";
 import { WorldPos } from "./position";
 import { Grid } from "./grid";
-import { ICellEntity } from "../entities/cell-entity";
+import { ICellEntity } from "../entities/map/cell-entity";
 
 export interface IRuntimeCellInfos {
   hidden?: boolean;

@@ -1,5 +1,5 @@
-import { IEntity, onRender } from "./entities";
 import { IVec2 } from "~/code/misc/vec2";
+import { IEntity, onRender } from "../entities";
 
 export class HPBar implements IEntity {
   private _hp: Ref<number>;
