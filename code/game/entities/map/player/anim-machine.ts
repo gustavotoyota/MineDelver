@@ -5,7 +5,7 @@ export type PlayerWalkData =
   | {
       sourcePos: IVec3;
       targetPos: IVec3;
-      targetIsUnrevealed: boolean;
+      targetIsObstacle: boolean;
       startTime: number;
       endTime: number;
     }
@@ -59,7 +59,7 @@ export function createPlayerAnimMachine(input: {
             throw new Error("Walking is null");
           }
 
-          const prefix = data.walking.targetIsUnrevealed ? "mine" : "walk";
+          const prefix = data.walking.targetIsObstacle ? "mine" : "walk";
 
           if (data.walking.targetPos.x < data.worldPos.x) {
             return `${prefix}-left`;

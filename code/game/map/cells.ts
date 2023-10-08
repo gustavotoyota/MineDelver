@@ -120,11 +120,11 @@ export function loadCellCluster(input: {
 
     let cell = input.getOrCreateCell({ worldPos });
 
+    cell.revealed = true;
+
     if (cell.hasBomb) {
       return false;
     }
-
-    cell.revealed = true;
 
     // Load neighbours
 

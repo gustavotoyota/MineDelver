@@ -245,6 +245,16 @@ const mapEntity = new GameMap({
         image: images.getImage("wall")!,
       });
     }
+
+    if (input_.cellInfos?.revealed && input_.cellInfos?.hasBomb) {
+      drawCellImage({
+        canvasCtx: input_.canvasCtx,
+        halfCellSize: halfCellSize.value,
+        screenPos: input_.screenPos,
+        camera: input_.camera,
+        image: images.getImage("bomb")!,
+      });
+    }
   },
 });
 
@@ -272,9 +282,11 @@ entities.add(
 
 watch(playerHP, () => {
   if (playerHP.value === 0) {
-    alert("You died!");
+    setTimeout(() => {
+      alert("You died!");
 
-    emit("death");
+      emit("death");
+    }, 50);
   }
 });
 
@@ -338,6 +350,7 @@ onMounted(async () => {
   images.addImage("wall", "/assets/wall.png");
   images.addImage("heart", "/assets/heart.png");
   images.addImage("miner", "/assets/miner.webp");
+  images.addImage("bomb", "/assets/bomb.png");
 
   await images.allImagesLoaded();
 

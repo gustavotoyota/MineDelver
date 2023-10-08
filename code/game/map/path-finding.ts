@@ -103,7 +103,7 @@ export function getShortestPath(input: {
         vec2To3(neighbourPos, input.sourcePos.z)
       );
 
-      if (!neighbourCell?.revealed) {
+      if (!neighbourCell?.revealed || neighbourCell?.hasBomb) {
         if (equal2D(neighbourPos, input.targetPos)) {
           return [
             ..._reconstructPath({

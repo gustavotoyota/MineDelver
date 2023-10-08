@@ -106,14 +106,14 @@ export class PlayerEntity extends CellEntity {
     this._walkData.value = {
       sourcePos: { ...this.worldPos.value },
       targetPos: { ...targetPos },
-      targetIsUnrevealed: !newCell.revealed,
+      targetIsObstacle: !newCell.revealed || !!newCell.hasBomb,
       startTime: this._currentTime.value,
       endTime: this._currentTime.value + this._walkDuration.value,
     };
 
     this._walkPromise = new Promise((resolve) => {
       setTimeout(() => {
-        if (!newCell.revealed) {
+        if (!newCell.revealed || newCell.hasBomb) {
           if (!this._loadCellCluster({ startPos: targetPos })) {
             this._hp.value = Math.max(0, this._hp.value - 1);
           }
