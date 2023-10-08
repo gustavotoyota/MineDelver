@@ -1,20 +1,21 @@
 import { worldToScreen } from "~/code/game/camera";
 import { drawSprite } from "~/code/game/graphics/draw-cell";
 import { Images } from "~/code/game/images";
+import { Input } from "~/code/game/input";
 import { IRuntimeCellInfos } from "~/code/game/map/cells";
 import { Grid } from "~/code/game/map/grid";
 import { WorldPos } from "~/code/game/map/position";
 import { StateMachine } from "~/code/game/state-machine";
 import { IVec2, Vec2, distChebyshev2D, equal2D } from "~/code/misc/vec2";
 import { IVec3, vec2To3 } from "~/code/misc/vec3";
-import { onCellRender, onDestroy, onInput, onUpdate } from "../../entities";
+import { onCellRender, onDestroy, onUpdate } from "../../entities";
 import { CellEntity } from "../cell-entity";
 import {
   PlayerAnimData,
   PlayerWalkData,
   createPlayerAnimMachine,
 } from "./anim-machine";
-import { Input } from "~/code/game/input";
+import { PlayerHurt } from "./hurt";
 
 const _sprites: Record<string, IVec2[]> = {
   "idle-down": [new Vec2(1, 0)],
@@ -49,7 +50,9 @@ export class PlayerEntity extends CellEntity {
 
   private _walkDuration: Ref<number>;
   private _walkData: Ref<PlayerWalkData>;
-  private _walkPromise: Promise<void> | undefined;
+  private _walkPromise?: Promise<void>;
+
+  private _hurt: PlayerHurt;
 
   constructor(input: {
     hp: Ref<number>;
@@ -80,6 +83,11 @@ export class PlayerEntity extends CellEntity {
       currentTime: this._currentTime,
       playerWalking: this._walkData,
       worldPos: this.worldPos,
+    });
+
+    this._hurt = new PlayerHurt({
+      hp: this._hp,
+      currentTime: this._currentTime,
     });
   }
 
@@ -156,6 +164,8 @@ export class PlayerEntity extends CellEntity {
   }
 
   setup(): void {
+    this._hurt.setup();
+
     onUpdate(() => {
       const newPlayerPos = { ...this.worldPos.value };
 
@@ -213,6 +223,10 @@ export class PlayerEntity extends CellEntity {
     });
 
     onCellRender((input) => {
+      if (this._hurt.isBlinking()) {
+        return;
+      }
+
       let screenPos: IVec2;
 
       let spriteIndex: number;
