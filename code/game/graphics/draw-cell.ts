@@ -18,3 +18,27 @@ export function drawCellImage(input: {
     input.image.height * input.camera.zoom
   );
 }
+
+export function drawSprite(input: {
+  canvasCtx: CanvasRenderingContext2D;
+  screenPos: IVec2;
+  camera: ICamera;
+  image: HTMLImageElement;
+  halfCellSize: number;
+  spritePos: IVec2;
+  spriteSize: number;
+}) {
+  input.canvasCtx.drawImage(
+    input.image,
+    input.spritePos.x * input.spriteSize,
+    input.spritePos.y * input.spriteSize,
+    input.spriteSize,
+    input.spriteSize,
+    input.screenPos.x +
+      (-input.spriteSize + input.halfCellSize) * input.camera.zoom,
+    input.screenPos.y +
+      (-input.spriteSize + input.halfCellSize) * input.camera.zoom,
+    input.spriteSize * input.camera.zoom,
+    input.spriteSize * input.camera.zoom
+  );
+}

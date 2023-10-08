@@ -5,6 +5,7 @@ export type PlayerWalkData =
   | {
       sourcePos: IVec3;
       targetPos: IVec3;
+      targetIsUnrevealed: boolean;
       startTime: number;
       endTime: number;
     }
@@ -36,7 +37,7 @@ export function createPlayerAnimMachine(input: {
   worldPos: Ref<IVec3>;
 }) {
   return new StateMachine<PlayerAnimData>({
-    initialState: ref("idle"),
+    initialState: ref("idle-down"),
     data: ref({
       hp: input.playerHP,
       maxHP: input.playerMaxHP,
@@ -50,7 +51,7 @@ export function createPlayerAnimMachine(input: {
     transitions: [
       {
         condition: ({ state, data }) =>
-          state === "idle" &&
+          state.startsWith("idle") &&
           data.walking != null &&
           data.currentTime < data.walking.endTime,
         to: ({ data }) => {
@@ -58,22 +59,25 @@ export function createPlayerAnimMachine(input: {
             throw new Error("Walking is null");
           }
 
+          const prefix = data.walking.targetIsUnrevealed ? "mine" : "walk";
+
           if (data.walking.targetPos.x < data.worldPos.x) {
-            return "walk-left";
+            return `${prefix}-left`;
           } else if (data.walking.targetPos.x > data.worldPos.x) {
-            return "walk-right";
+            return `${prefix}-right`;
           } else if (data.walking.targetPos.y < data.worldPos.y) {
-            return "walk-up";
+            return `${prefix}-up`;
           } else {
-            return "walk-down";
+            return `${prefix}-down`;
           }
         },
       },
       {
         condition: ({ state, data }) =>
-          state.startsWith("walk") &&
-          (data.walking == null || data.currentTime >= data.walking.endTime),
-        to: () => "idle",
+          state.startsWith("walk") ||
+          (state.startsWith("mine") &&
+            (data.walking == null || data.currentTime >= data.walking.endTime)),
+        to: ({ prevState }) => `idle-${prevState.slice(5)}`,
       },
     ],
   });

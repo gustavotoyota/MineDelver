@@ -1,11 +1,11 @@
 import { worldToScreen } from "~/code/game/camera";
-import { drawCellImage } from "~/code/game/graphics/draw-cell";
+import { drawSprite } from "~/code/game/graphics/draw-cell";
 import { Images } from "~/code/game/images";
 import { IRuntimeCellInfos } from "~/code/game/map/cells";
 import { Grid } from "~/code/game/map/grid";
 import { WorldPos } from "~/code/game/map/position";
 import { StateMachine } from "~/code/game/state-machine";
-import { IVec2, distChebyshev2D } from "~/code/misc/vec2";
+import { IVec2, Vec2, distChebyshev2D } from "~/code/misc/vec2";
 import { IVec3, vec2To3 } from "~/code/misc/vec3";
 import { onCellRender } from "../../entities";
 import { CellEntity } from "../cell-entity";
@@ -14,6 +14,21 @@ import {
   PlayerWalkData,
   createPlayerAnimMachine,
 } from "./anim-machine";
+
+const _sprites: Record<string, IVec2[]> = {
+  "idle-down": [new Vec2(1, 0)],
+  "idle-left": [new Vec2(1, 1)],
+  "idle-right": [new Vec2(1, 2)],
+  "idle-up": [new Vec2(1, 3)],
+  "walk-down": [new Vec2(0, 0), new Vec2(1, 0), new Vec2(2, 0)],
+  "walk-left": [new Vec2(0, 1), new Vec2(1, 1), new Vec2(2, 1)],
+  "walk-right": [new Vec2(0, 2), new Vec2(1, 2), new Vec2(2, 2)],
+  "walk-up": [new Vec2(0, 3), new Vec2(1, 3), new Vec2(2, 3)],
+  "mine-down": [new Vec2(3, 0), new Vec2(4, 0), new Vec2(5, 0)],
+  "mine-left": [new Vec2(3, 1), new Vec2(4, 1), new Vec2(5, 1)],
+  "mine-right": [new Vec2(3, 2), new Vec2(4, 2), new Vec2(5, 2)],
+  "mine-up": [new Vec2(3, 3), new Vec2(4, 3), new Vec2(5, 3)],
+};
 
 export class PlayerEntity extends CellEntity {
   private _images: Images;
@@ -88,21 +103,22 @@ export class PlayerEntity extends CellEntity {
       throw new Error("New cell is null");
     }
 
-    if (!newCell.revealed) {
-      if (!this._loadCellCluster({ startPos: targetPos })) {
-        this._hp.value = Math.max(0, this._hp.value - 1);
-      }
-    }
-
     this._walkData.value = {
       sourcePos: { ...this.worldPos.value },
       targetPos: { ...targetPos },
+      targetIsUnrevealed: !newCell.revealed,
       startTime: this._currentTime.value,
       endTime: this._currentTime.value + this._walkDuration.value,
     };
 
     this._walkPromise = new Promise((resolve) => {
       setTimeout(() => {
+        if (!newCell.revealed) {
+          if (!this._loadCellCluster({ startPos: targetPos })) {
+            this._hp.value = Math.max(0, this._hp.value - 1);
+          }
+        }
+
         this.move({ targetPos: targetPos });
 
         this._walkPromise = undefined;
@@ -142,6 +158,8 @@ export class PlayerEntity extends CellEntity {
     onCellRender((input) => {
       let screenPos: IVec2;
 
+      let spriteIndex: number;
+
       if (this._walkPromise != null) {
         const newWorldPos = this.finalWorldPos;
 
@@ -151,16 +169,30 @@ export class PlayerEntity extends CellEntity {
           cellSize: input.cellSize,
           screenSize: input.screenSize,
         });
+
+        spriteIndex = Math.min(
+          _sprites[this._animMachine.state].length - 1,
+          Math.floor(
+            ((this._currentTime.value - this._walkData.value!.startTime) /
+              (this._walkData.value!.endTime -
+                this._walkData.value!.startTime)) *
+              3
+          )
+        );
       } else {
         screenPos = input.screenPos;
+
+        spriteIndex = 0;
       }
 
-      drawCellImage({
+      drawSprite({
         canvasCtx: input.canvasCtx,
         halfCellSize: input.halfCellSize,
         screenPos: screenPos,
         camera: input.camera,
-        image: this._images.getImage("character")!,
+        image: this._images.getImage("miner")!,
+        spritePos: _sprites[this._animMachine.state][spriteIndex],
+        spriteSize: input.cellSize,
       });
     });
   }

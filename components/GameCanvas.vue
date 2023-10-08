@@ -272,11 +272,9 @@ entities.add(
 
 watch(playerHP, () => {
   if (playerHP.value === 0) {
-    setTimeout(() => {
-      alert("You died!");
+    alert("You died!");
 
-      emit("death");
-    }, 100);
+    emit("death");
   }
 });
 
@@ -338,8 +336,8 @@ function renderFrame() {
 onMounted(async () => {
   images.addImage("ground", "/assets/ground.png");
   images.addImage("wall", "/assets/wall.png");
-  images.addImage("character", "/assets/character.png");
   images.addImage("heart", "/assets/heart.png");
+  images.addImage("miner", "/assets/miner.webp");
 
   await images.allImagesLoaded();
 
