@@ -52,6 +52,7 @@ import { ref } from "vue";
 import { useInterval } from "~/code/composables/use-interval";
 import { ClickToWalk } from "~/code/game/entities/map/player/click-to-walk";
 import { PlayerKeyboardMovement } from "~/code/game/entities/map/player/keyboard-movement";
+import { NumRevealedCells } from "~/code/game/entities/ui/num-revealed-cells";
 import { Timer } from "~/code/game/entities/ui/timer";
 import { Input } from "~/code/game/input";
 import { IVec3, Vec3 } from "~/code/misc/vec3";
@@ -81,6 +82,7 @@ function loadCellCluster_(input: {
 }) {
   return loadCellCluster({
     startPos: input.startPos,
+    numRevealedCells: numRevealedCells,
     getOrCreateCell: (input_) =>
       getOrCreateCell_({
         worldPos: input_.worldPos,
@@ -107,6 +109,8 @@ const cellSize = ref(32);
 const halfCellSize = computed(() => cellSize.value / 2);
 
 const entities = new Entities();
+
+const numRevealedCells = ref(0);
 
 onUnmounted(() => {
   entities.clear();
@@ -274,6 +278,13 @@ entities.add(
   new Timer({
     pos: ref(new Vec2(10, 35)),
     currentTime: currentTime,
+  })
+);
+
+entities.add(
+  new NumRevealedCells({
+    pos: ref(new Vec2(10, 58)),
+    numRevealedCells: numRevealedCells,
   })
 );
 

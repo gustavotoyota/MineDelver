@@ -100,6 +100,7 @@ function processBomb(input: {
 
 export function loadCellCluster(input: {
   startPos: IVec3;
+  numRevealedCells?: Ref<number>;
   getOrCreateCell: (input: { worldPos: IVec3 }) => IRuntimeCellInfos;
 }): boolean {
   const stack = [input.startPos];
@@ -120,7 +121,13 @@ export function loadCellCluster(input: {
 
     let cell = input.getOrCreateCell({ worldPos });
 
-    cell.revealed = true;
+    if (!cell.revealed) {
+      if (input.numRevealedCells !== undefined) {
+        input.numRevealedCells.value++;
+      }
+
+      cell.revealed = true;
+    }
 
     if (cell.hasBomb) {
       return false;

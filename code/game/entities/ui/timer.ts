@@ -19,14 +19,14 @@ export class Timer implements IEntity {
     onRender((input) => {
       const timeSpent = this._currentTime.value - this._startTime;
 
-      input.canvasCtx.fillStyle = "white";
+      input.canvasCtx.fillStyle = "#e0e0e0";
       input.canvasCtx.textBaseline = "top";
-      input.canvasCtx.font = "16px Arial";
+      input.canvasCtx.font = "14px Arial";
       input.canvasCtx.fillText(
-        Intl.DateTimeFormat("en-US", {
+        `Time: ${Intl.DateTimeFormat("en-US", {
           minute: "numeric",
           second: "numeric",
-        }).format(new Date(timeSpent)),
+        }).format(new Date(timeSpent))}`,
         this._pos.value.x,
         this._pos.value.y
       );

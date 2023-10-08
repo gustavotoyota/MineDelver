@@ -210,7 +210,9 @@ export class GameMap implements IEntity {
         });
 
         input.canvasCtx.save();
-        input.canvasCtx.strokeStyle = mouseCell?.revealed ? "white" : "green";
+        input.canvasCtx.strokeStyle = mouseCell?.revealed
+          ? "#f0f0f0"
+          : "#00d000";
         input.canvasCtx.lineWidth = 2;
         input.canvasCtx.strokeRect(
           mouseScreenPos.x -

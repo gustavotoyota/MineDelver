@@ -121,8 +121,8 @@ export class PlayerEntity extends CellEntity {
         });
 
         spriteIndex = Math.min(
-          _sprites[this._animMachine.state].length - 1,
-          Math.floor(this.movementManager.progress * 3)
+          Math.max(0, Math.floor((1 - this.movementManager.progress) * 3)),
+          _sprites[this._animMachine.state].length - 1
         );
       } else {
         screenPos = input.screenPos;
