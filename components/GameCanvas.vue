@@ -63,6 +63,7 @@ import { Minimap } from "@/code/game/entities/ui/minimap";
 import { lerpBetween } from "@/code/misc/math";
 import { useInterval } from "~/code/composables/use-interval";
 import { Input } from "~/code/game/input";
+import { Timer } from "~/code/game/entities/ui/timer";
 
 const emit = defineEmits(["death"]);
 
@@ -115,6 +116,10 @@ const cellSize = ref(32);
 const halfCellSize = computed(() => cellSize.value / 2);
 
 const entities = new Entities();
+
+onUnmounted(() => {
+  entities.clear();
+});
 
 const mouseScreenPos = ref<IVec2>();
 const mouseWorldPos = ref<IVec3>();
@@ -278,6 +283,13 @@ entities.add(
 );
 
 entities.add(
+  new Timer({
+    pos: ref(new Vec2(10, 35)),
+    currentTime: currentTime,
+  })
+);
+
+entities.add(
   new Minimap({
     camera: camera,
     grid: grid,
@@ -342,6 +354,8 @@ function updatePointerPos(event: MouseEvent) {
   );
 }
 
+let animFrameRequest: number;
+
 function renderFrame() {
   currentTime.value = Date.now();
 
@@ -349,8 +363,12 @@ function renderFrame() {
 
   entities.render({ canvasCtx: canvasCtx.value! });
 
-  requestAnimationFrame(renderFrame);
+  animFrameRequest = requestAnimationFrame(renderFrame);
 }
+
+onUnmounted(() => {
+  cancelAnimationFrame(animFrameRequest);
+});
 
 useInterval(() => {
   entities.update({

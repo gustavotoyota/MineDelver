@@ -4,7 +4,14 @@ import { ICellEntity } from "./cell-entity";
 import { WorldPos } from "../../map/position";
 import { IRuntimeCellInfos } from "../../map/cells";
 import { ICamera, screenToWorld, worldToScreen } from "../../camera";
-import { Entities, IEntity, entityHooks, onInput, onRender } from "../entities";
+import {
+  Entities,
+  IEntity,
+  entityHooks,
+  onDestroy,
+  onInput,
+  onRender,
+} from "../entities";
 import { Grid } from "../../map/grid";
 import {
   getGridSegmentFromWorldRect,
@@ -103,8 +110,8 @@ export class GameMap implements IEntity {
 
     onRender((input) => {
       const screenSize = new Vec2(
-        input.canvasCtx.canvas.offsetWidth,
-        input.canvasCtx.canvas.offsetHeight
+        input.canvasCtx.canvas.width,
+        input.canvasCtx.canvas.height
       );
 
       const visibleWorldRect = getVisibleWorldRect({
@@ -217,6 +224,10 @@ export class GameMap implements IEntity {
         );
         input.canvasCtx.restore();
       }
+    });
+
+    onDestroy(() => {
+      this._cellEntities.clear();
     });
   }
 }

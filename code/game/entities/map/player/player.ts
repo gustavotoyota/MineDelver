@@ -7,7 +7,7 @@ import { WorldPos } from "~/code/game/map/position";
 import { StateMachine } from "~/code/game/state-machine";
 import { IVec2, Vec2, distChebyshev2D, equal2D } from "~/code/misc/vec2";
 import { IVec3, vec2To3 } from "~/code/misc/vec3";
-import { onCellRender, onInput, onUpdate } from "../../entities";
+import { onCellRender, onDestroy, onInput, onUpdate } from "../../entities";
 import { CellEntity } from "../cell-entity";
 import {
   PlayerAnimData,
@@ -251,6 +251,10 @@ export class PlayerEntity extends CellEntity {
         spritePos: _sprites[this._animMachine.state][spriteIndex],
         spriteSize: input.cellSize,
       });
+    });
+
+    onDestroy(() => {
+      this._animMachine.destroy();
     });
   }
 }
