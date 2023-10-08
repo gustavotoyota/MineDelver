@@ -161,6 +161,10 @@ watch(screenSize, () => {
   canvasRef.value!.width = screenSize.value.x;
   canvasRef.value!.height = screenSize.value.y;
 
+  if (canvasCtx.value != null) {
+    canvasCtx.value.imageSmoothingEnabled = false;
+  }
+
   camera.value.zoom =
     lerpBetween(
       300,
@@ -245,8 +249,8 @@ entities.add(mapEntity);
 entities.add(
   new HPBar({
     hp: playerHP,
-    maxHP: playerMaxHP,
     pos: ref(new Vec2(10, 10)),
+    images: images,
   })
 );
 
@@ -331,6 +335,7 @@ onMounted(async () => {
   images.addImage("ground", "/assets/ground.png");
   images.addImage("wall", "/assets/wall.png");
   images.addImage("character", "/assets/character.png");
+  images.addImage("heart", "/assets/heart.png");
 
   await images.allImagesLoaded();
 
