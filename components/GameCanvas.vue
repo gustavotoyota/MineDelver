@@ -102,7 +102,7 @@ const canvasCtx = ref<CanvasRenderingContext2D>();
 
 const images = new Images();
 
-const cellSize = ref(16);
+const cellSize = ref(32);
 const halfCellSize = computed(() => cellSize.value / 2);
 
 const entities = new Entities();
@@ -166,13 +166,15 @@ watch(screenSize, () => {
   }
 
   camera.value.zoom =
+    (32 / cellSize.value) *
     lerpBetween(
       300,
       1920,
       Math.max(screenSize.value.x, screenSize.value.y),
       0.7,
       1.2
-    ) * 3;
+    ) *
+    1.5;
 
   minimapScale.value =
     lerpBetween(
@@ -218,7 +220,9 @@ const mapEntity = new GameMap({
       );
       input_.canvasCtx.textAlign = "center";
       input_.canvasCtx.textBaseline = "middle";
-      input_.canvasCtx.font = `${10 * input_.camera.zoom}px "Segoe UI"`;
+      input_.canvasCtx.font = `${
+        (cellSize.value * input_.camera.zoom) / 1.6
+      }px "Segoe UI"`;
       input_.canvasCtx.fillText(
         input_.cellInfos.numAdjacentBombs.toString(),
         input_.screenPos.x,
