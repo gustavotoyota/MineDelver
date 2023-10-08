@@ -1,17 +1,15 @@
 <template>
-  <div>
-    <canvas
-      ref="canvasRef"
-      width="768"
-      height="576"
-      @mousemove="(event) => updateMousePos(event)"
-      @mouseleave="
-        () => {
-          mouseScreenPos = undefined;
-          mouseWorldPos = undefined;
-        }
-      "
-      @mousedown="
+  <canvas
+    ref="canvasRef"
+    style="width: 100%; height: 100%"
+    @pointermove="(event) => updateMousePos(event)"
+    @pointerleave="
+      () => {
+        mouseScreenPos = undefined;
+        mouseWorldPos = undefined;
+      }
+    "
+    @pointerdown="
         (event) => {
           updateMousePos(event);
           
@@ -28,8 +26,7 @@
           playerMovementManager.enqueueMovements(shortestPath);
         }
       "
-    ></canvas>
-  </div>
+  ></canvas>
 </template>
 
 <script setup lang="ts">
@@ -56,6 +53,7 @@ import { IVec3, Vec3 } from "./code/misc/vec3";
 import { PlayerMovementManager } from "./code/game/entities/map/player/movement-manager";
 import { getBombCountColor } from "./code/game/entities/map/bomb-count";
 import { Minimap } from "./code/game/entities/ui/minimap";
+import { lerpBetween } from "./code/misc/math";
 
 function getOrCreateCell_(input_: { worldPos: WorldPos }) {
   return getOrCreateCell({
@@ -110,6 +108,8 @@ const entities = new Entities();
 const mouseScreenPos = ref<IVec2>();
 const mouseWorldPos = ref<IVec3>();
 
+const screenSize = ref(new Vec2());
+
 const grid = new Grid<IRuntimeCellInfos>();
 
 const playerEntity = new PlayerEntity({
@@ -133,6 +133,37 @@ const playerMovementManager = new PlayerMovementManager({
 });
 
 grid.setCell(new WorldPos(), { entities: [playerEntity] });
+
+useEventListener(
+  () => window,
+  "resize",
+  () => {
+    screenSize.value = new Vec2(
+      canvasRef.value!.offsetWidth,
+      canvasRef.value!.offsetHeight
+    );
+  }
+);
+
+onMounted(() => {
+  screenSize.value = new Vec2(
+    canvasRef.value!.offsetWidth,
+    canvasRef.value!.offsetHeight
+  );
+});
+
+watch(screenSize, () => {
+  canvasRef.value!.width = screenSize.value.x;
+  canvasRef.value!.height = screenSize.value.y;
+
+  camera.value.zoom = lerpBetween(
+    300,
+    1920,
+    Math.max(screenSize.value.x, screenSize.value.y),
+    0.7,
+    1.2
+  );
+});
 
 const mapEntity = new GameMap({
   grid: grid,
@@ -204,7 +235,7 @@ entities.add(
   new Minimap({
     camera: camera,
     grid: grid,
-    pos: computed(() => new Vec2(canvasCtx.value!.canvas.width - 210, 10)),
+    pos: computed(() => new Vec2(screenSize.value.x - 210, 10)),
     scale: ref(3),
     size: ref(new Vec2(200, 150)),
   })
@@ -252,7 +283,7 @@ function updateMousePos(event: MouseEvent) {
   mouseWorldPos.value = screenToWorld({
     camera: camera.value,
     cellSize: cellSize.value,
-    screenSize: new Vec2(canvasRef.value!.width, canvasRef.value!.height),
+    screenSize: screenSize.value,
     screenPos: mouseScreenPos.value,
   });
 
@@ -293,3 +324,20 @@ onMounted(async () => {
   renderFrame();
 });
 </script>
+
+<style>
+body {
+  margin: 0;
+
+  overflow: hidden;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+#__nuxt {
+  height: 100%;
+}
+</style>

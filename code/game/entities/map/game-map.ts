@@ -94,11 +94,13 @@ export class GameMap implements IEntity {
     this._cellEntities.list.forEach((entity) => entity.setup());
 
     onRender((input) => {
+      const screenSize = new Vec2(
+        input.canvasCtx.canvas.offsetWidth,
+        input.canvasCtx.canvas.offsetHeight
+      );
+
       const visibleWorldRect = getVisibleWorldRect({
-        screenSize: new Vec2(
-          input.canvasCtx.canvas.width,
-          input.canvasCtx.canvas.height
-        ),
+        screenSize: screenSize,
         camera: this._camera.value,
         cellSize: this._cellSize.value,
       });
@@ -107,11 +109,6 @@ export class GameMap implements IEntity {
         grid: this._grid,
         worldRect: visibleWorldRect,
       });
-
-      const screenSize = new Vec2(
-        input.canvasCtx.canvas.width,
-        input.canvasCtx.canvas.height
-      );
 
       // Clear the canvas
 
@@ -203,10 +200,12 @@ export class GameMap implements IEntity {
         input.canvasCtx.strokeStyle = mouseCell?.revealed ? "white" : "green";
         input.canvasCtx.lineWidth = 2;
         input.canvasCtx.strokeRect(
-          mouseScreenPos.x - this._cellSize.value / 2,
-          mouseScreenPos.y - this._cellSize.value / 2,
-          this._cellSize.value,
-          this._cellSize.value
+          mouseScreenPos.x -
+            (this._cellSize.value / 2) * this._camera.value.zoom,
+          mouseScreenPos.y -
+            (this._cellSize.value / 2) * this._camera.value.zoom,
+          this._cellSize.value * this._camera.value.zoom,
+          this._cellSize.value * this._camera.value.zoom
         );
         input.canvasCtx.restore();
       }
