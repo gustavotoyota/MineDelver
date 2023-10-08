@@ -4,7 +4,7 @@ import { ICellEntity } from "./cell-entity";
 import { WorldPos } from "../../map/position";
 import { IRuntimeCellInfos } from "../../map/cells";
 import { ICamera, screenToWorld, worldToScreen } from "../../camera";
-import { Entities, IEntity, entityHooks, onRender } from "../entities";
+import { Entities, IEntity, entityHooks, onInput, onRender } from "../entities";
 import { Grid } from "../../map/grid";
 import {
   getGridSegmentFromWorldRect,
@@ -92,6 +92,14 @@ export class GameMap implements IEntity {
 
   setup(): void {
     this._cellEntities.list.forEach((entity) => entity.setup());
+
+    onInput((input) => {
+      for (const entity of this._cellEntities.list) {
+        for (const listener of entityHooks.get(entity)?.onInput ?? []) {
+          listener(input);
+        }
+      }
+    });
 
     onRender((input) => {
       const screenSize = new Vec2(

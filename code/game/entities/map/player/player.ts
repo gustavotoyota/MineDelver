@@ -5,15 +5,16 @@ import { IRuntimeCellInfos } from "~/code/game/map/cells";
 import { Grid } from "~/code/game/map/grid";
 import { WorldPos } from "~/code/game/map/position";
 import { StateMachine } from "~/code/game/state-machine";
-import { IVec2, Vec2, distChebyshev2D } from "~/code/misc/vec2";
+import { IVec2, Vec2, distChebyshev2D, equal2D } from "~/code/misc/vec2";
 import { IVec3, vec2To3 } from "~/code/misc/vec3";
-import { onCellRender } from "../../entities";
+import { onCellRender, onInput, onUpdate } from "../../entities";
 import { CellEntity } from "../cell-entity";
 import {
   PlayerAnimData,
   PlayerWalkData,
   createPlayerAnimMachine,
 } from "./anim-machine";
+import { Input } from "~/code/game/input";
 
 const _sprites: Record<string, IVec2[]> = {
   "idle-down": [new Vec2(1, 0)],
@@ -155,6 +156,62 @@ export class PlayerEntity extends CellEntity {
   }
 
   setup(): void {
+    onUpdate(() => {
+      const newPlayerPos = { ...this.worldPos.value };
+
+      if (
+        Input.keyDown["KeyQ"] ||
+        Input.keyDown["KeyW"] ||
+        Input.keyDown["KeyE"] ||
+        Input.keyDown["ArrowUp"] ||
+        Input.keyDown["Numpad7"] ||
+        Input.keyDown["Numpad8"] ||
+        Input.keyDown["Numpad9"]
+      ) {
+        newPlayerPos.y -= 1;
+      }
+      if (
+        Input.keyDown["KeyS"] ||
+        Input.keyDown["KeyZ"] ||
+        Input.keyDown["KeyX"] ||
+        Input.keyDown["KeyC"] ||
+        Input.keyDown["ArrowDown"] ||
+        Input.keyDown["Numpad1"] ||
+        Input.keyDown["Numpad2"] ||
+        Input.keyDown["Numpad3"]
+      ) {
+        newPlayerPos.y += 1;
+      }
+      if (
+        Input.keyDown["KeyQ"] ||
+        Input.keyDown["KeyA"] ||
+        Input.keyDown["KeyZ"] ||
+        Input.keyDown["ArrowLeft"] ||
+        Input.keyDown["Numpad7"] ||
+        Input.keyDown["Numpad4"] ||
+        Input.keyDown["Numpad1"]
+      ) {
+        newPlayerPos.x -= 1;
+      }
+      if (
+        Input.keyDown["KeyE"] ||
+        Input.keyDown["KeyD"] ||
+        Input.keyDown["KeyC"] ||
+        Input.keyDown["ArrowRight"] ||
+        Input.keyDown["Numpad9"] ||
+        Input.keyDown["Numpad6"] ||
+        Input.keyDown["Numpad3"]
+      ) {
+        newPlayerPos.x += 1;
+      }
+
+      if (!equal2D(newPlayerPos, this.worldPos.value)) {
+        this.walk({ targetPos: newPlayerPos });
+
+        return true;
+      }
+    });
+
     onCellRender((input) => {
       let screenPos: IVec2;
 

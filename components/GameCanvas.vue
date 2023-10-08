@@ -2,7 +2,7 @@
   <canvas
     ref="canvasRef"
     style="width: 100%; height: 100%"
-    @pointermove="(event) => updateMousePos(event)"
+    @pointermove="(event) => updatePointerPos(event)"
     @pointerleave="
       () => {
         mouseScreenPos = undefined;
@@ -10,22 +10,29 @@
       }
     "
     @pointerdown="
-        (event) => {
-          updateMousePos(event);
-          
-          const shortestPath = getShortestPath({
-            grid: grid,
-            sourcePos: playerEntity.worldPos.value,
-            targetPos: mouseWorldPos!,
-          });
+      (event) => {
+        Input.pointerDown[event.button] = true;
 
-          if (shortestPath == null) {
-            return;
-          }
+        updatePointerPos(event);
+        
+        const shortestPath = getShortestPath({
+          grid: grid,
+          sourcePos: playerEntity.worldPos.value,
+          targetPos: mouseWorldPos!,
+        });
 
-          playerMovementManager.enqueueMovements(shortestPath);
+        if (shortestPath == null) {
+          return;
         }
-      "
+
+        playerMovementManager.enqueueMovements(shortestPath);
+      }
+    "
+    @pointerup="
+      (event) => {
+        Input.pointerDown[event.button] = false;
+      }
+    "
   ></canvas>
 </template>
 
@@ -54,6 +61,8 @@ import { PlayerMovementManager } from "@/code/game/entities/map/player/movement-
 import { getBombCountColor } from "@/code/game/entities/map/bomb-count";
 import { Minimap } from "@/code/game/entities/ui/minimap";
 import { lerpBetween } from "@/code/misc/math";
+import { useInterval } from "~/code/composables/use-interval";
+import { Input } from "~/code/game/input";
 
 const emit = defineEmits(["death"]);
 
@@ -300,25 +309,23 @@ useEventListener(
   () => window,
   "keydown",
   (event) => {
-    if (event.code.startsWith("Arrow")) {
-      const newPlayerPos = { ...playerEntity.worldPos.value };
+    Input.keyDown[event.code] = true;
 
-      if (event.code === "ArrowUp") {
-        newPlayerPos.y -= 1;
-      } else if (event.code === "ArrowDown") {
-        newPlayerPos.y += 1;
-      } else if (event.code === "ArrowLeft") {
-        newPlayerPos.x -= 1;
-      } else if (event.code === "ArrowRight") {
-        newPlayerPos.x += 1;
-      }
-
-      playerMovementManager.enqueueMovements([newPlayerPos]);
-    }
+    entities.input({ event });
   }
 );
 
-function updateMousePos(event: MouseEvent) {
+useEventListener(
+  () => window,
+  "keyup",
+  (event) => {
+    Input.keyDown[event.code] = false;
+  }
+);
+
+function updatePointerPos(event: MouseEvent) {
+  Input.pointerPos = new Vec2(event.offsetX, event.offsetY);
+
   mouseScreenPos.value = new Vec2(event.offsetX, event.offsetY);
 
   mouseWorldPos.value = screenToWorld({
@@ -344,6 +351,13 @@ function renderFrame() {
 
   requestAnimationFrame(renderFrame);
 }
+
+useInterval(() => {
+  entities.update({
+    currentTime: currentTime.value,
+    deltaTime: 1000 / 60,
+  });
+}, 1000 / 60);
 
 onMounted(async () => {
   images.addImage("ground", "/assets/ground.png");

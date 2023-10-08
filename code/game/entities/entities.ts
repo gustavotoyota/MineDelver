@@ -9,6 +9,10 @@ export interface IEntity {
 
 export type IEntityHooks = Record<string, ((...args: any[]) => any)[]>;
 
+export type InputParams = { event: UIEvent };
+export type UpdateParams = { currentTime: number; deltaTime: number };
+export type RenderParams = { canvasCtx: CanvasRenderingContext2D };
+
 export class Entities<T extends IEntity> {
   readonly list: T[] = [];
 
@@ -32,30 +36,32 @@ export class Entities<T extends IEntity> {
     entityHooks.set(entity, _hooks);
   }
 
-  render(input: { canvasCtx: CanvasRenderingContext2D }) {
-    this.list.forEach((entity) => {
-      const hooks = entityHooks.get(entity);
-
-      if (hooks == null) {
-        return;
+  input(input: InputParams): boolean | void {
+    for (let i = this.list.length - 1; i >= 0; i--) {
+      for (const listener of entityHooks.get(this.list[i])?.onInput ?? []) {
+        if (listener(input)) {
+          return true;
+        }
       }
+    }
+  }
 
-      hooks.onRender?.forEach((listener) =>
-        listener({ canvasCtx: input.canvasCtx })
-      );
+  update(input: UpdateParams) {
+    this.list.forEach((entity) => {
+      entityHooks.get(entity)?.onUpdate?.forEach((listener) => listener(input));
+    });
+  }
+
+  render(input: RenderParams) {
+    this.list.forEach((entity) => {
+      entityHooks.get(entity)?.onRender?.forEach((listener) => listener(input));
     });
   }
 
   remove(entity: T) {
     pull(this.list, entity);
 
-    const hooks = entityHooks.get(entity);
-
-    if (hooks == null) {
-      return;
-    }
-
-    hooks.onDestroy?.forEach((listener) => listener());
+    entityHooks.get(entity)?.onDestroy?.forEach((listener) => listener());
 
     entityHooks.delete(entity);
   }
@@ -73,9 +79,15 @@ export function onCreate(listener: () => void) {
   _hooks.onCreate ??= [];
   _hooks.onCreate.push(listener);
 }
-export function onRender(
-  listener: (input: { canvasCtx: CanvasRenderingContext2D }) => void
-) {
+export function onInput(listener: (input: InputParams) => boolean | void) {
+  _hooks.onInput ??= [];
+  _hooks.onInput.push(listener);
+}
+export function onUpdate(listener: (input: UpdateParams) => void) {
+  _hooks.onUpdate ??= [];
+  _hooks.onUpdate.push(listener);
+}
+export function onRender(listener: (input: RenderParams) => void) {
   _hooks.onRender ??= [];
   _hooks.onRender.push(listener);
 }
