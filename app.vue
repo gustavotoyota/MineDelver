@@ -110,6 +110,9 @@ const mouseWorldPos = ref<IVec3>();
 
 const screenSize = ref(new Vec2());
 
+const minimapScale = ref(3);
+const minimapSize = ref(new Vec2(200, 150));
+
 const grid = new Grid<IRuntimeCellInfos>();
 
 const playerEntity = new PlayerEntity({
@@ -162,6 +165,19 @@ watch(screenSize, () => {
     Math.max(screenSize.value.x, screenSize.value.y),
     0.7,
     1.2
+  );
+
+  minimapScale.value =
+    lerpBetween(
+      300,
+      1920,
+      Math.max(screenSize.value.x, screenSize.value.y),
+      0.6,
+      1.5
+    ) * 2.5;
+  minimapSize.value = new Vec2(
+    Math.round(7 * minimapScale.value * 11),
+    Math.round(5.5 * minimapScale.value * 11)
   );
 });
 
@@ -235,9 +251,11 @@ entities.add(
   new Minimap({
     camera: camera,
     grid: grid,
-    pos: computed(() => new Vec2(screenSize.value.x - 210, 10)),
-    scale: ref(3),
-    size: ref(new Vec2(200, 150)),
+    pos: computed(
+      () => new Vec2(screenSize.value.x - minimapSize.value.x - 10, 10)
+    ),
+    scale: minimapScale,
+    size: minimapSize,
   })
 );
 
