@@ -17,7 +17,7 @@
         
         const shortestPath = getShortestPath({
           grid: grid,
-          sourcePos: playerEntity.worldPos.value,
+          sourcePos: playerEntity.movementManager.targetPlayerPos,
           targetPos: mouseWorldPos!,
         });
 
@@ -25,7 +25,7 @@
           return;
         }
 
-        playerMovementManager.enqueueMovements(shortestPath);
+        playerEntity.movementManager.setNextMovements(shortestPath);
       }
     "
     @pointerup="
@@ -54,20 +54,19 @@ import {
 } from "@/code/game/map/cells";
 import { Grid } from "@/code/game/map/grid";
 import { getShortestPath } from "@/code/game/map/path-finding";
-import { WorldPos } from "@/code/game/map/position";
 import { IVec2, Vec2 } from "@/code/misc/vec2";
-import { IVec3, Vec3 } from "@/code/misc/vec3";
-import { PlayerMovementManager } from "@/code/game/entities/map/player/movement-manager";
 import { getBombCountColor } from "@/code/game/entities/map/bomb-count";
 import { Minimap } from "@/code/game/entities/ui/minimap";
 import { lerpBetween } from "@/code/misc/math";
 import { useInterval } from "~/code/composables/use-interval";
 import { Input } from "~/code/game/input";
 import { Timer } from "~/code/game/entities/ui/timer";
+import { IVec3, Vec3 } from "~/code/misc/vec3";
+import { PlayerKeyboardMovement } from "~/code/game/entities/map/player/keyboard-movement";
 
 const emit = defineEmits(["death"]);
 
-function getOrCreateCell_(input_: { worldPos: WorldPos }) {
+function getOrCreateCell_(input_: { worldPos: IVec3 }) {
   return getOrCreateCell({
     worldPos: input_.worldPos,
     cellHasBomb: (input_) =>
@@ -85,7 +84,7 @@ function getOrCreateCell_(input_: { worldPos: WorldPos }) {
 
 function loadCellCluster_(input: {
   seed: number;
-  startPos: WorldPos;
+  startPos: IVec3;
   grid: Grid<IRuntimeCellInfos>;
 }) {
   return loadCellCluster({
@@ -147,11 +146,7 @@ const playerEntity = new PlayerEntity({
   walkDuration: ref(200),
 });
 
-const playerMovementManager = new PlayerMovementManager({
-  playerEntity: playerEntity,
-});
-
-grid.setCell(new WorldPos(), { entities: [playerEntity] });
+grid.setCell(new Vec3(), { entities: [playerEntity] });
 
 useEventListener(
   () => window,
@@ -210,7 +205,6 @@ const mapEntity = new GameMap({
   camera: camera,
   mouseScreenPos: mouseScreenPos,
   bgColor: ref("black"),
-  cellEntities: new Entities([playerEntity]),
   renderGround: (input_) => {
     if (input_.cellInfos === undefined || input_.cellInfos.hidden) {
       return;
@@ -272,6 +266,8 @@ const mapEntity = new GameMap({
   },
 });
 
+mapEntity.cellEntities.add(playerEntity);
+
 entities.add(mapEntity);
 
 entities.add(
@@ -301,6 +297,13 @@ entities.add(
   })
 );
 
+entities.add(
+  new PlayerKeyboardMovement({
+    walkToDirection: (direction) =>
+      playerEntity.movementManager.walkToDirection(direction),
+  })
+);
+
 watch(playerHP, () => {
   if (playerHP.value === 0) {
     setTimeout(() => {
@@ -314,7 +317,7 @@ watch(playerHP, () => {
 loadCellCluster_({
   seed: seed,
   grid: grid,
-  startPos: new WorldPos(),
+  startPos: new Vec3(),
 });
 
 useEventListener(
@@ -359,7 +362,7 @@ let animFrameRequest: number;
 function renderFrame() {
   currentTime.value = Date.now();
 
-  camera.value.pos = { ...playerEntity.finalWorldPos };
+  camera.value.pos = { ...playerEntity.movementManager.finalPlayerPos };
 
   entities.render({ canvasCtx: canvasCtx.value! });
 

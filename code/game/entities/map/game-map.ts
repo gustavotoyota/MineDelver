@@ -1,7 +1,6 @@
 import { IVec2, Vec2 } from "~/code/misc/vec2";
-import { Vec3 } from "~/code/misc/vec3";
+import { IVec3, Vec3 } from "~/code/misc/vec3";
 import { ICellEntity } from "./cell-entity";
-import { WorldPos } from "../../map/position";
 import { IRuntimeCellInfos } from "../../map/cells";
 import { ICamera, screenToWorld, worldToScreen } from "../../camera";
 import {
@@ -22,7 +21,7 @@ import { IGridSegment } from "../../map/grid-segment";
 export interface IRenderCell {
   (input: {
     canvasCtx: CanvasRenderingContext2D;
-    worldPos: WorldPos;
+    worldPos: IVec3;
     screenPos: IVec2;
     cellInfos: IRuntimeCellInfos | undefined; // Here for optimization
     camera: ICamera;
@@ -37,7 +36,7 @@ export class GameMap implements IEntity {
   private _bgColor: Ref<string>;
   private _renderGround: IRenderCell;
   private _renderNonGround: IRenderCell;
-  private _cellEntities: Entities<ICellEntity>;
+  public readonly cellEntities: Entities<ICellEntity>;
 
   constructor(input: {
     grid: Grid<IRuntimeCellInfos>;
@@ -47,7 +46,6 @@ export class GameMap implements IEntity {
     bgColor: Ref<string>;
     renderGround: IRenderCell;
     renderNonGround: IRenderCell;
-    cellEntities: Entities<ICellEntity>;
   }) {
     this._camera = input.camera;
     this._cellSize = input.cellSize;
@@ -56,7 +54,7 @@ export class GameMap implements IEntity {
     this._bgColor = input.bgColor;
     this._renderGround = input.renderGround;
     this._renderNonGround = input.renderNonGround;
-    this._cellEntities = input.cellEntities;
+    this.cellEntities = new Entities();
   }
 
   private _drawLayer(input: {
@@ -64,7 +62,7 @@ export class GameMap implements IEntity {
     screenSize: IVec2;
     canvasCtx: CanvasRenderingContext2D;
     drawCell: (input: {
-      worldPos: WorldPos;
+      worldPos: IVec3;
       screenPos: IVec2;
       cellInfos: IRuntimeCellInfos | undefined;
     }) => void;
@@ -75,7 +73,7 @@ export class GameMap implements IEntity {
       for (let x = 0; x < row.length; x++) {
         const cellInfos = row[x];
 
-        const worldPos = new WorldPos(
+        const worldPos = new Vec3(
           input.gridSegment.from.x + x,
           input.gridSegment.from.y + y,
           input.gridSegment.from.z
@@ -98,10 +96,10 @@ export class GameMap implements IEntity {
   }
 
   setup(): void {
-    this._cellEntities.list.forEach((entity) => entity.setup());
+    this.cellEntities.list.forEach((entity) => entity.setup());
 
     onInput((input) => {
-      for (const entity of this._cellEntities.list) {
+      for (const entity of this.cellEntities.list) {
         for (const listener of entityHooks.get(entity)?.onInput ?? []) {
           listener(input);
         }
@@ -227,7 +225,7 @@ export class GameMap implements IEntity {
     });
 
     onDestroy(() => {
-      this._cellEntities.clear();
+      this.cellEntities.clear();
     });
   }
 }

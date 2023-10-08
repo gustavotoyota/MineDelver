@@ -33,6 +33,10 @@ export function distChebyshev2D(a: IVec2, b: IVec2): number {
   return Math.max(Math.abs(a.x - b.x), Math.abs(a.y - b.y));
 }
 
-export function vec2Add(a: IVec2, b: IVec2): IVec2 {
+export function add2(a: IVec2, b: IVec2): IVec2 {
   return { x: a.x + b.x, y: a.y + b.y };
+}
+
+export function clone2(input: IVec2): IVec2 {
+  return new Vec2(input.x, input.y);
 }

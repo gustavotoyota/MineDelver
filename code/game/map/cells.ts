@@ -1,8 +1,8 @@
 import { hashFNV1a } from "@/code/misc/hash";
 import { posMod } from "@/code/misc/math";
-import { WorldPos } from "./position";
 import { Grid } from "./grid";
 import { ICellEntity } from "../entities/map/cell-entity";
+import { IVec3, Vec3 } from "~/code/misc/vec3";
 
 export interface IRuntimeCellInfos {
   hidden?: boolean;
@@ -18,7 +18,7 @@ export interface IRuntimeCellInfos {
 
 export function cellHasBomb(input: {
   seed: number;
-  worldPos: WorldPos;
+  worldPos: IVec3;
   bombProbability: number;
 }): boolean {
   return (
@@ -41,8 +41,8 @@ export function createCell(input: { hasBomb: boolean }): IRuntimeCellInfos {
 }
 
 export function getOrCreateCell(input: {
-  worldPos: WorldPos;
-  cellHasBomb: (input: { worldPos: WorldPos }) => boolean;
+  worldPos: IVec3;
+  cellHasBomb: (input: { worldPos: IVec3 }) => boolean;
   grid: Grid<IRuntimeCellInfos>;
 }): IRuntimeCellInfos {
   let cell = input.grid.getCell(input.worldPos);
@@ -60,8 +60,8 @@ export function getOrCreateCell(input: {
 
 function processBomb(input: {
   cell: IRuntimeCellInfos;
-  worldPos: WorldPos;
-  getOrCreateCell: (input: { worldPos: WorldPos }) => IRuntimeCellInfos;
+  worldPos: IVec3;
+  getOrCreateCell: (input: { worldPos: IVec3 }) => IRuntimeCellInfos;
 }) {
   if (input.cell.bombProcessed === undefined) {
     return;
@@ -70,14 +70,14 @@ function processBomb(input: {
   delete input.cell.bombProcessed;
 
   const neighbourPositions = [
-    new WorldPos(input.worldPos.x - 1, input.worldPos.y - 1, input.worldPos.z),
-    new WorldPos(input.worldPos.x - 1, input.worldPos.y, input.worldPos.z),
-    new WorldPos(input.worldPos.x - 1, input.worldPos.y + 1, input.worldPos.z),
-    new WorldPos(input.worldPos.x, input.worldPos.y - 1, input.worldPos.z),
-    new WorldPos(input.worldPos.x, input.worldPos.y + 1, input.worldPos.z),
-    new WorldPos(input.worldPos.x + 1, input.worldPos.y - 1, input.worldPos.z),
-    new WorldPos(input.worldPos.x + 1, input.worldPos.y, input.worldPos.z),
-    new WorldPos(input.worldPos.x + 1, input.worldPos.y + 1, input.worldPos.z),
+    new Vec3(input.worldPos.x - 1, input.worldPos.y - 1, input.worldPos.z),
+    new Vec3(input.worldPos.x - 1, input.worldPos.y, input.worldPos.z),
+    new Vec3(input.worldPos.x - 1, input.worldPos.y + 1, input.worldPos.z),
+    new Vec3(input.worldPos.x, input.worldPos.y - 1, input.worldPos.z),
+    new Vec3(input.worldPos.x, input.worldPos.y + 1, input.worldPos.z),
+    new Vec3(input.worldPos.x + 1, input.worldPos.y - 1, input.worldPos.z),
+    new Vec3(input.worldPos.x + 1, input.worldPos.y, input.worldPos.z),
+    new Vec3(input.worldPos.x + 1, input.worldPos.y + 1, input.worldPos.z),
   ];
 
   const neighbourCells = neighbourPositions.map((pos) =>
@@ -99,8 +99,8 @@ function processBomb(input: {
 }
 
 export function loadCellCluster(input: {
-  startPos: WorldPos;
-  getOrCreateCell: (input: { worldPos: WorldPos }) => IRuntimeCellInfos;
+  startPos: IVec3;
+  getOrCreateCell: (input: { worldPos: IVec3 }) => IRuntimeCellInfos;
 }): boolean {
   const stack = [input.startPos];
   const visited = new Set<string>();
@@ -129,14 +129,14 @@ export function loadCellCluster(input: {
     // Load neighbours
 
     const neighbourPositions = [
-      new WorldPos(worldPos.x - 1, worldPos.y - 1, worldPos.z),
-      new WorldPos(worldPos.x - 1, worldPos.y, worldPos.z),
-      new WorldPos(worldPos.x - 1, worldPos.y + 1, worldPos.z),
-      new WorldPos(worldPos.x, worldPos.y - 1, worldPos.z),
-      new WorldPos(worldPos.x, worldPos.y + 1, worldPos.z),
-      new WorldPos(worldPos.x + 1, worldPos.y - 1, worldPos.z),
-      new WorldPos(worldPos.x + 1, worldPos.y, worldPos.z),
-      new WorldPos(worldPos.x + 1, worldPos.y + 1, worldPos.z),
+      new Vec3(worldPos.x - 1, worldPos.y - 1, worldPos.z),
+      new Vec3(worldPos.x - 1, worldPos.y, worldPos.z),
+      new Vec3(worldPos.x - 1, worldPos.y + 1, worldPos.z),
+      new Vec3(worldPos.x, worldPos.y - 1, worldPos.z),
+      new Vec3(worldPos.x, worldPos.y + 1, worldPos.z),
+      new Vec3(worldPos.x + 1, worldPos.y - 1, worldPos.z),
+      new Vec3(worldPos.x + 1, worldPos.y, worldPos.z),
+      new Vec3(worldPos.x + 1, worldPos.y + 1, worldPos.z),
     ];
 
     const neighbourCells = neighbourPositions.map((pos) =>

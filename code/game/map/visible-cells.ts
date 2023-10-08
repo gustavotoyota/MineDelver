@@ -4,7 +4,7 @@ import { IVec2 } from "../../misc/vec2";
 import { ICamera, screenToWorld } from "../camera";
 import { Grid } from "./grid";
 import { IRuntimeCellInfos } from "./cells";
-import { WorldPos } from "./position";
+import { Vec3 } from "~/code/misc/vec3";
 
 export function getVisibleWorldRect(input: {
   camera: ICamera;
@@ -69,7 +69,7 @@ export function getGridSegmentFromWorldRect(input: {
       const endX = input.worldRect.max.x;
 
       const row = input.grid.getRowCells(
-        new WorldPos(startX, y, z),
+        new Vec3(startX, y, z),
         endX - startX + 1
       );
 

@@ -1,22 +1,6 @@
 import { StateMachine } from "~/code/game/state-machine";
 import { IVec3 } from "~/code/misc/vec3";
-
-export type PlayerWalkData =
-  | {
-      sourcePos: IVec3;
-      targetPos: IVec3;
-      targetIsObstacle: boolean;
-      startTime: number;
-      endTime: number;
-    }
-  | undefined;
-
-export function isPlayerWalking(input: {
-  walkData: PlayerWalkData;
-  currentTime: number;
-}): boolean {
-  return input.walkData != null && input.currentTime < input.walkData.endTime;
-}
+import { PlayerWalkData } from "./movement-manager";
 
 export interface PlayerAnimData {
   hp: number;

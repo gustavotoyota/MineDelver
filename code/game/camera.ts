@@ -1,18 +1,17 @@
 import { IVec2, Vec2 } from "@/code/misc/vec2";
 import { IVec3, Vec3 } from "@/code/misc/vec3";
-import { WorldPos } from "./map/position";
 
 export interface ICamera {
-  pos: WorldPos;
+  pos: IVec3;
   zoom: number;
 }
 
 export class Camera implements ICamera {
-  pos: WorldPos;
+  pos: IVec3;
   zoom: number;
 
-  constructor(input?: { pos?: WorldPos; zoom?: number }) {
-    this.pos = input?.pos ?? new WorldPos();
+  constructor(input?: { pos?: IVec3; zoom?: number }) {
+    this.pos = input?.pos ?? new Vec3();
     this.zoom = input?.zoom ?? 1;
   }
 }

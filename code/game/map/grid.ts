@@ -1,10 +1,10 @@
-import { WorldPos } from "./position";
-import { Segments, putInSegments, getFromSegments } from "~/code/misc/segments";
+import { Segments, getFromSegments, putInSegments } from "~/code/misc/segments";
+import { IVec3 } from "~/code/misc/vec3";
 
 export class Grid<T> {
   private _cells: Segments<Segments<Segments<T>>> = [];
 
-  setRowCells(startPos: WorldPos, items: T[]) {
+  setRowCells(startPos: IVec3, items: T[]) {
     let layer = getFromSegments(this._cells, startPos.z, 1)?.[0];
 
     if (layer == null) {
@@ -23,11 +23,11 @@ export class Grid<T> {
 
     putInSegments(row, startPos.x, items);
   }
-  setCell(pos: WorldPos, item: T) {
+  setCell(pos: IVec3, item: T) {
     this.setRowCells(pos, [item]);
   }
 
-  getRowCells(startPos: WorldPos, count: number): (T | undefined)[] {
+  getRowCells(startPos: IVec3, count: number): (T | undefined)[] {
     const layer = getFromSegments(this._cells, startPos.z, 1)?.[0];
 
     if (layer == null) {
@@ -42,11 +42,11 @@ export class Grid<T> {
 
     return getFromSegments(row, startPos.x, count);
   }
-  getCell(pos: WorldPos): T | undefined {
+  getCell(pos: IVec3): T | undefined {
     return this.getRowCells(pos, 1)[0];
   }
 
-  getOrCreateCell(pos: WorldPos, create: () => T): T {
+  getOrCreateCell(pos: IVec3, create: () => T): T {
     let cell = this.getCell(pos);
 
     if (cell == null) {
@@ -58,7 +58,7 @@ export class Grid<T> {
     return cell;
   }
 
-  hasCell(pos: WorldPos): boolean {
+  hasCell(pos: IVec3): boolean {
     return this.getCell(pos) != null;
   }
 }
