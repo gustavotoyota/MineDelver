@@ -63,9 +63,10 @@ export class PlayerMovementManager {
 
   get progress(): number {
     if (this._walkData.value != null) {
-      return (
+      return Math.min(
+        1,
         (this._currentTime.value - this._walkData.value.startTime) /
-        (this._walkData.value.endTime - this._walkData.value.startTime)
+          (this._walkData.value.endTime - this._walkData.value.startTime)
       );
     } else {
       return 0;
