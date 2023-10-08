@@ -4,7 +4,7 @@ import { add2, distChebyshev2D, equal2D, IVec2 } from 'src/code/misc/vec2';
 import { IVec3, lerp3, vec2To3 } from 'src/code/misc/vec3';
 import { Ref, ref } from 'vue';
 
-import { onUpdate } from '../../entities';
+import { onRender, onUpdate } from '../../entities';
 
 export type PlayerWalkData =
   | {
@@ -164,7 +164,7 @@ export class PlayerMovementManager {
       this._tryNextMovement();
     });
 
-    onUpdate(() => {
+    onRender(() => {
       if (
         this._walkData.value != null &&
         this._currentTime.value >= this._walkData.value.endTime
