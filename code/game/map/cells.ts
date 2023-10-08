@@ -101,12 +101,23 @@ function processBomb(input: {
 export function loadCellCluster(input: {
   startPos: IVec3;
   numRevealedCells?: Ref<number>;
+  numCorrectGuesses?: Ref<number>;
   getOrCreateCell: (input: { worldPos: IVec3 }) => IRuntimeCellInfos;
 }): boolean {
   const stack = [input.startPos];
   const visited = new Set<string>();
 
-  delete input.getOrCreateCell({ worldPos: input.startPos }).hidden;
+  const startCell = input.getOrCreateCell({ worldPos: input.startPos });
+
+  delete startCell.hidden;
+
+  if (
+    !startCell.revealed &&
+    !startCell.hasBomb &&
+    input.numCorrectGuesses !== undefined
+  ) {
+    input.numCorrectGuesses.value++;
+  }
 
   while (stack.length > 0) {
     const worldPos = stack.pop()!;
