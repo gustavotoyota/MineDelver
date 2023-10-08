@@ -5,8 +5,8 @@
     @pointermove="(event) => updatePointerPos(event)"
     @pointerleave="
       () => {
-        mouseScreenPos = undefined;
-        mouseWorldPos = undefined;
+        pointerScreenPos = undefined;
+        pointerWorldPos = undefined;
       }
     "
     @pointerdown="
@@ -118,8 +118,8 @@ onUnmounted(() => {
   entities.clear();
 });
 
-const mouseScreenPos = ref<IVec2>();
-const mouseWorldPos = ref<IVec3>();
+const pointerScreenPos = ref<IVec2>();
+const pointerWorldPos = ref<IVec3>();
 
 const screenSize = ref(new Vec2());
 
@@ -193,7 +193,7 @@ const mapEntity = new GameMap({
   grid: grid,
   cellSize: cellSize,
   camera: camera,
-  mouseScreenPos: mouseScreenPos,
+  pointerScreenPos: pointerScreenPos,
   bgColor: ref('black'),
   renderGround: (input_) => {
     if (input_.cellInfos === undefined || input_.cellInfos.hidden) {
@@ -312,7 +312,7 @@ entities.add(
   new ClickToWalk({
     grid: grid,
     playerMovementManager: playerEntity.movementManager,
-    pointerWorldPos: mouseWorldPos,
+    pointerWorldPos: pointerWorldPos,
   })
 );
 
@@ -353,7 +353,26 @@ useEventListener(
 function updatePointerPos(event: MouseEvent) {
   Input.pointerPos = new Vec2(event.offsetX, event.offsetY);
 
-  mouseScreenPos.value = new Vec2(event.offsetX, event.offsetY);
+  pointerScreenPos.value = new Vec2(event.offsetX, event.offsetY);
+
+  updatePointerWorldPos();
+}
+
+function updatePointerWorldPos() {
+  if (pointerScreenPos.value !== undefined) {
+    pointerWorldPos.value = screenToWorld({
+      camera: camera.value,
+      cellSize: cellSize.value,
+      screenSize: screenSize.value,
+      screenPos: pointerScreenPos.value,
+    });
+
+    pointerWorldPos.value = new Vec3(
+      Math.round(pointerWorldPos.value.x),
+      Math.round(pointerWorldPos.value.y),
+      Math.round(pointerWorldPos.value.z)
+    );
+  }
 }
 
 let animFrameRequest: number;
@@ -361,20 +380,7 @@ let animFrameRequest: number;
 function renderFrame() {
   currentTime.value = Date.now();
 
-  if (mouseScreenPos.value !== undefined) {
-    mouseWorldPos.value = screenToWorld({
-      camera: camera.value,
-      cellSize: cellSize.value,
-      screenSize: screenSize.value,
-      screenPos: mouseScreenPos.value,
-    });
-
-    mouseWorldPos.value = new Vec3(
-      Math.round(mouseWorldPos.value.x),
-      Math.round(mouseWorldPos.value.y),
-      Math.round(mouseWorldPos.value.z)
-    );
-  }
+  updatePointerWorldPos();
 
   camera.value.pos = { ...playerEntity.movementManager.finalPlayerPos };
 

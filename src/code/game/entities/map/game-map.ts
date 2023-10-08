@@ -34,7 +34,7 @@ export class GameMap implements IEntity {
   private _grid: Grid<IRuntimeCellInfos>;
   private _camera: Ref<ICamera>;
   private _cellSize: Ref<number>;
-  private _mouseScreenPos: Ref<Vec2 | undefined>;
+  private _pointerScreenPos: Ref<Vec2 | undefined>;
   private _bgColor: Ref<string>;
   private _renderGround: IRenderCell;
   private _renderNonGround: IRenderCell;
@@ -44,14 +44,14 @@ export class GameMap implements IEntity {
     grid: Grid<IRuntimeCellInfos>;
     camera: Ref<ICamera>;
     cellSize: Ref<number>;
-    mouseScreenPos: Ref<Vec2 | undefined>;
+    pointerScreenPos: Ref<Vec2 | undefined>;
     bgColor: Ref<string>;
     renderGround: IRenderCell;
     renderNonGround: IRenderCell;
   }) {
     this._camera = input.camera;
     this._cellSize = input.cellSize;
-    this._mouseScreenPos = input.mouseScreenPos;
+    this._pointerScreenPos = input.pointerScreenPos;
     this._grid = input.grid;
     this._bgColor = input.bgColor;
     this._renderGround = input.renderGround;
@@ -181,45 +181,45 @@ export class GameMap implements IEntity {
 
       // Draw the hovered cell
 
-      if (this._mouseScreenPos.value !== undefined) {
-        let mouseWorldPos = screenToWorld({
+      if (this._pointerScreenPos.value !== undefined) {
+        let pointerWorldPos = screenToWorld({
           camera: this._camera.value,
           cellSize: this._cellSize.value,
           screenSize: screenSize,
-          screenPos: this._mouseScreenPos.value,
+          screenPos: this._pointerScreenPos.value,
         });
 
-        mouseWorldPos = new Vec3(
-          Math.round(mouseWorldPos.x),
-          Math.round(mouseWorldPos.y),
-          Math.round(mouseWorldPos.z)
+        pointerWorldPos = new Vec3(
+          Math.round(pointerWorldPos.x),
+          Math.round(pointerWorldPos.y),
+          Math.round(pointerWorldPos.z)
         );
 
-        const mouseCell =
-          gridSegment.cells[0][mouseWorldPos.y - gridSegment.from.y][
-            mouseWorldPos.x - gridSegment.from.x
+        const pointerCell =
+          gridSegment.cells[0][pointerWorldPos.y - gridSegment.from.y][
+            pointerWorldPos.x - gridSegment.from.x
           ];
 
-        const mouseScreenPos = worldToScreen({
+        const pointerScreenPos = worldToScreen({
           camera: this._camera.value,
           cellSize: this._cellSize.value,
           screenSize: screenSize,
           worldPos: new Vec3(
-            Math.round(mouseWorldPos.x),
-            Math.round(mouseWorldPos.y),
-            Math.round(mouseWorldPos.z)
+            Math.round(pointerWorldPos.x),
+            Math.round(pointerWorldPos.y),
+            Math.round(pointerWorldPos.z)
           ),
         });
 
         input.canvasCtx.save();
-        input.canvasCtx.strokeStyle = mouseCell?.revealed
+        input.canvasCtx.strokeStyle = pointerCell?.revealed
           ? '#f0f0f0'
           : '#00d000';
         input.canvasCtx.lineWidth = 2;
         input.canvasCtx.strokeRect(
-          mouseScreenPos.x -
+          pointerScreenPos.x -
             (this._cellSize.value / 2) * this._camera.value.zoom,
-          mouseScreenPos.y -
+          pointerScreenPos.y -
             (this._cellSize.value / 2) * this._camera.value.zoom,
           this._cellSize.value * this._camera.value.zoom,
           this._cellSize.value * this._camera.value.zoom
