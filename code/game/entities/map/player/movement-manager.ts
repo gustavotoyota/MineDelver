@@ -108,7 +108,7 @@ export class PlayerMovementManager {
     if (this._nextMovements.length === 0) {
       return this._playerPos.value;
     } else {
-      return this._nextMovements[this._nextMovements.length - 1];
+      return this._nextMovements[0];
     }
   }
 

@@ -52,7 +52,6 @@ import { ref } from "vue";
 import { useInterval } from "~/code/composables/use-interval";
 import { ClickToWalk } from "~/code/game/entities/map/player/click-to-walk";
 import { PlayerKeyboardMovement } from "~/code/game/entities/map/player/keyboard-movement";
-import { NumRevealedCells } from "~/code/game/entities/ui/num-revealed-cells";
 import { Text } from "~/code/game/entities/ui/text";
 import { Timer } from "~/code/game/entities/ui/timer";
 import { Input } from "~/code/game/input";
@@ -363,25 +362,27 @@ function updatePointerPos(event: MouseEvent) {
   Input.pointerPos = new Vec2(event.offsetX, event.offsetY);
 
   mouseScreenPos.value = new Vec2(event.offsetX, event.offsetY);
-
-  mouseWorldPos.value = screenToWorld({
-    camera: camera.value,
-    cellSize: cellSize.value,
-    screenSize: screenSize.value,
-    screenPos: mouseScreenPos.value,
-  });
-
-  mouseWorldPos.value = new Vec3(
-    Math.round(mouseWorldPos.value.x),
-    Math.round(mouseWorldPos.value.y),
-    Math.round(mouseWorldPos.value.z)
-  );
 }
 
 let animFrameRequest: number;
 
 function renderFrame() {
   currentTime.value = Date.now();
+
+  if (mouseScreenPos.value !== undefined) {
+    mouseWorldPos.value = screenToWorld({
+      camera: camera.value,
+      cellSize: cellSize.value,
+      screenSize: screenSize.value,
+      screenPos: mouseScreenPos.value,
+    });
+
+    mouseWorldPos.value = new Vec3(
+      Math.round(mouseWorldPos.value.x),
+      Math.round(mouseWorldPos.value.y),
+      Math.round(mouseWorldPos.value.z)
+    );
+  }
 
   camera.value.pos = { ...playerEntity.movementManager.finalPlayerPos };
 
