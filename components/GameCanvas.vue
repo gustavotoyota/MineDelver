@@ -14,36 +14,29 @@
         Input.pointerDown[event.button] = true;
 
         updatePointerPos(event);
-        
-        const shortestPath = getShortestPath({
-          grid: grid,
-          sourcePos: playerEntity.movementManager.targetPlayerPos,
-          targetPos: mouseWorldPos!,
-        });
 
-        if (shortestPath == null) {
-          return;
-        }
-
-        playerEntity.movementManager.setNextMovements(shortestPath);
+        entities.input({ event });
       }
     "
     @pointerup="
       (event) => {
         Input.pointerDown[event.button] = false;
+
+        entities.input({ event });
       }
     "
   ></canvas>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
 import { useEventListener } from "@/code/composables/use-event-listener";
 import { Camera, screenToWorld } from "@/code/game/camera";
 import { Entities } from "@/code/game/entities/entities";
+import { getBombCountColor } from "@/code/game/entities/map/bomb-count";
 import { GameMap } from "@/code/game/entities/map/game-map";
 import { PlayerEntity } from "@/code/game/entities/map/player/player";
 import { HPBar } from "@/code/game/entities/ui/hp-bar";
+import { Minimap } from "@/code/game/entities/ui/minimap";
 import { drawCellImage } from "@/code/game/graphics/draw-cell";
 import { Images } from "@/code/game/images";
 import {
@@ -53,16 +46,15 @@ import {
   loadCellCluster,
 } from "@/code/game/map/cells";
 import { Grid } from "@/code/game/map/grid";
-import { getShortestPath } from "@/code/game/map/path-finding";
-import { IVec2, Vec2 } from "@/code/misc/vec2";
-import { getBombCountColor } from "@/code/game/entities/map/bomb-count";
-import { Minimap } from "@/code/game/entities/ui/minimap";
 import { lerpBetween } from "@/code/misc/math";
+import { IVec2, Vec2 } from "@/code/misc/vec2";
+import { ref } from "vue";
 import { useInterval } from "~/code/composables/use-interval";
-import { Input } from "~/code/game/input";
-import { Timer } from "~/code/game/entities/ui/timer";
-import { IVec3, Vec3 } from "~/code/misc/vec3";
+import { ClickToWalk } from "~/code/game/entities/map/player/click-to-walk";
 import { PlayerKeyboardMovement } from "~/code/game/entities/map/player/keyboard-movement";
+import { Timer } from "~/code/game/entities/ui/timer";
+import { Input } from "~/code/game/input";
+import { IVec3, Vec3 } from "~/code/misc/vec3";
 
 const emit = defineEmits(["death"]);
 
@@ -301,6 +293,14 @@ entities.add(
   new PlayerKeyboardMovement({
     walkToDirection: (direction) =>
       playerEntity.movementManager.walkToDirection(direction),
+  })
+);
+
+entities.add(
+  new ClickToWalk({
+    grid: grid,
+    playerMovementManager: playerEntity.movementManager,
+    pointerWorldPos: mouseWorldPos,
   })
 );
 

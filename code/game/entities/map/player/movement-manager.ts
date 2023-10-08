@@ -104,6 +104,14 @@ export class PlayerMovementManager {
     this.setNextMovements([add2(this._playerPos.value, direction)]);
   }
 
+  get finalTargetPos(): IVec2 {
+    if (this._nextMovements.length === 0) {
+      return this._playerPos.value;
+    } else {
+      return this._nextMovements[this._nextMovements.length - 1];
+    }
+  }
+
   private _tryNextMovement() {
     if (this._nextMovements.length === 0) {
       return;
