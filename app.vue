@@ -55,6 +55,7 @@ import { IVec2, Vec2 } from "./code/misc/vec2";
 import { IVec3, Vec3 } from "./code/misc/vec3";
 import { PlayerMovementManager } from "./code/game/entities/map/player/movement-manager";
 import { getBombCountColor } from "./code/game/entities/map/bomb-count";
+import { Minimap } from "./code/game/entities/ui/minimap";
 
 function getOrCreateCell_(input_: { worldPos: WorldPos }) {
   return getOrCreateCell({
@@ -196,6 +197,16 @@ entities.add(
     hp: playerHP,
     maxHP: playerMaxHP,
     pos: ref(new Vec2(10, 10)),
+  })
+);
+
+entities.add(
+  new Minimap({
+    camera: camera,
+    grid: grid,
+    pos: computed(() => new Vec2(canvasCtx.value!.canvas.width - 210, 10)),
+    scale: ref(3),
+    size: ref(new Vec2(200, 150)),
   })
 );
 
