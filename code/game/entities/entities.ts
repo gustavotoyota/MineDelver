@@ -14,6 +14,10 @@ export class Entities<T extends IEntity> {
 
   constructor(entities: T[] = []) {
     entities.forEach((entity) => this.add(entity));
+
+    onUnmounted(() => {
+      this.clear();
+    });
   }
 
   add(entity: T) {
@@ -54,6 +58,10 @@ export class Entities<T extends IEntity> {
     hooks.onDestroy?.forEach((listener) => listener());
 
     entityHooks.delete(entity);
+  }
+
+  clear() {
+    this.list.forEach((entity) => this.remove(entity));
   }
 }
 

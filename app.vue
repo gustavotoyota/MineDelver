@@ -100,7 +100,7 @@ const canvasCtx = ref<CanvasRenderingContext2D>();
 
 const images = new Images();
 
-const cellSize = ref(48);
+const cellSize = ref(16);
 const halfCellSize = computed(() => cellSize.value / 2);
 
 const entities = new Entities();
@@ -159,13 +159,14 @@ watch(screenSize, () => {
   canvasRef.value!.width = screenSize.value.x;
   canvasRef.value!.height = screenSize.value.y;
 
-  camera.value.zoom = lerpBetween(
-    300,
-    1920,
-    Math.max(screenSize.value.x, screenSize.value.y),
-    0.7,
-    1.2
-  );
+  camera.value.zoom =
+    lerpBetween(
+      300,
+      1920,
+      Math.max(screenSize.value.x, screenSize.value.y),
+      0.7,
+      1.2
+    ) * 3;
 
   minimapScale.value =
     lerpBetween(
@@ -211,7 +212,7 @@ const mapEntity = new GameMap({
       );
       input_.canvasCtx.textAlign = "center";
       input_.canvasCtx.textBaseline = "middle";
-      input_.canvasCtx.font = `${28 * input_.camera.zoom}px "Segoe UI"`;
+      input_.canvasCtx.font = `${10 * input_.camera.zoom}px "Segoe UI"`;
       input_.canvasCtx.fillText(
         input_.cellInfos.numAdjacentBombs.toString(),
         input_.screenPos.x,
@@ -338,6 +339,8 @@ onMounted(async () => {
   if (canvasCtx == null) {
     throw new Error("Canvas context is null");
   }
+
+  canvasCtx.value.imageSmoothingEnabled = false;
 
   renderFrame();
 });

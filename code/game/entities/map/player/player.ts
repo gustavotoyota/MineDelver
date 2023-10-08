@@ -1,25 +1,19 @@
+import { worldToScreen } from "~/code/game/camera";
+import { drawCellImage } from "~/code/game/graphics/draw-cell";
+import { Images } from "~/code/game/images";
+import { IRuntimeCellInfos } from "~/code/game/map/cells";
+import { Grid } from "~/code/game/map/grid";
+import { WorldPos } from "~/code/game/map/position";
+import { StateMachine } from "~/code/game/state-machine";
+import { IVec2, distChebyshev2D } from "~/code/misc/vec2";
 import { IVec3, vec2To3 } from "~/code/misc/vec3";
+import { onCellRender } from "../../entities";
 import { CellEntity } from "../cell-entity";
 import {
   PlayerAnimData,
   PlayerWalkData,
   createPlayerAnimMachine,
-  isPlayerWalking,
 } from "./anim-machine";
-import { Images } from "~/code/game/images";
-import { Grid } from "~/code/game/map/grid";
-import { IRuntimeCellInfos } from "~/code/game/map/cells";
-import { StateMachine } from "~/code/game/state-machine";
-import { WorldPos } from "~/code/game/map/position";
-import { onCellRender } from "../../entities";
-import { worldToScreen } from "~/code/game/camera";
-import { drawCellImage } from "~/code/game/graphics/draw-cell";
-import {
-  IVec2,
-  distChebyshev2D,
-  distManhattan2D,
-  equal2D,
-} from "~/code/misc/vec2";
 
 export class PlayerEntity extends CellEntity {
   private _images: Images;
