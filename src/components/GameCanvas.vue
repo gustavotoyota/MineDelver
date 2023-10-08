@@ -149,19 +149,11 @@ grid.setCell(new Vec3(), { entities: [playerEntity] });
 useEventListener(
   () => window,
   'resize',
-  () => {
-    screenSize.value = new Vec2(
-      canvasRef.value!.offsetWidth,
-      canvasRef.value!.offsetHeight
-    );
-  }
+  () => (screenSize.value = new Vec2(innerWidth, innerHeight))
 );
 
 onMounted(() => {
-  screenSize.value = new Vec2(
-    canvasRef.value!.offsetWidth,
-    canvasRef.value!.offsetHeight
-  );
+  screenSize.value = new Vec2(innerWidth, innerHeight);
 });
 
 watch(screenSize, () => {

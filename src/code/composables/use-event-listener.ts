@@ -12,6 +12,12 @@ export function useEventListener<K extends keyof WindowEventMap>(
   listener: (this: Document, ev: WindowEventMap[K]) => any
 ): void;
 
+export function useEventListener<K extends keyof ScreenOrientationEventMap>(
+  screenOrientation: () => ScreenOrientation,
+  type: K,
+  listener: (this: Document, ev: WindowEventMap[K]) => any
+): void;
+
 export function useEventListener(...args: any[]) {
   onMounted(() => {
     args[0]().addEventListener(args[1], args[2]);
