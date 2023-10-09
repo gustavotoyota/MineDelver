@@ -151,6 +151,10 @@ export class PlayerMovementManager {
       throw new Error('New cell is null');
     }
 
+    if (newCell.flag) {
+      return;
+    }
+
     this._walkData.value = {
       sourcePos: { ...this._playerPos.value },
       targetPos: { ...targetPos3 },

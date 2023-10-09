@@ -16,6 +16,8 @@ export interface IRuntimeCellInfos {
   revealed?: boolean;
 
   entities?: ICellEntity[];
+
+  flag?: boolean;
 }
 
 export function cellHasBomb(input: {

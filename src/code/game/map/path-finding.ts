@@ -106,14 +106,17 @@ export function getShortestPath(input: {
 
       if (!neighbourCell?.revealed || neighbourCell?.hasBomb) {
         if (equal2D(neighbourPos, input.targetPos)) {
-          return [
-            ..._reconstructPath({
-              posInfos: posInfos,
-              currentPos: currentPosInfo.pos,
-              sourcePos: input.sourcePos,
-            }),
-            { ...input.targetPos },
-          ];
+          const path = _reconstructPath({
+            posInfos: posInfos,
+            currentPos: currentPosInfo.pos,
+            sourcePos: input.sourcePos,
+          });
+
+          if (neighbourCell?.flag) {
+            return path;
+          } else {
+            return [...path, { ...input.targetPos }];
+          }
         }
 
         continue;

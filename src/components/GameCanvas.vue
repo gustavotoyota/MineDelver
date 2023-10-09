@@ -3,6 +3,7 @@
     <canvas
       ref="canvasRef"
       style="width: 100%; height: 100%"
+      oncontextmenu="return false"
       @pointermove="(event) => updatePointerPos(event)"
       @pointerleave="
         () => {
@@ -49,6 +50,7 @@ import { useInterval } from 'src/code/composables/use-interval';
 import { Camera, screenToWorld } from 'src/code/game/camera';
 import { Entities } from 'src/code/game/entities/entities';
 import { getBombCountColor } from 'src/code/game/entities/map/bomb-count';
+import { Flagging } from 'src/code/game/entities/map/flagging';
 import { GameMap } from 'src/code/game/entities/map/game-map';
 import { ClickToWalk } from 'src/code/game/entities/map/player/click-to-walk';
 import { PlayerKeyboardMovement } from 'src/code/game/entities/map/player/keyboard-movement';
@@ -167,7 +169,7 @@ const playerEntity = new PlayerEntity({
       startPos: input.startPos,
     }),
   currentTime: currentTime,
-  walkDuration: ref(200),
+  walkDuration: ref(150),
 });
 
 grid.setCell(new Vec3(), { entities: [playerEntity] });
@@ -249,6 +251,16 @@ const mapEntity = new GameMap({
         camera: input_.camera,
         image: images.getImage('wall')!,
       });
+
+      if (input_.cellInfos?.flag) {
+        drawCellImage({
+          canvasCtx: input_.canvasCtx,
+          halfCellSize: halfCellSize.value,
+          screenPos: input_.screenPos,
+          camera: input_.camera,
+          image: images.getImage('flag')!,
+        });
+      }
     }
 
     if (input_.cellInfos?.revealed && input_.cellInfos?.hasBomb) {
@@ -359,6 +371,13 @@ entities.add(
   new ClickToWalk({
     grid: grid,
     playerMovementManager: playerEntity.movementManager,
+    pointerWorldPos: pointerWorldPos,
+  })
+);
+
+entities.add(
+  new Flagging({
+    grid: grid,
     pointerWorldPos: pointerWorldPos,
   })
 );
@@ -478,6 +497,7 @@ onMounted(async () => {
   images.addImage('heart', '/assets/heart.png');
   images.addImage('miner', '/assets/miner.webp');
   images.addImage('bomb', '/assets/bomb.png');
+  images.addImage('flag', '/assets/flag.png');
 
   await images.allImagesLoaded();
 
