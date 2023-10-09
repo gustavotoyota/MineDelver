@@ -41,6 +41,23 @@
       "
       @click="$emit('show-config')"
     />
+
+    <button
+      v-if="$q.platform.is.mobile"
+      style="
+        position: absolute;
+        left: 16px;
+        bottom: 16px;
+        padding: 10px 12px;
+        background-color: #404040;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: #d0d0d0;
+      "
+      :style="{ 'background-color': flagMode ? '#600000' : '#404040' }"
+      @click="flagMode = !flagMode"
+    >
+      Toggle flag mode
+    </button>
   </div>
 </template>
 
@@ -139,6 +156,8 @@ const halfCellSize = computed(() => cellSize.value / 2);
 const entities = new Entities();
 
 const numCorrectGuesses = ref(-1);
+
+const flagMode = ref(false);
 
 onUnmounted(() => {
   entities.clear();
@@ -379,6 +398,7 @@ entities.add(
   new Flagging({
     grid: grid,
     pointerWorldPos: pointerWorldPos,
+    flagMode: flagMode,
   })
 );
 

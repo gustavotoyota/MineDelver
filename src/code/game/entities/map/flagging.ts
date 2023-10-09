@@ -9,18 +9,25 @@ import { IEntity, onInput } from '../entities';
 export class Flagging implements IEntity {
   private _grid: Grid<IRuntimeCellInfos>;
   private _pointerWorldPos: Ref<IVec3 | undefined>;
+  private _flagMode: Ref<boolean>;
 
   constructor(input: {
     grid: Grid<IRuntimeCellInfos>;
     pointerWorldPos: Ref<IVec3 | undefined>;
+    flagMode: Ref<boolean>;
   }) {
     this._grid = input.grid;
     this._pointerWorldPos = input.pointerWorldPos;
+    this._flagMode = input.flagMode;
   }
 
   setup(): void {
     onInput(() => {
-      if (!Input.pointerDown[2] || this._pointerWorldPos.value == null) {
+      if (
+        (!(this._flagMode.value && Input.pointerDown[0]) &&
+          !Input.pointerDown[2]) ||
+        this._pointerWorldPos.value == null
+      ) {
         return;
       }
 
