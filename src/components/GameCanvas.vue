@@ -67,6 +67,10 @@ import {
   loadCellCluster,
 } from 'src/code/game/map/cells';
 import { Grid } from 'src/code/game/map/grid';
+import {
+  getGridSegmentFromWorldRect,
+  getVisibleWorldRect,
+} from 'src/code/game/map/visible-cells';
 import { lerpBetween } from 'src/code/misc/math';
 import { IVec2, Vec2 } from 'src/code/misc/vec2';
 import { IVec3, Vec3 } from 'src/code/misc/vec3';
@@ -331,10 +335,35 @@ entities.add(
 
 watch(playerHP, () => {
   if (playerHP.value === 0) {
-    emit('death');
+    const visibleWorldRect = getVisibleWorldRect({
+      screenSize: screenSize.value,
+      camera: camera.value,
+      cellSize: cellSize.value,
+    });
+
+    const gridSegment = getGridSegmentFromWorldRect({
+      grid: grid,
+      worldRect: visibleWorldRect,
+    });
+
+    for (let y = 0; y < gridSegment.cells[0].length; y++) {
+      const row = gridSegment.cells[0][y];
+
+      for (let x = 0; x < row.length; x++) {
+        const cellInfos = row[x];
+
+        if (cellInfos?.hasBomb) {
+          cellInfos.revealed = true;
+        }
+      }
+    }
+
+    renderFrame();
 
     clearInterval(intervalId.value);
     cancelAnimationFrame(animFrameRequest);
+
+    emit('death');
   }
 });
 
