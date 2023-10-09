@@ -1,41 +1,14 @@
-# MineDelver (minedelver)
+# MineDelver
 
-A Quasar Project
+MineDelver is an infinite minesweeper game with some RPG elements.
 
-## Install the dependencies
-```bash
-yarn
-# or
-npm install
-```
+## Libraries and frameworks used
 
-### Start the app in development mode (hot-code reloading, error reporting, etc.)
-```bash
-quasar dev
-```
+- [Vue.js](https://vuejs.org/): Reactivity, component system, and more
+- [Quasar Framework](https://quasar.dev/): Cross-platform frontend framework
 
+## Asset credits
 
-### Lint the files
-```bash
-yarn lint
-# or
-npm run lint
-```
-
-
-### Format the files
-```bash
-yarn format
-# or
-npm run format
-```
-
-
-
-### Build the app for production
-```bash
-quasar build
-```
-
-### Customize the configuration
-See [Configuring quasar.config.js](https://v2.quasar.dev/quasar-cli-vite/quasar-config-js).
+- [Themo](https://grandmadebslittlebits.wordpress.com/2015/11/07/themo-monster-sprites/): Miner sprites
+- [Joe777](https://joe777.itch.io/16x16-dirt-tiles): Dirt sprite
+- [Hyptosis and Zabin](https://opengameart.org/content/lots-of-free-2d-tiles-and-sprites-by-hyptosis): Bomb sprite
