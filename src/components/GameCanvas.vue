@@ -283,19 +283,13 @@ const mapEntity = new GameMap({
         );
         input_.canvasCtx.textAlign = 'center';
         input_.canvasCtx.textBaseline = 'middle';
-        input_.canvasCtx.font = `${isPlayerOnCell ? '700' : '500'} ${
+        input_.canvasCtx.font = `500 ${
           (cellSize.value * input_.camera.zoom) / 1.6
         }px "Segoe UI"`;
 
-        input_.canvasCtx.fillText(
-          input_.cellInfos.numAdjacentBombs.toString(),
-          input_.screenPos.x,
-          input_.screenPos.y
-        );
-
         if (isPlayerOnCell) {
           input_.canvasCtx.strokeStyle = 'black';
-          input_.canvasCtx.lineWidth = 2;
+          input_.canvasCtx.lineWidth = 2 * camera.value.zoom;
 
           input_.canvasCtx.strokeText(
             input_.cellInfos.numAdjacentBombs.toString(),
@@ -303,6 +297,12 @@ const mapEntity = new GameMap({
             input_.screenPos.y
           );
         }
+
+        input_.canvasCtx.fillText(
+          input_.cellInfos.numAdjacentBombs.toString(),
+          input_.screenPos.x,
+          input_.screenPos.y
+        );
 
         input_.canvasCtx.restore();
       }
