@@ -49,7 +49,7 @@ const configVisible = ref(false);
 const died = ref(false);
 
 const gameConfig = reactive({
-  bombPercentage: 15,
+  bombPercentage: 20,
   numLives: 1,
 });
 
