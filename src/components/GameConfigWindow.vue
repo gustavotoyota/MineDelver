@@ -7,7 +7,8 @@
       top: 0;
       bottom: 0;
       display: flex;
-      justify-content: center;
+      flex-direction: column;
+      justify-content: space-around;
       align-items: center;
       background-color: rgba(0, 0, 0, 0.25);
     "
@@ -25,7 +26,7 @@
     >
       <template v-if="died">
         <div style="color: red; font-weight: bold; font-size: 14px">
-          You died.
+          You died!
         </div>
 
         <div style="height: 16px"></div>
@@ -37,7 +38,7 @@
           type="range"
           min="10"
           max="25"
-          step="5"
+          step="1"
           v-model="_config.bombPercentage"
           style="width: 100%"
         />
@@ -75,6 +76,7 @@
 
       <div>
         <button
+          ref="startGameButton"
           style="
             background-color: #404040;
             border: 1px solid #808080;
@@ -93,12 +95,14 @@
         </button>
       </div>
     </div>
+
+    <div></div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { GameConfigData } from 'src/pages/IndexPage.vue';
-import { onMounted, reactive } from 'vue';
+import { onMounted, reactive, ref } from 'vue';
 
 defineEmits(['startGame']);
 
@@ -109,6 +113,8 @@ const _config: GameConfigData = reactive({
   numLives: 3,
 });
 
+const startGameButton = ref<HTMLButtonElement>();
+
 let _localStorage: Storage;
 
 onMounted(() => {
@@ -117,5 +123,7 @@ onMounted(() => {
   if (localStorage.getItem('gameConfig')) {
     Object.assign(_config, JSON.parse(localStorage.getItem('gameConfig')!));
   }
+
+  startGameButton.value?.focus();
 });
 </script>
