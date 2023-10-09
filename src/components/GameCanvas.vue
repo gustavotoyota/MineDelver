@@ -72,7 +72,7 @@ import {
   getVisibleWorldRect,
 } from 'src/code/game/map/visible-cells';
 import { lerpBetween } from 'src/code/misc/math';
-import { IVec2, Vec2 } from 'src/code/misc/vec2';
+import { equal2D, IVec2, Vec2 } from 'src/code/misc/vec2';
 import { IVec3, Vec3 } from 'src/code/misc/vec3';
 import { GameConfigData } from 'src/pages/IndexPage.vue';
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
@@ -221,41 +221,22 @@ const mapEntity = new GameMap({
   camera: camera,
   pointerScreenPos: pointerScreenPos,
   bgColor: ref('black'),
-  renderGround: (input_) => {
-    if (input_.cellInfos === undefined || input_.cellInfos.hidden) {
-      return;
-    }
+  renderCellOfLayerBelowEntities: [
+    (input_) => {
+      if (input_.cellInfos === undefined || input_.cellInfos.hidden) {
+        return;
+      }
 
-    drawCellImage({
-      canvasCtx: input_.canvasCtx,
-      halfCellSize: halfCellSize.value,
-      screenPos: input_.screenPos,
-      camera: input_.camera,
-      image: images.getImage('ground')!,
-    });
-
-    if (
-      input_.cellInfos?.revealed &&
-      input_.cellInfos?.numAdjacentBombs !== undefined
-    ) {
-      input_.canvasCtx.save();
-      input_.canvasCtx.fillStyle = getBombCountColor(
-        input_.cellInfos.numAdjacentBombs
-      );
-      input_.canvasCtx.textAlign = 'center';
-      input_.canvasCtx.textBaseline = 'middle';
-      input_.canvasCtx.font = `${
-        (cellSize.value * input_.camera.zoom) / 1.6
-      }px "Segoe UI"`;
-      input_.canvasCtx.fillText(
-        input_.cellInfos.numAdjacentBombs.toString(),
-        input_.screenPos.x,
-        input_.screenPos.y
-      );
-      input_.canvasCtx.restore();
-    }
-  },
-  renderNonGround: (input_) => {
+      drawCellImage({
+        canvasCtx: input_.canvasCtx,
+        halfCellSize: halfCellSize.value,
+        screenPos: input_.screenPos,
+        camera: input_.camera,
+        image: images.getImage('ground')!,
+      });
+    },
+  ],
+  renderBeforeEntities: (input_) => {
     if (input_.cellInfos === undefined || input_.cellInfos.hidden) {
       return;
     }
@@ -280,6 +261,53 @@ const mapEntity = new GameMap({
       });
     }
   },
+  renderCellOfLayerAboveEntities: [
+    (input_) => {
+      if (input_.cellInfos === undefined || input_.cellInfos.hidden) {
+        return;
+      }
+
+      if (
+        input_.cellInfos?.revealed &&
+        input_.cellInfos?.numAdjacentBombs !== undefined
+      ) {
+        const isPlayerOnCell = equal2D(
+          input_.worldPos,
+          playerEntity.worldPos.value
+        );
+
+        input_.canvasCtx.save();
+
+        input_.canvasCtx.fillStyle = getBombCountColor(
+          input_.cellInfos.numAdjacentBombs
+        );
+        input_.canvasCtx.textAlign = 'center';
+        input_.canvasCtx.textBaseline = 'middle';
+        input_.canvasCtx.font = `${isPlayerOnCell ? '700' : '500'} ${
+          (cellSize.value * input_.camera.zoom) / 1.6
+        }px "Segoe UI"`;
+
+        input_.canvasCtx.fillText(
+          input_.cellInfos.numAdjacentBombs.toString(),
+          input_.screenPos.x,
+          input_.screenPos.y
+        );
+
+        if (isPlayerOnCell) {
+          input_.canvasCtx.strokeStyle = 'black';
+          input_.canvasCtx.lineWidth = 2;
+
+          input_.canvasCtx.strokeText(
+            input_.cellInfos.numAdjacentBombs.toString(),
+            input_.screenPos.x,
+            input_.screenPos.y
+          );
+        }
+
+        input_.canvasCtx.restore();
+      }
+    },
+  ],
 });
 
 mapEntity.cellEntities.add(playerEntity);

@@ -36,8 +36,10 @@ export class GameMap implements IEntity {
   private _cellSize: Ref<number>;
   private _pointerScreenPos: Ref<Vec2 | undefined>;
   private _bgColor: Ref<string>;
-  private _renderGround: IRenderCell;
-  private _renderNonGround: IRenderCell;
+  private _renderCellOfLayerBelowEntities?: IRenderCell[];
+  private _renderBeforeEntities?: IRenderCell;
+  private _renderAfterEntities?: IRenderCell;
+  private _renderCellOfLayerAboveEntities?: IRenderCell[];
   public readonly cellEntities: Entities<ICellEntity>;
 
   constructor(input: {
@@ -46,16 +48,20 @@ export class GameMap implements IEntity {
     cellSize: Ref<number>;
     pointerScreenPos: Ref<Vec2 | undefined>;
     bgColor: Ref<string>;
-    renderGround: IRenderCell;
-    renderNonGround: IRenderCell;
+    renderCellOfLayerBelowEntities?: IRenderCell[];
+    renderBeforeEntities?: IRenderCell;
+    renderAfterEntities?: IRenderCell;
+    renderCellOfLayerAboveEntities?: IRenderCell[];
   }) {
     this._camera = input.camera;
     this._cellSize = input.cellSize;
     this._pointerScreenPos = input.pointerScreenPos;
     this._grid = input.grid;
     this._bgColor = input.bgColor;
-    this._renderGround = input.renderGround;
-    this._renderNonGround = input.renderNonGround;
+    this._renderCellOfLayerBelowEntities = input.renderCellOfLayerBelowEntities;
+    this._renderBeforeEntities = input.renderBeforeEntities;
+    this._renderAfterEntities = input.renderAfterEntities;
+    this._renderCellOfLayerAboveEntities = input.renderCellOfLayerAboveEntities;
     this.cellEntities = new Entities();
   }
 
@@ -134,27 +140,29 @@ export class GameMap implements IEntity {
 
       // Draw the map
 
-      this._drawLayer({
-        canvasCtx: input.canvasCtx,
-        gridSegment: gridSegment,
-        screenSize: screenSize,
-        drawCell: (input_) => {
-          this._renderGround({
-            canvasCtx: input.canvasCtx,
-            worldPos: input_.worldPos,
-            screenPos: input_.screenPos,
-            cellInfos: input_.cellInfos,
-            camera: this._camera.value,
-          });
-        },
-      });
+      for (const renderFunc of this._renderCellOfLayerBelowEntities ?? []) {
+        this._drawLayer({
+          canvasCtx: input.canvasCtx,
+          gridSegment: gridSegment,
+          screenSize: screenSize,
+          drawCell: (input_) => {
+            renderFunc({
+              canvasCtx: input.canvasCtx,
+              worldPos: input_.worldPos,
+              screenPos: input_.screenPos,
+              cellInfos: input_.cellInfos,
+              camera: this._camera.value,
+            });
+          },
+        });
+      }
 
       this._drawLayer({
         canvasCtx: input.canvasCtx,
         gridSegment: gridSegment,
         screenSize: screenSize,
         drawCell: (input_) => {
-          this._renderNonGround({
+          this._renderBeforeEntities?.({
             canvasCtx: input.canvasCtx,
             worldPos: input_.worldPos,
             screenPos: input_.screenPos,
@@ -176,8 +184,32 @@ export class GameMap implements IEntity {
               });
             });
           }
+          this._renderAfterEntities?.({
+            canvasCtx: input.canvasCtx,
+            worldPos: input_.worldPos,
+            screenPos: input_.screenPos,
+            cellInfos: input_.cellInfos,
+            camera: this._camera.value,
+          });
         },
       });
+
+      for (const renderFunc of this._renderCellOfLayerAboveEntities ?? []) {
+        this._drawLayer({
+          canvasCtx: input.canvasCtx,
+          gridSegment: gridSegment,
+          screenSize: screenSize,
+          drawCell: (input_) => {
+            renderFunc({
+              canvasCtx: input.canvasCtx,
+              worldPos: input_.worldPos,
+              screenPos: input_.screenPos,
+              cellInfos: input_.cellInfos,
+              camera: this._camera.value,
+            });
+          },
+        });
+      }
 
       // Draw the hovered cell
 
