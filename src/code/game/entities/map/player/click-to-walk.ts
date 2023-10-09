@@ -40,7 +40,7 @@ export class ClickToWalk implements IEntity {
 
     const shortestPath = getShortestPath({
       grid: this._grid,
-      sourcePos: this._playerMovementManager.targetPlayerPos,
+      sourcePos: this._playerMovementManager.nextPlayerPos,
       targetPos: this._pointerWorldPos.value,
     });
 

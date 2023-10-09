@@ -73,7 +73,7 @@ export class PlayerMovementManager {
     }
   }
 
-  get targetPlayerPos(): IVec3 {
+  get nextPlayerPos(): IVec3 {
     if (this._walkData.value != null) {
       return this._walkData.value.targetPos;
     } else {
@@ -101,7 +101,7 @@ export class PlayerMovementManager {
   }
 
   walkToDirection(direction: IVec2) {
-    this.setNextMovements([add2(this._playerPos.value, direction)]);
+    this.setNextMovements([add2(this.nextPlayerPos, direction)]);
   }
 
   get finalTargetPos(): IVec2 {
