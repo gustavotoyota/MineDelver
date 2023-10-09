@@ -4,7 +4,7 @@ import { add2, distChebyshev2D, IVec2 } from 'src/code/misc/vec2';
 import { IVec3, lerp3, vec2To3 } from 'src/code/misc/vec3';
 import { Ref, ref } from 'vue';
 
-import { onRender, onUpdate } from '../../entities';
+import { onRender } from '../../entities';
 
 export type PlayerWalkData =
   | {
@@ -161,7 +161,7 @@ export class PlayerMovementManager {
   }
 
   setup() {
-    onUpdate(() => {
+    onRender(() => {
       this._tryNextMovement();
     });
 

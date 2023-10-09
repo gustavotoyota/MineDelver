@@ -1,7 +1,7 @@
 import { Input } from 'src/code/game/input';
 import { equal2D, IVec2, Vec2 } from 'src/code/misc/vec2';
 
-import { IEntity, onUpdate } from '../../entities';
+import { IEntity, onInput, onRender } from '../../entities';
 
 export function performKeyboardMovement(input: {
   walkToDirection: (direction: IVec2) => void;
@@ -67,7 +67,11 @@ export class PlayerKeyboardMovement implements IEntity {
   }
 
   setup(): void {
-    onUpdate(() => {
+    onInput(() => {
+      performKeyboardMovement({ walkToDirection: this._walkToDirection });
+    });
+
+    onRender(() => {
       performKeyboardMovement({ walkToDirection: this._walkToDirection });
     });
   }

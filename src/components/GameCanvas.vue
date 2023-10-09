@@ -152,6 +152,8 @@ const minimapSize = ref(new Vec2(200, 150));
 
 const grid = new Grid<IRuntimeCellInfos>();
 
+let stopTimer = false;
+
 const playerEntity = new PlayerEntity({
   hp: playerHP,
   maxHP: playerMaxHP,
@@ -358,10 +360,9 @@ watch(playerHP, () => {
       }
     }
 
-    renderFrame();
-
     clearInterval(intervalId.value);
-    cancelAnimationFrame(animFrameRequest);
+
+    stopTimer = true;
 
     emit('death');
   }
@@ -419,7 +420,9 @@ function updatePointerWorldPos() {
 let animFrameRequest: number;
 
 function renderFrame() {
-  currentTime.value = Date.now();
+  if (!stopTimer) {
+    currentTime.value = Date.now();
+  }
 
   updatePointerWorldPos();
 

@@ -6,7 +6,7 @@ import { equal2D } from 'src/code/misc/vec2';
 import { IVec3 } from 'src/code/misc/vec3';
 import { Ref } from 'vue';
 
-import { IEntity, onInput, onUpdate } from '../../entities';
+import { IEntity, onInput, onRender } from '../../entities';
 import { PlayerMovementManager } from './movement-manager';
 
 export class ClickToWalk implements IEntity {
@@ -56,7 +56,7 @@ export class ClickToWalk implements IEntity {
       this._clickToWalk();
     });
 
-    onUpdate(() => {
+    onRender(() => {
       this._clickToWalk();
     });
   }
