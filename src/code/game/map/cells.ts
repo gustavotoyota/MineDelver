@@ -23,16 +23,13 @@ export function cellHasBomb(input: {
   worldPos: IVec3;
   bombProbability: number;
 }): boolean {
-  return (
-    posMod(
-      hashFNV1a(
-        `${input.seed}:${input.worldPos.x}:${input.worldPos.y}:${input.worldPos.z}`
-      ),
-      10000
-    ) /
-      10000 <
-    input.bombProbability
+  const hash = hashFNV1a(
+    `${input.seed}:${input.worldPos.x}:${input.worldPos.y}:${input.worldPos.z}`
   );
+
+  const modded = posMod(hash, 10000);
+
+  return modded / 10000 < input.bombProbability;
 }
 
 export function createCell(input: { hasBomb: boolean }): IRuntimeCellInfos {
@@ -88,11 +85,11 @@ function processBomb(input: {
 
   for (const neighbourCell of neighbourCells) {
     if (neighbourCell.hasBomb) {
-      processBomb({
-        cell: neighbourCell,
-        worldPos: neighbourPositions[neighbourCells.indexOf(neighbourCell)],
-        getOrCreateCell: input.getOrCreateCell,
-      });
+      // processBomb({
+      //   cell: neighbourCell,
+      //   worldPos: neighbourPositions[neighbourCells.indexOf(neighbourCell)],
+      //   getOrCreateCell: input.getOrCreateCell,
+      // });
     } else {
       neighbourCell.numAdjacentBombs =
         (neighbourCell.numAdjacentBombs ?? 0) + 1;
@@ -142,10 +139,6 @@ export function loadCellCluster(input: {
       cell.revealed = true;
     }
 
-    if (cell.hasBomb) {
-      return false;
-    }
-
     // Load neighbours
 
     const neighbourPositions = [
@@ -167,6 +160,10 @@ export function loadCellCluster(input: {
 
     for (const neighbourCell of neighbourCells.filter((cell) => cell.hidden)) {
       delete neighbourCell.hidden;
+    }
+
+    if (cell.hasBomb) {
+      return false;
     }
 
     // Check if some neighbours have bombs

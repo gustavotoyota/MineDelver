@@ -9,6 +9,7 @@
         }
       "
       :config="gameConfig"
+      @show-config="() => (configVisible = true)"
     />
 
     <GameConfigWindow
@@ -17,11 +18,14 @@
       :config="gameConfig"
       @start-game="
         (event) => {
+          _localStorage.setItem('gameConfig', JSON.stringify(event.config));
           Object.assign(gameConfig, event.config);
           configVisible = false;
+          died = false;
           key++;
         }
       "
+      @close="configVisible = false"
     />
   </q-page>
 </template>
@@ -36,16 +40,28 @@ export interface GameConfigData {
 <script setup lang="ts">
 import GameCanvas from 'src/components/GameCanvas.vue';
 import GameConfigWindow from 'src/components/GameConfigWindow.vue';
-import { reactive, ref } from 'vue';
+import { onBeforeMount, reactive, ref } from 'vue';
 
 const key = ref(0);
 
-const configVisible = ref(true);
+const configVisible = ref(false);
 
 const died = ref(false);
 
 const gameConfig = reactive({
   bombPercentage: 15,
   numLives: 3,
+});
+
+let _localStorage: Storage;
+
+onBeforeMount(() => {
+  _localStorage = localStorage;
+
+  if (localStorage.getItem('gameConfig')) {
+    Object.assign(gameConfig, JSON.parse(localStorage.getItem('gameConfig')!));
+
+    key.value++;
+  }
 });
 </script>

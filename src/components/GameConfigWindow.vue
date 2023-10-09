@@ -18,32 +18,41 @@
         border: 1px solid #505050;
         border-radius: 7px;
         padding: 16px;
-        background-color: rgba(48, 48, 48, 0.95);
+        background-color: rgba(48, 48, 48, 0.8);
         font-size: 13px;
         color: #d0d0d0;
-        width: 170px;
+        width: 200px;
       "
     >
-      <template v-if="died">
-        <div style="color: red; font-weight: bold; font-size: 14px">
-          You died!
+      <div style="display: flex; justify-content: space-between">
+        <div style="font-weight: bold; font-size: 15px">
+          <div v-if="died" style="color: red">You died!</div>
+          <div v-else>New game</div>
         </div>
 
-        <div style="height: 16px"></div>
-      </template>
+        <q-icon
+          v-if="!died"
+          name="mdi-close"
+          size="20px"
+          style="cursor: pointer"
+          @click="$emit('close')"
+        />
+      </div>
+
+      <div style="height: 16px"></div>
 
       <div>
-        <div>Bomb percentage: {{ _config.bombPercentage }}%</div>
+        <div><b>Bomb percentage:</b> {{ _config.bombPercentage }}%</div>
         <input
           type="range"
           min="10"
-          max="25"
+          max="30"
           step="1"
           v-model="_config.bombPercentage"
           style="width: 100%"
         />
         <div>
-          Difficulty:
+          <b>Difficulty:</b>
           {{
             _config.bombPercentage < 12.5
               ? 'Easy'
@@ -51,7 +60,9 @@
               ? 'Medium'
               : _config.bombPercentage < 22.5
               ? 'Hard'
-              : 'Extreme'
+              : _config.bombPercentage < 27.5
+              ? 'Extreme'
+              : 'Impossible'
           }}
         </div>
       </div>
@@ -60,7 +71,7 @@
 
       <div>
         <div>
-          Num lives:
+          <b>Num lives:</b>
           {{ _config.numLives <= 10 ? _config.numLives : 'Infinite' }}
         </div>
         <input
@@ -83,13 +94,7 @@
             color: #d0d0d0;
             width: 100%;
           "
-          @click="
-            () => {
-              _localStorage.setItem('gameConfig', JSON.stringify(_config));
-
-              $emit('startGame', { config: _config });
-            }
-          "
+          @click="() => $emit('startGame', { config: _config })"
         >
           Start new game
         </button>
@@ -104,26 +109,18 @@
 import { GameConfigData } from 'src/pages/IndexPage.vue';
 import { onMounted, reactive, ref } from 'vue';
 
-defineEmits(['startGame']);
+defineEmits(['startGame', 'close']);
 
-defineProps<{ died: boolean }>();
+const props = defineProps<{
+  died: boolean;
+  config: GameConfigData;
+}>();
 
-const _config: GameConfigData = reactive({
-  bombPercentage: 15,
-  numLives: 3,
-});
+const _config: GameConfigData = reactive(props.config);
 
 const startGameButton = ref<HTMLButtonElement>();
 
-let _localStorage: Storage;
-
 onMounted(() => {
-  _localStorage = localStorage;
-
-  if (localStorage.getItem('gameConfig')) {
-    Object.assign(_config, JSON.parse(localStorage.getItem('gameConfig')!));
-  }
-
   startGameButton.value?.focus();
 });
 </script>

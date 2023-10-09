@@ -17,6 +17,10 @@ export class HPBar implements IEntity {
 
   setup() {
     onRender((input) => {
+      if (!isFinite(this._hp.value)) {
+        return;
+      }
+
       for (let i = 0; i < this._hp.value; i++) {
         input.canvasCtx.drawImage(
           this._images.getImage('heart')!,

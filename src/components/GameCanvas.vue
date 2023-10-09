@@ -1,31 +1,46 @@
 <template>
-  <canvas
-    ref="canvasRef"
-    style="width: 100%; height: 100%"
-    @pointermove="(event) => updatePointerPos(event)"
-    @pointerleave="
-      () => {
-        pointerScreenPos = undefined;
-        pointerWorldPos = undefined;
-      }
-    "
-    @pointerdown="
-      (event) => {
-        Input.pointerDown[event.button] = true;
+  <div style="width: 100%; height: 100%">
+    <canvas
+      ref="canvasRef"
+      style="width: 100%; height: 100%"
+      @pointermove="(event) => updatePointerPos(event)"
+      @pointerleave="
+        () => {
+          pointerScreenPos = undefined;
+          pointerWorldPos = undefined;
+        }
+      "
+      @pointerdown="
+        (event) => {
+          Input.pointerDown[event.button] = true;
 
-        updatePointerPos(event);
+          updatePointerPos(event);
 
-        entities.input({ event });
-      }
-    "
-    @pointerup="
-      (event) => {
-        Input.pointerDown[event.button] = false;
+          entities.input({ event });
+        }
+      "
+      @pointerup="
+        (event) => {
+          Input.pointerDown[event.button] = false;
 
-        entities.input({ event });
-      }
-    "
-  ></canvas>
+          entities.input({ event });
+        }
+      "
+    ></canvas>
+
+    <q-icon
+      size="32px"
+      name="mdi-cog"
+      style="
+        position: absolute;
+        right: 16px;
+        top: 16px;
+        color: white;
+        cursor: pointer;
+      "
+      @click="$emit('show-config')"
+    />
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -62,7 +77,7 @@ const props = defineProps<{
   config: GameConfigData;
 }>();
 
-const emit = defineEmits(['death']);
+const emit = defineEmits(['death', 'show-config']);
 
 function getOrCreateCell_(input_: { worldPos: IVec3 }) {
   return getOrCreateCell({
@@ -102,8 +117,10 @@ const currentTime = ref(Date.now());
 
 const camera = ref(new Camera());
 
-const playerHP = ref(props.config.numLives);
-const playerMaxHP = ref(props.config.numLives);
+const playerMaxHP = ref(
+  props.config.numLives <= 10 ? props.config.numLives : Infinity
+);
+const playerHP = ref(playerMaxHP.value);
 
 const seed = Math.round(Math.random() * Number.MAX_SAFE_INTEGER);
 
