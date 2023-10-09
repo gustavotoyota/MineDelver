@@ -198,7 +198,7 @@ watch(screenSize, () => {
       300,
       1920,
       Math.max(screenSize.value.x, screenSize.value.y),
-      0.7,
+      0.8,
       1.2
     ) *
     1.5;
