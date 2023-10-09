@@ -71,7 +71,7 @@
 
       <div>
         <div>
-          <b>Num lives:</b>
+          <b>Num. lives:</b>
           {{ _config.numLives <= 10 ? _config.numLives : 'Infinite' }}
         </div>
         <input

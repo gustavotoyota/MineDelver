@@ -50,7 +50,7 @@ const died = ref(false);
 
 const gameConfig = reactive({
   bombPercentage: 15,
-  numLives: 3,
+  numLives: 1,
 });
 
 let _localStorage: Storage;
