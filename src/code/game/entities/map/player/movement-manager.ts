@@ -1,6 +1,6 @@
 import { IRuntimeCellInfos } from 'src/code/game/map/cells';
 import { Grid } from 'src/code/game/map/grid';
-import { add2, distChebyshev2D, equal2D, IVec2 } from 'src/code/misc/vec2';
+import { add2, distChebyshev2D, IVec2 } from 'src/code/misc/vec2';
 import { IVec3, lerp3, vec2To3 } from 'src/code/misc/vec3';
 import { Ref, ref } from 'vue';
 
@@ -101,7 +101,7 @@ export class PlayerMovementManager {
   }
 
   walkToDirection(direction: IVec2) {
-    this.setNextMovements([add2(this.nextPlayerPos, direction)]);
+    this.walkTo(add2(this.nextPlayerPos, direction));
   }
 
   get finalTargetPos(): IVec2 {
@@ -126,24 +126,26 @@ export class PlayerMovementManager {
       this._playerPos.value.z
     );
 
-    if (equal2D(targetPos, this._playerPos.value)) {
-      return;
-    }
-
     if (distChebyshev2D(targetPos, this._playerPos.value) > 1) {
       this.cancelNextMovements();
       return;
     }
 
-    if (!this._startWalking({ targetPos: targetPos })) {
-      this.cancelNextMovements();
-    }
+    this.walkTo(targetPos);
   }
 
-  private _startWalking(input: { targetPos: IVec2 }): boolean {
-    const targetPos = vec2To3(input.targetPos, this._playerPos.value.z);
+  walkTo(targetPos: IVec2) {
+    if (this.isWalking) {
+      return;
+    }
 
-    const newCell = this._grid.getCell(targetPos);
+    const targetPos3 = vec2To3(targetPos, this._playerPos.value.z);
+
+    if (distChebyshev2D(targetPos, this._playerPos.value) !== 1) {
+      return;
+    }
+
+    const newCell = this._grid.getCell(targetPos3);
 
     if (newCell == null) {
       throw new Error('New cell is null');
@@ -151,13 +153,11 @@ export class PlayerMovementManager {
 
     this._walkData.value = {
       sourcePos: { ...this._playerPos.value },
-      targetPos: { ...targetPos },
+      targetPos: { ...targetPos3 },
       targetIsObstacle: !newCell.revealed || !!newCell.hasBomb,
       startTime: this._currentTime.value,
       endTime: this._currentTime.value + this._walkDuration.value,
     };
-
-    return true;
   }
 
   setup() {
