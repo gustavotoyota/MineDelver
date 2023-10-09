@@ -102,7 +102,6 @@ function loadCellCluster_(input: {
 }) {
   return loadCellCluster({
     startPos: input.startPos,
-    numRevealedCells: numRevealedCells,
     numCorrectGuesses: numCorrectGuesses,
     getOrCreateCell: (input_) =>
       getOrCreateCell_({
@@ -133,7 +132,6 @@ const halfCellSize = computed(() => cellSize.value / 2);
 
 const entities = new Entities();
 
-const numRevealedCells = ref(0);
 const numCorrectGuesses = ref(-1);
 
 onUnmounted(() => {
@@ -301,13 +299,6 @@ entities.add(
   new Text({
     pos: ref(new Vec2(10, 58)),
     text: computed(() => `Successful: ${numCorrectGuesses.value}`),
-  })
-);
-
-entities.add(
-  new Text({
-    pos: ref(new Vec2(10, 80)),
-    text: computed(() => `Revealed: ${numRevealedCells.value}`),
   })
 );
 
