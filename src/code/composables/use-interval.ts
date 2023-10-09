@@ -1,13 +1,18 @@
-import { onMounted, onUnmounted } from 'vue';
+import { onMounted, onUnmounted, Ref, ref } from 'vue';
 
-export function useInterval(handler: () => void, ms?: number) {
-  let intervalId: NodeJS.Timeout | number;
+export function useInterval(
+  handler: () => void,
+  ms?: number
+): Ref<NodeJS.Timeout | number> {
+  const intervalId = ref() as Ref<NodeJS.Timeout | number>;
 
   onMounted(() => {
-    intervalId = setInterval(handler, ms);
+    intervalId.value = setInterval(handler, ms);
   });
 
   onUnmounted(() => {
-    clearInterval(intervalId);
+    clearInterval(intervalId.value);
   });
+
+  return intervalId;
 }

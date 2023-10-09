@@ -55,7 +55,12 @@ import { Grid } from 'src/code/game/map/grid';
 import { lerpBetween } from 'src/code/misc/math';
 import { IVec2, Vec2 } from 'src/code/misc/vec2';
 import { IVec3, Vec3 } from 'src/code/misc/vec3';
+import { GameConfigData } from 'src/pages/IndexPage.vue';
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
+
+const props = defineProps<{
+  config: GameConfigData;
+}>();
 
 const emit = defineEmits(['death']);
 
@@ -69,7 +74,7 @@ function getOrCreateCell_(input_: { worldPos: IVec3 }) {
         bombProbability:
           Math.abs(input_.worldPos.x) <= 1 && Math.abs(input_.worldPos.y) <= 1
             ? 0
-            : 0.15,
+            : props.config.bombPercentage / 100,
       }),
     grid: grid,
   });
@@ -97,8 +102,8 @@ const currentTime = ref(Date.now());
 
 const camera = ref(new Camera());
 
-const playerHP = ref(3);
-const playerMaxHP = ref(3);
+const playerHP = ref(props.config.numLives);
+const playerMaxHP = ref(props.config.numLives);
 
 const seed = Math.round(Math.random() * Number.MAX_SAFE_INTEGER);
 
@@ -318,11 +323,10 @@ entities.add(
 
 watch(playerHP, () => {
   if (playerHP.value === 0) {
-    setTimeout(() => {
-      alert('You died!');
+    emit('death');
 
-      emit('death');
-    }, 50);
+    clearInterval(intervalId.value);
+    cancelAnimationFrame(animFrameRequest);
   }
 });
 
@@ -393,7 +397,7 @@ onUnmounted(() => {
   cancelAnimationFrame(animFrameRequest);
 });
 
-useInterval(() => {
+const intervalId = useInterval(() => {
   entities.update({
     currentTime: currentTime.value,
     deltaTime: 1000 / 60,
