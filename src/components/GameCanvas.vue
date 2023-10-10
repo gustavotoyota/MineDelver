@@ -82,14 +82,11 @@ import { Input } from 'src/code/game/input';
 import {
   cellHasBomb,
   getOrCreateCell,
-  IRuntimeCellInfos,
+  ICellData,
   loadCellCluster,
 } from 'src/code/game/map/cells';
 import { Grid } from 'src/code/game/map/grid';
-import {
-  getGridSegmentFromWorldRect,
-  getVisibleWorldRect,
-} from 'src/code/game/map/visible-cells';
+import { getVisibleWorldRect } from 'src/code/game/map/visible-cells';
 import { lerpBetween } from 'src/code/misc/math';
 import { equal2D, IVec2, Vec2 } from 'src/code/misc/vec2';
 import { IVec3, Vec3 } from 'src/code/misc/vec3';
@@ -121,7 +118,7 @@ function getOrCreateCell_(input_: { worldPos: IVec3 }) {
 function loadCellCluster_(input: {
   seed: number;
   startPos: IVec3;
-  grid: Grid<IRuntimeCellInfos>;
+  grid: Grid<ICellData>;
 }) {
   return loadCellCluster({
     startPos: input.startPos,
@@ -171,7 +168,7 @@ const screenSize = ref(new Vec2());
 const minimapScale = ref(3);
 const minimapSize = ref(new Vec2(200, 150));
 
-const grid = new Grid<IRuntimeCellInfos>();
+const grid = new Grid<ICellData>();
 
 let stopTimer = false;
 
@@ -244,7 +241,7 @@ const mapEntity = new GameMap({
   bgColor: ref('black'),
   renderCellOfLayerBelowEntities: [
     (input_) => {
-      if (input_.cellInfos === undefined || input_.cellInfos.hidden) {
+      if (input_.cellData === undefined || input_.cellData.hidden) {
         return;
       }
 
@@ -258,11 +255,11 @@ const mapEntity = new GameMap({
     },
   ],
   renderBeforeEntities: (input_) => {
-    if (input_.cellInfos === undefined || input_.cellInfos.hidden) {
+    if (input_.cellData === undefined || input_.cellData.hidden) {
       return;
     }
 
-    if (!input_.cellInfos?.revealed) {
+    if (!input_.cellData?.revealed) {
       drawCellImage({
         canvasCtx: input_.canvasCtx,
         halfCellSize: halfCellSize.value,
@@ -271,7 +268,7 @@ const mapEntity = new GameMap({
         image: images.getImage('wall')!,
       });
 
-      if (input_.cellInfos?.flag) {
+      if (input_.cellData?.flag) {
         drawCellImage({
           canvasCtx: input_.canvasCtx,
           halfCellSize: halfCellSize.value,
@@ -282,7 +279,7 @@ const mapEntity = new GameMap({
       }
     }
 
-    if (input_.cellInfos?.revealed && input_.cellInfos?.hasBomb) {
+    if (input_.cellData?.revealed && input_.cellData?.hasBomb) {
       drawCellImage({
         canvasCtx: input_.canvasCtx,
         halfCellSize: halfCellSize.value,
@@ -294,13 +291,13 @@ const mapEntity = new GameMap({
   },
   renderCellOfLayerAboveEntities: [
     (input_) => {
-      if (input_.cellInfos === undefined || input_.cellInfos.hidden) {
+      if (input_.cellData === undefined || input_.cellData.hidden) {
         return;
       }
 
       if (
-        input_.cellInfos?.revealed &&
-        input_.cellInfos?.numAdjacentBombs !== undefined
+        input_.cellData?.revealed &&
+        input_.cellData?.numAdjacentBombs !== undefined
       ) {
         const isPlayerOnCell = equal2D(
           input_.worldPos,
@@ -310,7 +307,7 @@ const mapEntity = new GameMap({
         input_.canvasCtx.save();
 
         input_.canvasCtx.fillStyle = getBombCountColor(
-          input_.cellInfos.numAdjacentBombs
+          input_.cellData.numAdjacentBombs
         );
         input_.canvasCtx.textAlign = 'center';
         input_.canvasCtx.textBaseline = 'middle';
@@ -323,14 +320,14 @@ const mapEntity = new GameMap({
           input_.canvasCtx.lineWidth = 2 * camera.value.zoom;
 
           input_.canvasCtx.strokeText(
-            input_.cellInfos.numAdjacentBombs.toString(),
+            input_.cellData.numAdjacentBombs.toString(),
             input_.screenPos.x,
             input_.screenPos.y
           );
         }
 
         input_.canvasCtx.fillText(
-          input_.cellInfos.numAdjacentBombs.toString(),
+          input_.cellData.numAdjacentBombs.toString(),
           input_.screenPos.x,
           input_.screenPos.y
         );
@@ -410,22 +407,13 @@ watch(playerHP, () => {
       cellSize: cellSize.value,
     });
 
-    const gridSegment = getGridSegmentFromWorldRect({
-      grid: grid,
-      worldRect: visibleWorldRect,
-    });
+    const gridSlice = grid.getSlice({ rect: visibleWorldRect });
 
-    for (let y = 0; y < gridSegment.cells[0].length; y++) {
-      const row = gridSegment.cells[0][y];
-
-      for (let x = 0; x < row.length; x++) {
-        const cellInfos = row[x];
-
-        if (cellInfos?.hasBomb) {
-          cellInfos.revealed = true;
-        }
+    gridSlice.iterateCells(({ cell }) => {
+      if (cell?.hasBomb) {
+        cell.revealed = true;
       }
-    }
+    });
 
     clearInterval(intervalId.value);
 

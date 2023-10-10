@@ -4,20 +4,19 @@ import { Vec3 } from 'src/code/misc/vec3';
 import { Ref } from 'vue';
 
 import { ICamera } from '../../camera';
-import { IRuntimeCellInfos } from '../../map/cells';
+import { ICellData } from '../../map/cells';
 import { Grid } from '../../map/grid';
-import { getGridSegmentFromWorldRect } from '../../map/visible-cells';
 import { IEntity, onRender } from '../entities';
 
 export class Minimap implements IEntity {
-  private _grid: Grid<IRuntimeCellInfos>;
+  private _grid: Grid<ICellData>;
   private _pos: Ref<IVec2>;
   private _size: Ref<IVec2>;
   private _scale: Ref<number>;
   private _camera: Ref<ICamera>;
 
   constructor(input: {
-    grid: Grid<IRuntimeCellInfos>;
+    grid: Grid<ICellData>;
     pos: Ref<IVec2>;
     size: Ref<IVec2>;
     scale: Ref<number>;
@@ -57,9 +56,8 @@ export class Minimap implements IEntity {
         )
       );
 
-      const gridSegment = getGridSegmentFromWorldRect({
-        grid: this._grid,
-        worldRect: worldRect,
+      const gridSegment = this._grid.getMatrixSlice({
+        rect: worldRect,
       });
 
       const imageData = input.canvasCtx.getImageData(
@@ -75,9 +73,9 @@ export class Minimap implements IEntity {
         const row = gridSegment.cells[0][Math.floor(y / this._scale.value)];
 
         for (let x = 0; x < this._size.value.x; x++) {
-          const cellInfos = row[Math.floor(x / this._scale.value)];
+          const cellData = row[Math.floor(x / this._scale.value)];
 
-          if (cellInfos?.revealed) {
+          if (cellData?.revealed) {
             data[y * this._size.value.x + x] = 0xffffffff;
           }
         }

@@ -8,7 +8,7 @@ import {
 } from 'src/code/misc/vec2';
 import { IVec3, vec2To3 } from 'src/code/misc/vec3';
 
-import { IRuntimeCellInfos } from './cells';
+import { ICellData } from './cells';
 import { Grid } from './grid';
 
 interface PosInfo {
@@ -41,7 +41,7 @@ function _reconstructPath(input: {
 export function getShortestPath(input: {
   sourcePos: IVec3;
   targetPos: IVec2;
-  grid: Grid<IRuntimeCellInfos>;
+  grid: Grid<ICellData>;
 }): IVec2[] | undefined {
   const closedSet = new Set<string>();
 

@@ -158,7 +158,7 @@ export function getSliceFromSegments<T>(
   // Include items in between
 
   for (let i = startSegmentIndex + 1; i < endSegmentIndex; i++) {
-    result.push({ ...segments[i] });
+    result.push({ from: segments[i].from, items: [...segments[i].items] });
   }
 
   // Include end items

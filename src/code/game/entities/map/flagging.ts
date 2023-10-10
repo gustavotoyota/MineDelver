@@ -2,17 +2,17 @@ import { IVec3 } from 'src/code/misc/vec3';
 import { Ref } from 'vue';
 
 import { Input } from '../../input';
-import { IRuntimeCellInfos } from '../../map/cells';
+import { ICellData } from '../../map/cells';
 import { Grid } from '../../map/grid';
 import { IEntity, onInput } from '../entities';
 
 export class Flagging implements IEntity {
-  private _grid: Grid<IRuntimeCellInfos>;
+  private _grid: Grid<ICellData>;
   private _pointerWorldPos: Ref<IVec3 | undefined>;
   private _flagMode: Ref<boolean>;
 
   constructor(input: {
-    grid: Grid<IRuntimeCellInfos>;
+    grid: Grid<ICellData>;
     pointerWorldPos: Ref<IVec3 | undefined>;
     flagMode: Ref<boolean>;
   }) {

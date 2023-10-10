@@ -1,4 +1,4 @@
-import { IRuntimeCellInfos } from 'src/code/game/map/cells';
+import { ICellData } from 'src/code/game/map/cells';
 import { Grid } from 'src/code/game/map/grid';
 import { add2, distChebyshev2D, IVec2 } from 'src/code/misc/vec2';
 import { IVec3, lerp3, vec2To3 } from 'src/code/misc/vec3';
@@ -21,7 +21,7 @@ export class PlayerMovementManager {
 
   private _playerPos: Ref<IVec3>;
 
-  private _grid: Grid<IRuntimeCellInfos>;
+  private _grid: Grid<ICellData>;
   private _currentTime: Ref<number>;
 
   private _loadCellCluster: (input: { startPos: IVec3 }) => boolean;
@@ -36,7 +36,7 @@ export class PlayerMovementManager {
   constructor(input: {
     walkDuration: Ref<number>;
     playerPos: Ref<IVec3>;
-    grid: Grid<IRuntimeCellInfos>;
+    grid: Grid<ICellData>;
     currentTime: Ref<number>;
     loadCellCluster: (input: { startPos: IVec3 }) => boolean;
     movePlayer: (input: { targetPos: IVec3 }) => void;

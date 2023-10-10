@@ -1,7 +1,7 @@
 import { worldToScreen } from 'src/code/game/camera';
 import { drawSprite } from 'src/code/game/graphics/draw-cell';
 import { Images } from 'src/code/game/images';
-import { IRuntimeCellInfos } from 'src/code/game/map/cells';
+import { ICellData } from 'src/code/game/map/cells';
 import { Grid } from 'src/code/game/map/grid';
 import { StateMachine } from 'src/code/game/state-machine';
 import { IVec2, Vec2 } from 'src/code/misc/vec2';
@@ -37,7 +37,7 @@ export class PlayerEntity extends CellEntity {
 
   readonly worldPos: Ref<IVec3>;
 
-  protected _grid: Grid<IRuntimeCellInfos>;
+  protected _grid: Grid<ICellData>;
 
   private _loadCellCluster: (input: { startPos: IVec3 }) => boolean;
 
@@ -58,7 +58,7 @@ export class PlayerEntity extends CellEntity {
     maxHP: Ref<number>;
     worldPos: Ref<IVec3>;
     images: Images;
-    grid: Grid<IRuntimeCellInfos>;
+    grid: Grid<ICellData>;
     loadCellCluster: (input: { startPos: IVec3 }) => boolean;
     currentTime: Ref<number>;
     walkDuration: Ref<number>;

@@ -3,13 +3,9 @@ import { IVec3, Vec3 } from 'src/code/misc/vec3';
 import { Ref } from 'vue';
 
 import { ICamera, screenToWorld, worldToScreen } from '../../camera';
-import { IRuntimeCellInfos } from '../../map/cells';
+import { ICellData } from '../../map/cells';
 import { Grid } from '../../map/grid';
-import { IGridSegment } from '../../map/grid-segment';
-import {
-  getGridSegmentFromWorldRect,
-  getVisibleWorldRect,
-} from '../../map/visible-cells';
+import { getVisibleWorldRect } from '../../map/visible-cells';
 import {
   Entities,
   entityHooks,
@@ -25,13 +21,13 @@ export interface IRenderCell {
     canvasCtx: CanvasRenderingContext2D;
     worldPos: IVec3;
     screenPos: IVec2;
-    cellInfos: IRuntimeCellInfos | undefined; // Here for optimization
+    cellData: ICellData | undefined; // Here for optimization
     camera: ICamera;
   }): void;
 }
 
 export class GameMap implements IEntity {
-  private _grid: Grid<IRuntimeCellInfos>;
+  private _grid: Grid<ICellData>;
   private _camera: Ref<ICamera>;
   private _cellSize: Ref<number>;
   private _pointerScreenPos: Ref<Vec2 | undefined>;
@@ -43,7 +39,7 @@ export class GameMap implements IEntity {
   public readonly cellEntities: Entities<ICellEntity>;
 
   constructor(input: {
-    grid: Grid<IRuntimeCellInfos>;
+    grid: Grid<ICellData>;
     camera: Ref<ICamera>;
     cellSize: Ref<number>;
     pointerScreenPos: Ref<Vec2 | undefined>;
@@ -66,41 +62,29 @@ export class GameMap implements IEntity {
   }
 
   private _drawLayer(input: {
-    gridSegment: IGridSegment<IRuntimeCellInfos | undefined>;
+    gridSlice: Grid<ICellData | undefined>;
     screenSize: IVec2;
     canvasCtx: CanvasRenderingContext2D;
     drawCell: (input: {
       worldPos: IVec3;
       screenPos: IVec2;
-      cellInfos: IRuntimeCellInfos | undefined;
+      cellData: ICellData | undefined;
     }) => void;
   }) {
-    for (let y = 0; y < input.gridSegment.cells[0].length; y++) {
-      const row = input.gridSegment.cells[0][y];
+    input.gridSlice.iterateCells(({ pos, cell }) => {
+      const screenPos = worldToScreen({
+        screenSize: input.screenSize,
+        camera: this._camera.value,
+        worldPos: pos,
+        cellSize: this._cellSize.value,
+      });
 
-      for (let x = 0; x < row.length; x++) {
-        const cellInfos = row[x];
-
-        const worldPos = new Vec3(
-          input.gridSegment.from.x + x,
-          input.gridSegment.from.y + y,
-          input.gridSegment.from.z
-        );
-
-        const screenPos = worldToScreen({
-          screenSize: input.screenSize,
-          camera: this._camera.value,
-          worldPos: worldPos,
-          cellSize: this._cellSize.value,
-        });
-
-        input.drawCell({
-          worldPos: worldPos,
-          screenPos: screenPos,
-          cellInfos: cellInfos,
-        });
-      }
-    }
+      input.drawCell({
+        worldPos: pos,
+        screenPos: screenPos,
+        cellData: cell,
+      });
+    });
   }
 
   setup(): void {
@@ -126,10 +110,7 @@ export class GameMap implements IEntity {
         cellSize: this._cellSize.value,
       });
 
-      const gridSegment = getGridSegmentFromWorldRect({
-        grid: this._grid,
-        worldRect: visibleWorldRect,
-      });
+      const gridSlice = this._grid.getSlice({ rect: visibleWorldRect });
 
       // Clear the canvas
 
@@ -143,14 +124,14 @@ export class GameMap implements IEntity {
       for (const renderFunc of this._renderCellOfLayerBelowEntities ?? []) {
         this._drawLayer({
           canvasCtx: input.canvasCtx,
-          gridSegment: gridSegment,
+          gridSlice: gridSlice,
           screenSize: screenSize,
           drawCell: (input_) => {
             renderFunc({
               canvasCtx: input.canvasCtx,
               worldPos: input_.worldPos,
               screenPos: input_.screenPos,
-              cellInfos: input_.cellInfos,
+              cellData: input_.cellData,
               camera: this._camera.value,
             });
           },
@@ -159,25 +140,25 @@ export class GameMap implements IEntity {
 
       this._drawLayer({
         canvasCtx: input.canvasCtx,
-        gridSegment: gridSegment,
+        gridSlice: gridSlice,
         screenSize: screenSize,
         drawCell: (input_) => {
           this._renderBeforeEntities?.({
             canvasCtx: input.canvasCtx,
             worldPos: input_.worldPos,
             screenPos: input_.screenPos,
-            cellInfos: input_.cellInfos,
+            cellData: input_.cellData,
             camera: this._camera.value,
           });
 
-          for (const entity of input_.cellInfos?.entities ?? []) {
+          for (const entity of input_.cellData?.entities ?? []) {
             entityHooks.get(entity)?.onCellRender?.forEach((listener) => {
               listener({
                 canvasCtx: input.canvasCtx,
                 worldPos: input_.worldPos,
                 screenPos: input_.screenPos,
                 screenSize: screenSize,
-                cellInfos: input_.cellInfos,
+                cellData: input_.cellData,
                 camera: this._camera.value,
                 cellSize: this._cellSize.value,
                 halfCellSize: this._cellSize.value / 2,
@@ -188,7 +169,7 @@ export class GameMap implements IEntity {
             canvasCtx: input.canvasCtx,
             worldPos: input_.worldPos,
             screenPos: input_.screenPos,
-            cellInfos: input_.cellInfos,
+            cellData: input_.cellData,
             camera: this._camera.value,
           });
         },
@@ -197,14 +178,14 @@ export class GameMap implements IEntity {
       for (const renderFunc of this._renderCellOfLayerAboveEntities ?? []) {
         this._drawLayer({
           canvasCtx: input.canvasCtx,
-          gridSegment: gridSegment,
+          gridSlice: gridSlice,
           screenSize: screenSize,
           drawCell: (input_) => {
             renderFunc({
               canvasCtx: input.canvasCtx,
               worldPos: input_.worldPos,
               screenPos: input_.screenPos,
-              cellInfos: input_.cellInfos,
+              cellData: input_.cellData,
               camera: this._camera.value,
             });
           },
@@ -227,10 +208,7 @@ export class GameMap implements IEntity {
           Math.round(pointerWorldPos.z)
         );
 
-        const pointerCell =
-          gridSegment.cells[0][pointerWorldPos.y - gridSegment.from.y][
-            pointerWorldPos.x - gridSegment.from.x
-          ];
+        const pointerCell = gridSlice.getCell(pointerWorldPos);
 
         const pointerScreenPos = worldToScreen({
           camera: this._camera.value,

@@ -2,7 +2,7 @@ import { pull } from 'lodash';
 import { IVec3 } from 'src/code/misc/vec3';
 import { Ref } from 'vue';
 
-import { IRuntimeCellInfos } from '../../map/cells';
+import { ICellData } from '../../map/cells';
 import { Grid } from '../../map/grid';
 import { IEntity } from '../entities';
 
@@ -15,7 +15,7 @@ export abstract class CellEntity implements ICellEntity {
 
   abstract setup(): void;
 
-  protected abstract _grid: Grid<IRuntimeCellInfos>;
+  protected abstract _grid: Grid<ICellData>;
 
   move(input: { targetPos: IVec3 }) {
     const newCell = this._grid.getCell(input.targetPos);

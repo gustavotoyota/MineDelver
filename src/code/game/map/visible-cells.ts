@@ -1,11 +1,6 @@
-import { Vec3 } from 'src/code/misc/vec3';
-
 import { IRect3 } from '../../misc/rect3';
 import { IVec2 } from '../../misc/vec2';
 import { ICamera, screenToWorld } from '../camera';
-import { IRuntimeCellInfos } from './cells';
-import { Grid } from './grid';
-import { IGridSegment } from './grid-segment';
 
 export function getVisibleWorldRect(input: {
   camera: ICamera;
@@ -47,37 +42,4 @@ export function getVisibleWorldRect(input: {
       z: Math.ceil(bottomRight.z),
     },
   };
-}
-
-export function getGridSegmentFromWorldRect(input: {
-  worldRect: IRect3;
-  grid: Grid<IRuntimeCellInfos>;
-}): IGridSegment<IRuntimeCellInfos | undefined> {
-  const grid: IGridSegment<IRuntimeCellInfos | undefined> = {
-    from: {
-      x: input.worldRect.min.x,
-      y: input.worldRect.min.y,
-      z: input.worldRect.min.z,
-    },
-    cells: [],
-  };
-
-  for (let z = input.worldRect.min.z; z <= input.worldRect.max.z; z++) {
-    const layer: (IRuntimeCellInfos | undefined)[][] = [];
-
-    for (let y = input.worldRect.min.y; y <= input.worldRect.max.y; y++) {
-      const startX = input.worldRect.min.x;
-      const endX = input.worldRect.max.x;
-
-      const row = input.grid.getRowCells(new Vec3(startX, y, z), {
-        count: endX - startX + 1,
-      });
-
-      layer.push(row);
-    }
-
-    grid.cells.push(layer);
-  }
-
-  return grid;
 }

@@ -6,7 +6,7 @@ import { Ref } from 'vue';
 import { ICellEntity } from '../entities/map/cell-entity';
 import { Grid } from './grid';
 
-export interface IRuntimeCellInfos {
+export interface ICellData {
   hidden?: boolean;
 
   hasBomb?: boolean;
@@ -34,7 +34,7 @@ export function cellHasBomb(input: {
   return modded / 10000 < input.bombProbability;
 }
 
-export function createCell(input: { hasBomb: boolean }): IRuntimeCellInfos {
+export function createCell(input: { hasBomb: boolean }): ICellData {
   return {
     hidden: true,
     ...(input.hasBomb ? { hasBomb: true, bombProcessed: false } : {}),
@@ -44,8 +44,8 @@ export function createCell(input: { hasBomb: boolean }): IRuntimeCellInfos {
 export function getOrCreateCell(input: {
   worldPos: IVec3;
   cellHasBomb: (input: { worldPos: IVec3 }) => boolean;
-  grid: Grid<IRuntimeCellInfos>;
-}): IRuntimeCellInfos {
+  grid: Grid<ICellData>;
+}): ICellData {
   let cell = input.grid.getCell(input.worldPos);
 
   if (cell === undefined) {
@@ -60,9 +60,9 @@ export function getOrCreateCell(input: {
 }
 
 function processBomb(input: {
-  cell: IRuntimeCellInfos;
+  cell: ICellData;
   worldPos: IVec3;
-  getOrCreateCell: (input: { worldPos: IVec3 }) => IRuntimeCellInfos;
+  getOrCreateCell: (input: { worldPos: IVec3 }) => ICellData;
 }) {
   if (input.cell.bombProcessed === undefined) {
     return;
@@ -103,7 +103,7 @@ export function loadCellCluster(input: {
   startPos: IVec3;
   numRevealedCells?: Ref<number>;
   numCorrectGuesses?: Ref<number>;
-  getOrCreateCell: (input: { worldPos: IVec3 }) => IRuntimeCellInfos;
+  getOrCreateCell: (input: { worldPos: IVec3 }) => ICellData;
 }): boolean {
   const stack = [input.startPos];
   const visited = new Set<string>();

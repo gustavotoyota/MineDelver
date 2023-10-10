@@ -1,5 +1,5 @@
 import { Input } from 'src/code/game/input';
-import { IRuntimeCellInfos } from 'src/code/game/map/cells';
+import { ICellData } from 'src/code/game/map/cells';
 import { Grid } from 'src/code/game/map/grid';
 import { getShortestPath } from 'src/code/game/map/path-finding';
 import { equal2D } from 'src/code/misc/vec2';
@@ -10,12 +10,12 @@ import { IEntity, onInput } from '../../entities';
 import { PlayerMovementManager } from './movement-manager';
 
 export class ClickToWalk implements IEntity {
-  private _grid: Grid<IRuntimeCellInfos>;
+  private _grid: Grid<ICellData>;
   private _playerMovementManager: PlayerMovementManager;
   private _pointerWorldPos: Ref<IVec3 | undefined>;
 
   constructor(input: {
-    grid: Grid<IRuntimeCellInfos>;
+    grid: Grid<ICellData>;
     playerMovementManager: PlayerMovementManager;
     pointerWorldPos: Ref<IVec3 | undefined>;
   }) {
