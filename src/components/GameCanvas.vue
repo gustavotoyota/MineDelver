@@ -513,9 +513,7 @@ onMounted(async () => {
     throw new Error('Canvas is null');
   }
 
-  canvasCtx.value = canvasRef.value.getContext('2d', {
-    willReadFrequently: true,
-  })!;
+  canvasCtx.value = canvasRef.value.getContext('2d')!;
 
   if (canvasCtx.value == null) {
     throw new Error('Canvas context is null');

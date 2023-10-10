@@ -31,6 +31,24 @@ export class Minimap implements IEntity {
 
   setup() {
     onRender((input) => {
+      // Render border
+
+      input.canvasCtx.save();
+      input.canvasCtx.strokeStyle = 'rgba(255,255,255, 0.5)';
+      input.canvasCtx.lineWidth = 1;
+      input.canvasCtx.strokeRect(
+        this._pos.value.x,
+        this._pos.value.y,
+        this._size.value.x,
+        this._size.value.y
+      );
+      input.canvasCtx.restore();
+
+      // Render cells
+
+      input.canvasCtx.save();
+      input.canvasCtx.fillStyle = 'white';
+
       const worldRect = new Rect3(
         new Vec3(
           Math.round(
@@ -56,49 +74,25 @@ export class Minimap implements IEntity {
         )
       );
 
-      const gridSegment = this._grid.getMatrixSlice({
-        rect: worldRect,
+      const gridSlice = this._grid.getSlice({ rect: worldRect });
+
+      gridSlice.iterateCells(({ pos, cell }) => {
+        if (cell.revealed) {
+          input.canvasCtx.fillRect(
+            Math.round(
+              this._pos.value.x + (pos.x - worldRect.min.x) * this._scale.value
+            ),
+            Math.round(
+              this._pos.value.y + (pos.y - worldRect.min.y) * this._scale.value
+            ),
+            Math.ceil(this._scale.value),
+            Math.ceil(this._scale.value)
+          );
+        }
       });
 
-      const imageData = input.canvasCtx.getImageData(
-        this._pos.value.x,
-        this._pos.value.y,
-        this._size.value.x,
-        this._size.value.y
-      );
+      // Render player
 
-      const data = new Uint32Array(imageData.data.buffer);
-
-      for (let y = 0; y < this._size.value.y; y++) {
-        const row = gridSegment.cells[0][Math.floor(y / this._scale.value)];
-
-        for (let x = 0; x < this._size.value.x; x++) {
-          const cellData = row[Math.floor(x / this._scale.value)];
-
-          if (cellData?.revealed) {
-            data[y * this._size.value.x + x] = 0xffffffff;
-          }
-        }
-      }
-
-      input.canvasCtx.save();
-      input.canvasCtx.strokeStyle = 'rgba(255,255,255, 0.5)';
-      input.canvasCtx.lineWidth = 1;
-      input.canvasCtx.strokeRect(
-        this._pos.value.x,
-        this._pos.value.y,
-        this._size.value.x,
-        this._size.value.y
-      );
-      input.canvasCtx.restore();
-
-      input.canvasCtx.putImageData(
-        imageData,
-        this._pos.value.x,
-        this._pos.value.y
-      );
-
-      input.canvasCtx.save();
       input.canvasCtx.fillStyle = 'red';
       input.canvasCtx.fillRect(
         Math.round(
