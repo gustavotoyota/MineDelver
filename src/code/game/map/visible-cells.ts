@@ -69,10 +69,9 @@ export function getGridSegmentFromWorldRect(input: {
       const startX = input.worldRect.min.x;
       const endX = input.worldRect.max.x;
 
-      const row = input.grid.getRowCells(
-        new Vec3(startX, y, z),
-        endX - startX + 1
-      );
+      const row = input.grid.getRowCells(new Vec3(startX, y, z), {
+        count: endX - startX + 1,
+      });
 
       layer.push(row);
     }

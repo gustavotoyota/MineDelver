@@ -5,6 +5,31 @@ export interface Segment<T> {
 
 export type Segments<T> = Segment<T>[];
 
+export type ToOrCount = { count: number } | { to: number };
+
+export function getTo(input: { from: number } & ToOrCount) {
+  if ('count' in input) {
+    return input.from + input.count;
+  } else {
+    return input.to;
+  }
+}
+
+export function getCount(input: { from: number } & ToOrCount) {
+  if ('count' in input) {
+    return input.count;
+  } else {
+    return input.to - input.from;
+  }
+}
+
+export function getToAndCount(input: { from: number } & ToOrCount) {
+  return {
+    to: getTo(input),
+    count: getCount(input),
+  };
+}
+
 export function findSegmentIndex<T>(segments: Segments<T>, from: number) {
   // TODO: Binary search
 
@@ -13,7 +38,7 @@ export function findSegmentIndex<T>(segments: Segments<T>, from: number) {
   while (segmentIndex < segments.length) {
     const currentSegment = segments[segmentIndex];
 
-    if (from <= currentSegment.from + currentSegment.items.length) {
+    if (from < currentSegment.from + currentSegment.items.length) {
       break;
     }
 
@@ -23,7 +48,7 @@ export function findSegmentIndex<T>(segments: Segments<T>, from: number) {
   return segmentIndex;
 }
 
-export function putInSegments<T>(
+export function putItemsInSegments<T>(
   segments: Segments<T>,
   from: number,
   items: T[]
@@ -84,59 +109,56 @@ export function putInSegments<T>(
   return segments;
 }
 
-export function getFromSegments<T>(
+export function getSliceFromSegments<T>(
   segments: Segments<T>,
   from: number,
-  count: number
-): (T | undefined)[] {
+  params: ToOrCount
+): Segments<T> {
+  const { to, count } = getToAndCount({ from, ...params });
+
   // Find start segment index
 
   const startSegmentIndex = findSegmentIndex(segments, from);
   const startSegment = segments[startSegmentIndex];
 
+  if (startSegment == null) {
+    return [];
+  }
+
   // Find end segment index
 
   let endSegmentIndex = startSegmentIndex;
+  let nextEndSegmentIndex = endSegmentIndex + 1;
 
-  while (endSegmentIndex < segments.length) {
-    const currentSegment = segments[endSegmentIndex];
+  while (nextEndSegmentIndex < segments.length) {
+    const nextSegment = segments[nextEndSegmentIndex];
 
-    if (currentSegment.from + currentSegment.items.length >= from + count) {
+    if (nextSegment.from >= to) {
       break;
     }
 
     endSegmentIndex++;
+    nextEndSegmentIndex++;
   }
+
+  const result: Segments<T> = [];
 
   // Include start items
 
-  const resultItems: (T | undefined)[] = new Array(count).fill(undefined);
+  const startIndex = startSegment.from - from;
 
-  if (startSegment != null) {
-    const startIndex = startSegment.from - from;
-
-    const startItems = startSegment.items.slice(
+  result.push({
+    from: Math.max(from, startSegment.from),
+    items: startSegment.items.slice(
       Math.max(0, -startIndex),
       Math.max(0, count - startIndex)
-    );
-
-    resultItems.splice(
-      Math.max(0, startIndex),
-      startItems.length,
-      ...startItems
-    );
-  }
+    ),
+  });
 
   // Include items in between
 
   for (let i = startSegmentIndex + 1; i < endSegmentIndex; i++) {
-    const currentSegment = segments[i];
-
-    resultItems.splice(
-      currentSegment.from - from,
-      currentSegment.items.length,
-      ...currentSegment.items
-    );
+    result.push({ ...segments[i] });
   }
 
   // Include end items
@@ -144,19 +166,40 @@ export function getFromSegments<T>(
   const endSegment = segments[endSegmentIndex];
 
   if (startSegmentIndex !== endSegmentIndex && endSegment != null) {
-    const endItems = endSegment.items.slice(0, from + count - endSegment.from);
-
-    resultItems.splice(endSegment.from - from, endItems.length, ...endItems);
+    result.push({
+      from: endSegment.from,
+      items: endSegment.items.slice(0, to - endSegment.from),
+    });
   }
 
-  return resultItems;
+  return result;
 }
 
-export function removeFromSegments<T>(
+export function getItemsFromSegments<T>(
   segments: Segments<T>,
   from: number,
-  count: number
+  params: ToOrCount
 ): (T | undefined)[] {
+  const count = getCount({ from, ...params });
+
+  const slice = getSliceFromSegments(segments, from, params);
+
+  const items: (T | undefined)[] = new Array(count).fill(undefined);
+
+  for (const segment of slice) {
+    items.splice(segment.from - from, segment.items.length, ...segment.items);
+  }
+
+  return items;
+}
+
+export function removeItemsFromSegments<T>(
+  segments: Segments<T>,
+  from: number,
+  params: ToOrCount
+): (T | undefined)[] {
+  const { to, count } = getToAndCount({ from, ...params });
+
   // Find start segment index
 
   const startSegmentIndex = findSegmentIndex(segments, from);
@@ -169,7 +212,7 @@ export function removeFromSegments<T>(
   while (endSegmentIndex < segments.length) {
     const currentSegment = segments[endSegmentIndex];
 
-    if (currentSegment.from + currentSegment.items.length >= from + count) {
+    if (currentSegment.from + currentSegment.items.length >= to) {
       break;
     }
 
@@ -211,10 +254,7 @@ export function removeFromSegments<T>(
   const endSegment = segments[endSegmentIndex];
 
   if (startSegmentIndex !== endSegmentIndex && endSegment != null) {
-    const endRemovedItems = endSegment.items.splice(
-      0,
-      from + count - endSegment.from
-    );
+    const endRemovedItems = endSegment.items.splice(0, to - endSegment.from);
 
     removedItems.splice(
       endSegment.from - from,
