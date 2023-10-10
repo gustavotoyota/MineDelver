@@ -36,10 +36,8 @@ export function createPlayerAnimMachine(input: {
     }),
     transitions: [
       {
-        condition: ({ state, data }) =>
-          state.startsWith('idle') &&
-          data.walking != null &&
-          data.currentTime < data.walking.endTime,
+        condition: ({ data }) =>
+          data.walking != null && data.currentTime < data.walking.endTime,
         to: ({ data }) => {
           if (data.walking == null) {
             throw new Error('Walking is null');
@@ -60,9 +58,8 @@ export function createPlayerAnimMachine(input: {
       },
       {
         condition: ({ state, data }) =>
-          state.startsWith('walk') ||
-          (state.startsWith('mine') &&
-            (data.walking == null || data.currentTime >= data.walking.endTime)),
+          (state.startsWith('walk') || state.startsWith('mine')) &&
+          (data.walking == null || data.currentTime >= data.walking.endTime),
         to: ({ prevState }) => `idle-${prevState.slice(5)}`,
       },
     ],
