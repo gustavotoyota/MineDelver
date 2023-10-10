@@ -30,13 +30,13 @@
     ></canvas>
 
     <q-icon
-      size="32px"
+      size="28px"
       name="mdi-cog"
       style="
         position: absolute;
         right: 16px;
         top: 16px;
-        color: white;
+        color: #d0d0d0;
         cursor: pointer;
       "
       @click="$emit('show-config')"
