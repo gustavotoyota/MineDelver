@@ -81,6 +81,17 @@ export class Minimap implements IEntity {
         }
       }
 
+      input.canvasCtx.save();
+      input.canvasCtx.strokeStyle = 'rgba(255,255,255, 0.5)';
+      input.canvasCtx.lineWidth = 1;
+      input.canvasCtx.strokeRect(
+        this._pos.value.x,
+        this._pos.value.y,
+        this._size.value.x,
+        this._size.value.y
+      );
+      input.canvasCtx.restore();
+
       input.canvasCtx.putImageData(
         imageData,
         this._pos.value.x,
