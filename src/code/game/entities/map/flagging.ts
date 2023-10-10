@@ -1,4 +1,4 @@
-import { IVec3 } from 'src/code/misc/vec3';
+import { Vec3 } from 'src/code/misc/vec3';
 import { Ref } from 'vue';
 
 import { Input } from '../../input';
@@ -8,12 +8,12 @@ import { IEntity, onInput } from '../entities';
 
 export class Flagging implements IEntity {
   private _grid: Grid<ICellData>;
-  private _pointerWorldPos: Ref<IVec3 | undefined>;
+  private _pointerWorldPos: Ref<Vec3 | undefined>;
   private _flagMode: Ref<boolean>;
 
   constructor(input: {
     grid: Grid<ICellData>;
-    pointerWorldPos: Ref<IVec3 | undefined>;
+    pointerWorldPos: Ref<Vec3 | undefined>;
     flagMode: Ref<boolean>;
   }) {
     this._grid = input.grid;

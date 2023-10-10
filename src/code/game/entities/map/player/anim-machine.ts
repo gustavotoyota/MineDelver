@@ -1,5 +1,5 @@
 import { StateMachine } from 'src/code/game/state-machine';
-import { IVec3 } from 'src/code/misc/vec3';
+import { Vec3 } from 'src/code/misc/vec3';
 import { Ref, ref } from 'vue';
 
 import { PlayerWalkData } from './movement-manager';
@@ -8,7 +8,7 @@ export interface PlayerAnimData {
   hp: number;
   maxHP: number;
 
-  worldPos: IVec3;
+  worldPos: Vec3;
 
   currentTime: number;
 
@@ -20,7 +20,7 @@ export function createPlayerAnimMachine(input: {
   playerMaxHP: Ref<number>;
   currentTime: Ref<number>;
   playerWalking: Ref<PlayerWalkData>;
-  worldPos: Ref<IVec3>;
+  worldPos: Ref<Vec3>;
 }) {
   return new StateMachine<PlayerAnimData>({
     initialState: ref('idle-down'),

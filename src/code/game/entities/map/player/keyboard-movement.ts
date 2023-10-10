@@ -1,10 +1,10 @@
 import { Input } from 'src/code/game/input';
-import { equal2D, IVec2, Vec2 } from 'src/code/misc/vec2';
+import { Vec2 } from 'src/code/misc/vec2';
 
 import { IEntity, onInput, onRender } from '../../entities';
 
 export function performKeyboardMovement(input: {
-  walkToDirection: (direction: IVec2) => void;
+  walkToDirection: (direction: Vec2) => void;
 }) {
   const walkDir = new Vec2();
 
@@ -54,15 +54,15 @@ export function performKeyboardMovement(input: {
     walkDir.x += 1;
   }
 
-  if (!equal2D(walkDir, new Vec2())) {
+  if (!walkDir.equals(new Vec2())) {
     input.walkToDirection(walkDir);
   }
 }
 
 export class PlayerKeyboardMovement implements IEntity {
-  private _walkToDirection: (direction: IVec2) => void;
+  private _walkToDirection: (direction: Vec2) => void;
 
-  constructor(input: { walkToDirection: (direction: IVec2) => void }) {
+  constructor(input: { walkToDirection: (direction: Vec2) => void }) {
     this._walkToDirection = input.walkToDirection;
   }
 

@@ -1,4 +1,4 @@
-import { IVec2 } from 'src/code/misc/vec2';
+import { Vec2 } from 'src/code/misc/vec2';
 import { Ref } from 'vue';
 
 import { IEntity, onCreate, onRender } from '../entities';
@@ -6,9 +6,9 @@ import { IEntity, onCreate, onRender } from '../entities';
 export class Timer implements IEntity {
   private _currentTime: Ref<number>;
   private _startTime = 0;
-  private _pos: Ref<IVec2>;
+  private _pos: Ref<Vec2>;
 
-  constructor(input: { currentTime: Ref<number>; pos: Ref<IVec2> }) {
+  constructor(input: { currentTime: Ref<number>; pos: Ref<Vec2> }) {
     this._currentTime = input.currentTime;
     this._pos = input.pos;
   }

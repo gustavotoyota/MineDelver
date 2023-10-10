@@ -1,5 +1,5 @@
-import { IVec2, Vec2 } from 'src/code/misc/vec2';
-import { IVec3, Vec3 } from 'src/code/misc/vec3';
+import { Vec2 } from 'src/code/misc/vec2';
+import { Vec3 } from 'src/code/misc/vec3';
 import { Ref } from 'vue';
 
 import { ICamera, screenToWorld, worldToScreen } from '../../camera';
@@ -19,8 +19,8 @@ import { ICellEntity } from './cell-entity';
 export interface IRenderCell {
   (input: {
     canvasCtx: CanvasRenderingContext2D;
-    worldPos: IVec3;
-    screenPos: IVec2;
+    worldPos: Vec3;
+    screenPos: Vec2;
     cellData: ICellData | undefined; // Here for optimization
     camera: ICamera;
   }): void;
@@ -63,11 +63,11 @@ export class GameMap implements IEntity {
 
   private _drawLayer(input: {
     gridSlice: Grid<ICellData | undefined>;
-    screenSize: IVec2;
+    screenSize: Vec2;
     canvasCtx: CanvasRenderingContext2D;
     drawCell: (input: {
-      worldPos: IVec3;
-      screenPos: IVec2;
+      worldPos: Vec3;
+      screenPos: Vec2;
       cellData: ICellData | undefined;
     }) => void;
   }) {

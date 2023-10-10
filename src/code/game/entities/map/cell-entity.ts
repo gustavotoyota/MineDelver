@@ -1,5 +1,5 @@
 import { pull } from 'lodash';
-import { IVec3 } from 'src/code/misc/vec3';
+import { Vec3 } from 'src/code/misc/vec3';
 import { Ref } from 'vue';
 
 import { ICellData } from '../../map/cells';
@@ -7,17 +7,17 @@ import { Grid } from '../../map/grid';
 import { IEntity } from '../entities';
 
 export interface ICellEntity extends IEntity {
-  worldPos: Ref<IVec3>;
+  worldPos: Ref<Vec3>;
 }
 
 export abstract class CellEntity implements ICellEntity {
-  abstract worldPos: Ref<IVec3>;
+  abstract worldPos: Ref<Vec3>;
 
   abstract setup(): void;
 
   protected abstract _grid: Grid<ICellData>;
 
-  move(input: { targetPos: IVec3 }) {
+  move(input: { targetPos: Vec3 }) {
     const newCell = this._grid.getCell(input.targetPos);
 
     if (newCell == null) {

@@ -88,8 +88,8 @@ import {
 import { Grid } from 'src/code/game/map/grid';
 import { getVisibleWorldRect } from 'src/code/game/map/visible-cells';
 import { lerpBetween } from 'src/code/misc/math';
-import { equal2D, IVec2, Vec2 } from 'src/code/misc/vec2';
-import { IVec3, Vec3 } from 'src/code/misc/vec3';
+import { Vec2 } from 'src/code/misc/vec2';
+import { Vec3 } from 'src/code/misc/vec3';
 import { GameConfigData } from 'src/pages/IndexPage.vue';
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 
@@ -99,7 +99,7 @@ const props = defineProps<{
 
 const emit = defineEmits(['death', 'show-config']);
 
-function getOrCreateCell_(input_: { worldPos: IVec3 }) {
+function getOrCreateCell_(input_: { worldPos: Vec3 }) {
   return getOrCreateCell({
     worldPos: input_.worldPos,
     cellHasBomb: (input_) =>
@@ -117,7 +117,7 @@ function getOrCreateCell_(input_: { worldPos: IVec3 }) {
 
 function loadCellCluster_(input: {
   seed: number;
-  startPos: IVec3;
+  startPos: Vec3;
   grid: Grid<ICellData>;
 }) {
   return loadCellCluster({
@@ -160,8 +160,8 @@ onUnmounted(() => {
   entities.clear();
 });
 
-const pointerScreenPos = ref<IVec2>();
-const pointerWorldPos = ref<IVec3>();
+const pointerScreenPos = ref<Vec2>();
+const pointerWorldPos = ref<Vec3>();
 
 const screenSize = ref(new Vec2());
 
@@ -299,8 +299,7 @@ const mapEntity = new GameMap({
         input_.cellData?.revealed &&
         input_.cellData?.numAdjacentBombs !== undefined
       ) {
-        const isPlayerOnCell = equal2D(
-          input_.worldPos,
+        const isPlayerOnCell = new Vec2(input_.worldPos).equals(
           playerEntity.worldPos.value
         );
 
@@ -481,7 +480,7 @@ function renderFrame() {
 
   updatePointerWorldPos();
 
-  camera.value.pos = { ...playerEntity.movementManager.finalPlayerPos };
+  camera.value.pos = new Vec3(playerEntity.movementManager.finalPlayerPos);
 
   entities.render({ canvasCtx: canvasCtx.value! });
 

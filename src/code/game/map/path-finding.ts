@@ -1,33 +1,27 @@
 import Heap from 'heap';
-import {
-  dist2D,
-  distChebyshev2D,
-  equal2D,
-  IVec2,
-  Vec2,
-} from 'src/code/misc/vec2';
-import { IVec3, vec2To3 } from 'src/code/misc/vec3';
+import { Vec2 } from 'src/code/misc/vec2';
+import { Vec3 } from 'src/code/misc/vec3';
 
 import { ICellData } from './cells';
 import { Grid } from './grid';
 
 interface PosInfo {
-  pos: IVec2;
-  prevPos: IVec2;
+  pos: Vec2;
+  prevPos: Vec2;
   pathScore: number;
   guessScore: number;
 }
 
 function _reconstructPath(input: {
   posInfos: Map<string, PosInfo>;
-  currentPos: IVec2;
-  sourcePos: IVec2;
+  currentPos: Vec2;
+  sourcePos: Vec2;
 }) {
-  const path: IVec2[] = [];
+  const path: Vec2[] = [];
 
   let pos = input.currentPos;
 
-  while (!equal2D(pos, input.sourcePos)) {
+  while (!pos.equals(input.sourcePos)) {
     path.push(pos);
 
     pos = input.posInfos.get(`${pos.x}:${pos.y}`)!.prevPos;
@@ -39,19 +33,19 @@ function _reconstructPath(input: {
 }
 
 export function getShortestPath(input: {
-  sourcePos: IVec3;
-  targetPos: IVec2;
+  sourcePos: Vec3;
+  targetPos: Vec2;
   grid: Grid<ICellData>;
-}): IVec2[] | undefined {
+}): Vec2[] | undefined {
   const closedSet = new Set<string>();
 
   const posInfos = new Map<string, PosInfo>();
 
   const sourcePosInfo = {
-    pos: input.sourcePos,
+    pos: new Vec2(input.sourcePos),
     prevPos: new Vec2(),
     pathScore: 0,
-    guessScore: distChebyshev2D(input.sourcePos, input.targetPos),
+    guessScore: new Vec2(input.sourcePos).distChebyshev(input.targetPos),
   };
 
   posInfos.set(`${input.sourcePos.x}:${input.sourcePos.y}`, sourcePosInfo);
@@ -71,11 +65,11 @@ export function getShortestPath(input: {
 
     closedSet.add(key);
 
-    if (equal2D(currentPosInfo.pos, input.targetPos)) {
+    if (currentPosInfo.pos.equals(input.targetPos)) {
       return _reconstructPath({
         posInfos: posInfos,
         currentPos: currentPosInfo.pos,
-        sourcePos: input.sourcePos,
+        sourcePos: new Vec2(input.sourcePos),
       });
     }
 
@@ -101,21 +95,21 @@ export function getShortestPath(input: {
       }
 
       const neighbourCell = input.grid.getCell(
-        vec2To3(neighbourPos, input.sourcePos.z)
+        neighbourPos.to3D(input.sourcePos.z)
       );
 
       if (!neighbourCell?.revealed || neighbourCell?.hasBomb) {
-        if (equal2D(neighbourPos, input.targetPos)) {
+        if (neighbourPos.equals(input.targetPos)) {
           const path = _reconstructPath({
             posInfos: posInfos,
             currentPos: currentPosInfo.pos,
-            sourcePos: input.sourcePos,
+            sourcePos: new Vec2(input.sourcePos),
           });
 
           if (neighbourCell?.flag) {
             return path;
           } else {
-            return [...path, { ...input.targetPos }];
+            return [...path, new Vec2(input.targetPos)];
           }
         }
 
@@ -135,14 +129,14 @@ export function getShortestPath(input: {
         posInfos.set(key, neighbourInfo);
       }
 
-      const actionWeight = dist2D(currentPosInfo.pos, neighbourPos);
+      const actionWeight = currentPosInfo.pos.dist(neighbourPos);
       const pathScore = currentInfo.pathScore + actionWeight;
 
       if (pathScore < neighbourInfo.pathScore) {
-        neighbourInfo.prevPos = { ...currentPosInfo.pos };
+        neighbourInfo.prevPos = new Vec2(currentPosInfo.pos);
         neighbourInfo.pathScore = pathScore;
         neighbourInfo.guessScore =
-          pathScore + distChebyshev2D(neighbourPos, input.targetPos);
+          pathScore + neighbourPos.distChebyshev(input.targetPos);
 
         if (open.has(neighbourInfo)) {
           open.updateItem(neighbourInfo);

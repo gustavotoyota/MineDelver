@@ -7,12 +7,12 @@ import {
   Segments,
   ToOrCount,
 } from 'src/code/misc/segments';
-import { IVec3, Vec3 } from 'src/code/misc/vec3';
+import { Vec3 } from 'src/code/misc/vec3';
 
 type GridSegments<T> = Segments<Segments<Segments<T>>>;
 
 export interface IMatrixSegment<T> {
-  from: IVec3;
+  from: Vec3;
   cells: T[][][];
 }
 
@@ -23,7 +23,7 @@ export class Grid<T> {
     this._segments = input?.segments ?? [];
   }
 
-  private _setRowCells(startPos: IVec3, items: T[]) {
+  private _setRowCells(startPos: Vec3, items: T[]) {
     let layer = getItemsFromSegments(this._segments, startPos.z, {
       count: 1,
     })?.[0];
@@ -44,11 +44,11 @@ export class Grid<T> {
 
     putItemsInSegments(row, startPos.x, items);
   }
-  setCell(pos: IVec3, item: T) {
+  setCell(pos: Vec3, item: T) {
     this._setRowCells(pos, [item]);
   }
 
-  private _getRowSegments(startPos: IVec3, params: ToOrCount): Segments<T> {
+  private _getRowSegments(startPos: Vec3, params: ToOrCount): Segments<T> {
     const count = getCount({ from: startPos.x, ...params });
 
     const layer = getItemsFromSegments(this._segments, startPos.z, {
@@ -67,7 +67,7 @@ export class Grid<T> {
 
     return getSliceFromSegments(row, startPos.x, { count: count });
   }
-  private _getRowCells(startPos: IVec3, params: ToOrCount): (T | undefined)[] {
+  private _getRowCells(startPos: Vec3, params: ToOrCount): (T | undefined)[] {
     const count = getCount({ from: startPos.x, ...params });
 
     const layer = getItemsFromSegments(this._segments, startPos.z, {
@@ -86,11 +86,11 @@ export class Grid<T> {
 
     return getItemsFromSegments(row, startPos.x, { count: count });
   }
-  getCell(pos: IVec3): T | undefined {
+  getCell(pos: Vec3): T | undefined {
     return this._getRowCells(pos, { count: 1 })[0];
   }
 
-  getOrCreateCell(pos: IVec3, create: () => T): T {
+  getOrCreateCell(pos: Vec3, create: () => T): T {
     let cell = this.getCell(pos);
 
     if (cell == null) {
@@ -102,7 +102,7 @@ export class Grid<T> {
     return cell;
   }
 
-  hasCell(pos: IVec3): boolean {
+  hasCell(pos: Vec3): boolean {
     return this.getCell(pos) != null;
   }
 
@@ -132,7 +132,7 @@ export class Grid<T> {
     return new Grid({ segments: result });
   }
 
-  iterateCells(func: (input: { pos: IVec3; cell: T }) => void) {
+  iterateCells(func: (input: { pos: Vec3; cell: T }) => void) {
     for (const zSegment of this._segments) {
       for (const ySegments of zSegment.items) {
         for (const ySegment of ySegments) {
@@ -157,11 +157,7 @@ export class Grid<T> {
 
   getMatrixSlice(input: { rect: IRect3 }): IMatrixSegment<T | undefined> {
     const grid: IMatrixSegment<T | undefined> = {
-      from: {
-        x: input.rect.min.x,
-        y: input.rect.min.y,
-        z: input.rect.min.z,
-      },
+      from: new Vec3(input.rect.min.x, input.rect.min.y, input.rect.min.z),
       cells: [],
     };
 

@@ -1,7 +1,7 @@
 import { pull } from 'lodash';
-import { IVec3 } from 'src/code/misc/vec3';
+import { Vec3 } from 'src/code/misc/vec3';
 
-import { IVec2 } from '../../misc/vec2';
+import { Vec2 } from '../../misc/vec2';
 import { ICamera } from '../camera';
 
 export interface IEntity {
@@ -90,9 +90,9 @@ export function onRender(listener: (input: RenderParams) => void) {
 }
 export function onCellRender(
   listener: (input: {
-    worldPos: IVec3;
-    screenPos: IVec2;
-    screenSize: IVec2;
+    worldPos: Vec3;
+    screenPos: Vec2;
+    screenSize: Vec2;
     canvasCtx: CanvasRenderingContext2D;
     camera: ICamera;
     cellSize: number;

@@ -1,17 +1,5 @@
 import { Rect3 } from 'src/code/misc/rect3';
-import {
-  add2,
-  div2Scalar,
-  IVec2,
-  lerp2,
-  max2,
-  min2,
-  mul2,
-  round2,
-  sub2,
-  sub2Scalar,
-  Vec2,
-} from 'src/code/misc/vec2';
+import { Vec2 } from 'src/code/misc/vec2';
 import { Vec3 } from 'src/code/misc/vec3';
 import { Ref } from 'vue';
 
@@ -22,15 +10,15 @@ import { IEntity, onRender } from '../entities';
 
 export class Minimap implements IEntity {
   private _grid: Grid<ICellData>;
-  private _pos: Ref<IVec2>;
-  private _size: Ref<IVec2>;
+  private _pos: Ref<Vec2>;
+  private _size: Ref<Vec2>;
   private _scale: Ref<number>;
   private _camera: Ref<ICamera>;
 
   constructor(input: {
     grid: Grid<ICellData>;
-    pos: Ref<IVec2>;
-    size: Ref<IVec2>;
+    pos: Ref<Vec2>;
+    size: Ref<Vec2>;
     scale: Ref<number>;
     camera: Ref<ICamera>;
   }) {
@@ -82,42 +70,31 @@ export class Minimap implements IEntity {
       );
       const cellScreenSize2 = new Vec2(cellScreenSize, cellScreenSize);
 
-      const halfWorldPos = lerp2(
-        minimapWorldRect.min,
+      const halfWorldPos = new Vec2(minimapWorldRect.min).lerp(
         minimapWorldRect.max,
         0.5
       );
 
-      const endScreenPos = add2(this._pos.value, this._size.value);
-      const centerScreenPos = add2(
-        this._pos.value,
-        div2Scalar(this._size.value, 2)
-      );
+      const endScreenPos = this._pos.value.add(this._size.value);
+      const centerScreenPos = this._pos.value.add(this._size.value.div(2));
 
       const gridSlice = this._grid.getSlice({ rect: minimapWorldRect });
 
       gridSlice.iterateCells(({ pos: cellPos, cell }) => {
         if (cell.revealed) {
-          const relativeCellPos = sub2(cellPos, halfWorldPos);
+          const relativeCellPos = new Vec2(cellPos).sub(halfWorldPos);
 
-          let cellScreenPos = round2(
-            add2(
-              centerScreenPos,
-              mul2(sub2Scalar(relativeCellPos, 0.5), cellScreenSize2)
-            )
-          );
+          let cellScreenPos = centerScreenPos
+            .add(relativeCellPos.sub(0.5).mul(cellScreenSize2))
+            .round();
 
-          const endCellScreenPos = min2(
-            add2(cellScreenPos, cellScreenSize2),
-            endScreenPos
-          );
+          const endCellScreenPos = cellScreenPos
+            .add(cellScreenSize2)
+            .min(endScreenPos);
 
-          cellScreenPos = max2(cellScreenPos, this._pos.value);
+          cellScreenPos = cellScreenPos.max(this._pos.value);
 
-          const cellScreenSize = max2(
-            sub2(endCellScreenPos, cellScreenPos),
-            new Vec2()
-          );
+          const cellScreenSize = endCellScreenPos.sub(cellScreenPos).max(0);
 
           input.canvasCtx.fillRect(
             cellScreenPos.x,

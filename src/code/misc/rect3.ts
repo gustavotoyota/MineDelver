@@ -1,12 +1,12 @@
-import { IVec3, Vec3 } from './vec3';
+import { Vec3 } from './vec3';
 
 export interface IRect3 {
-  min: IVec3;
-  max: IVec3;
+  min: Vec3;
+  max: Vec3;
 }
 
 export class Rect3 implements IRect3 {
-  constructor(public min: IVec3 = new Vec3(), public max: IVec3 = new Vec3()) {}
+  constructor(public min: Vec3 = new Vec3(), public max: Vec3 = new Vec3()) {}
 }
 
 export function growRect3D(rect: IRect3, amount?: number): IRect3 {

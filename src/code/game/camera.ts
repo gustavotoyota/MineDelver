@@ -1,27 +1,27 @@
-import { IVec2, Vec2 } from 'src/code/misc/vec2';
-import { IVec3, Vec3 } from 'src/code/misc/vec3';
+import { Vec2 } from 'src/code/misc/vec2';
+import { Vec3 } from 'src/code/misc/vec3';
 
 export interface ICamera {
-  pos: IVec3;
+  pos: Vec3;
   zoom: number;
 }
 
 export class Camera implements ICamera {
-  pos: IVec3;
+  pos: Vec3;
   zoom: number;
 
-  constructor(input?: { pos?: IVec3; zoom?: number }) {
+  constructor(input?: { pos?: Vec3; zoom?: number }) {
     this.pos = input?.pos ?? new Vec3();
     this.zoom = input?.zoom ?? 1;
   }
 }
 
 export function screenToWorld(input: {
-  screenSize: IVec2;
+  screenSize: Vec2;
   cellSize: number;
-  screenPos: IVec2;
+  screenPos: Vec2;
   camera: ICamera;
-}): IVec3 {
+}): Vec3 {
   return new Vec3(
     input.camera.pos.x +
       (input.screenPos.x - input.screenSize.x / 2) /
@@ -36,11 +36,11 @@ export function screenToWorld(input: {
 }
 
 export function worldToScreen(input: {
-  screenSize: IVec2;
+  screenSize: Vec2;
   cellSize: number;
-  worldPos: IVec3;
+  worldPos: Vec3;
   camera: ICamera;
-}): IVec2 {
+}): Vec2 {
   return new Vec2(
     input.screenSize.x / 2 +
       (input.worldPos.x - input.camera.pos.x) *

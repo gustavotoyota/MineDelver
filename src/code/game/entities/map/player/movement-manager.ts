@@ -1,15 +1,15 @@
 import { ICellData } from 'src/code/game/map/cells';
 import { Grid } from 'src/code/game/map/grid';
-import { add2, distChebyshev2D, IVec2 } from 'src/code/misc/vec2';
-import { IVec3, lerp3, vec2To3 } from 'src/code/misc/vec3';
+import { Vec2 } from 'src/code/misc/vec2';
+import { Vec3 } from 'src/code/misc/vec3';
 import { Ref, ref } from 'vue';
 
 import { onRender } from '../../entities';
 
 export type PlayerWalkData =
   | {
-      sourcePos: IVec3;
-      targetPos: IVec3;
+      sourcePos: Vec3;
+      targetPos: Vec3;
       targetIsObstacle: boolean;
       startTime: number;
       endTime: number;
@@ -19,27 +19,27 @@ export type PlayerWalkData =
 export class PlayerMovementManager {
   private _walkDuration: Ref<number>;
 
-  private _playerPos: Ref<IVec3>;
+  private _playerPos: Ref<Vec3>;
 
   private _grid: Grid<ICellData>;
   private _currentTime: Ref<number>;
 
-  private _loadCellCluster: (input: { startPos: IVec3 }) => boolean;
-  private _movePlayer: (input: { targetPos: IVec3 }) => void;
+  private _loadCellCluster: (input: { startPos: Vec3 }) => boolean;
+  private _movePlayer: (input: { targetPos: Vec3 }) => void;
 
   private _hp: Ref<number>;
 
   private _walkData: Ref<PlayerWalkData>;
 
-  private _nextMovements: IVec2[] = [];
+  private _nextMovements: Vec2[] = [];
 
   constructor(input: {
     walkDuration: Ref<number>;
-    playerPos: Ref<IVec3>;
+    playerPos: Ref<Vec3>;
     grid: Grid<ICellData>;
     currentTime: Ref<number>;
-    loadCellCluster: (input: { startPos: IVec3 }) => boolean;
-    movePlayer: (input: { targetPos: IVec3 }) => void;
+    loadCellCluster: (input: { startPos: Vec3 }) => boolean;
+    movePlayer: (input: { targetPos: Vec3 }) => void;
     hp: Ref<number>;
   }) {
     this._walkDuration = input.walkDuration;
@@ -73,7 +73,7 @@ export class PlayerMovementManager {
     }
   }
 
-  get nextPlayerPos(): IVec3 {
+  get nextPlayerPos(): Vec3 {
     if (this._walkData.value != null) {
       return this._walkData.value.targetPos;
     } else {
@@ -81,10 +81,9 @@ export class PlayerMovementManager {
     }
   }
 
-  get finalPlayerPos(): IVec3 {
+  get finalPlayerPos(): Vec3 {
     if (this._walkData.value != null) {
-      return lerp3(
-        this._playerPos.value,
+      return this._playerPos.value.lerp(
         this._walkData.value.targetPos,
         this.progress
       );
@@ -96,17 +95,17 @@ export class PlayerMovementManager {
   cancelNextMovements() {
     this._nextMovements = [];
   }
-  setNextMovements(movements: IVec2[]) {
+  setNextMovements(movements: Vec2[]) {
     this._nextMovements = movements.toReversed();
   }
 
-  walkToDirection(direction: IVec2) {
-    this.walkTo(add2(this.nextPlayerPos, direction));
+  walkToDirection(direction: Vec2) {
+    this.walkTo(new Vec2(this.nextPlayerPos).add(direction));
   }
 
-  get finalTargetPos(): IVec2 {
+  get finalTargetPos(): Vec2 {
     if (this._nextMovements.length === 0) {
-      return this._playerPos.value;
+      return new Vec2(this._playerPos.value);
     } else {
       return this._nextMovements[0];
     }
@@ -121,12 +120,9 @@ export class PlayerMovementManager {
       return;
     }
 
-    const targetPos = vec2To3(
-      this._nextMovements.pop()!,
-      this._playerPos.value.z
-    );
+    const targetPos = this._nextMovements.pop()!;
 
-    if (distChebyshev2D(targetPos, this._playerPos.value) > 1) {
+    if (targetPos.distChebyshev(this._playerPos.value) > 1) {
       this.cancelNextMovements();
       return;
     }
@@ -134,14 +130,14 @@ export class PlayerMovementManager {
     this.walkTo(targetPos);
   }
 
-  walkTo(targetPos: IVec2) {
+  walkTo(targetPos: Vec2) {
     if (this.isWalking) {
       return;
     }
 
-    const targetPos3 = vec2To3(targetPos, this._playerPos.value.z);
+    const targetPos3 = targetPos.to3D(this._playerPos.value.z);
 
-    if (distChebyshev2D(targetPos, this._playerPos.value) !== 1) {
+    if (targetPos.distChebyshev(this._playerPos.value) !== 1) {
       return;
     }
 
@@ -156,8 +152,8 @@ export class PlayerMovementManager {
     }
 
     this._walkData.value = {
-      sourcePos: { ...this._playerPos.value },
-      targetPos: { ...targetPos3 },
+      sourcePos: new Vec3(this._playerPos.value),
+      targetPos: new Vec3(targetPos3),
       targetIsObstacle: !newCell.revealed || !!newCell.hasBomb,
       startTime: this._currentTime.value,
       endTime: this._currentTime.value + this._walkDuration.value,

@@ -1,13 +1,13 @@
-import { IVec2 } from 'src/code/misc/vec2';
+import { Vec2 } from 'src/code/misc/vec2';
 import { Ref } from 'vue';
 
 import { IEntity, onRender } from '../entities';
 
 export class Text implements IEntity {
-  private _pos: Ref<IVec2>;
+  private _pos: Ref<Vec2>;
   private _text: Ref<string>;
 
-  constructor(input: { pos: Ref<IVec2>; text: Ref<string> }) {
+  constructor(input: { pos: Ref<Vec2>; text: Ref<string> }) {
     this._pos = input.pos;
     this._text = input.text;
   }

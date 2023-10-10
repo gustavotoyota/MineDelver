@@ -1,9 +1,9 @@
-import { IVec2 } from '../../misc/vec2';
+import { Vec2 } from '../../misc/vec2';
 import { ICamera } from '../camera';
 
 export function drawCellImage(input: {
   canvasCtx: CanvasRenderingContext2D;
-  screenPos: IVec2;
+  screenPos: Vec2;
   camera: ICamera;
   image: HTMLImageElement;
   halfCellSize: number;
@@ -21,11 +21,11 @@ export function drawCellImage(input: {
 
 export function drawSprite(input: {
   canvasCtx: CanvasRenderingContext2D;
-  screenPos: IVec2;
+  screenPos: Vec2;
   camera: ICamera;
   image: HTMLImageElement;
   halfCellSize: number;
-  spritePos: IVec2;
+  spritePos: Vec2;
   spriteSize: number;
 }) {
   input.canvasCtx.drawImage(

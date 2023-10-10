@@ -1,6 +1,6 @@
 import { hashFNV1a } from 'src/code/misc/hash';
 import { posMod } from 'src/code/misc/math';
-import { IVec3, Vec3 } from 'src/code/misc/vec3';
+import { Vec3 } from 'src/code/misc/vec3';
 import { Ref } from 'vue';
 
 import { ICellEntity } from '../entities/map/cell-entity';
@@ -22,7 +22,7 @@ export interface ICellData {
 
 export function cellHasBomb(input: {
   seed: number;
-  worldPos: IVec3;
+  worldPos: Vec3;
   bombProbability: number;
 }): boolean {
   const hash = hashFNV1a(
@@ -42,8 +42,8 @@ export function createCell(input: { hasBomb: boolean }): ICellData {
 }
 
 export function getOrCreateCell(input: {
-  worldPos: IVec3;
-  cellHasBomb: (input: { worldPos: IVec3 }) => boolean;
+  worldPos: Vec3;
+  cellHasBomb: (input: { worldPos: Vec3 }) => boolean;
   grid: Grid<ICellData>;
 }): ICellData {
   let cell = input.grid.getCell(input.worldPos);
@@ -61,8 +61,8 @@ export function getOrCreateCell(input: {
 
 function processBomb(input: {
   cell: ICellData;
-  worldPos: IVec3;
-  getOrCreateCell: (input: { worldPos: IVec3 }) => ICellData;
+  worldPos: Vec3;
+  getOrCreateCell: (input: { worldPos: Vec3 }) => ICellData;
 }) {
   if (input.cell.bombProcessed === undefined) {
     return;
@@ -100,10 +100,10 @@ function processBomb(input: {
 }
 
 export function loadCellCluster(input: {
-  startPos: IVec3;
+  startPos: Vec3;
   numRevealedCells?: Ref<number>;
   numCorrectGuesses?: Ref<number>;
-  getOrCreateCell: (input: { worldPos: IVec3 }) => ICellData;
+  getOrCreateCell: (input: { worldPos: Vec3 }) => ICellData;
 }): boolean {
   const stack = [input.startPos];
   const visited = new Set<string>();

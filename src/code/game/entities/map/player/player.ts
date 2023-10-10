@@ -4,8 +4,8 @@ import { Images } from 'src/code/game/images';
 import { ICellData } from 'src/code/game/map/cells';
 import { Grid } from 'src/code/game/map/grid';
 import { StateMachine } from 'src/code/game/state-machine';
-import { IVec2, Vec2 } from 'src/code/misc/vec2';
-import { IVec3 } from 'src/code/misc/vec3';
+import { Vec2 } from 'src/code/misc/vec2';
+import { Vec3 } from 'src/code/misc/vec3';
 import { Ref } from 'vue';
 
 import { Entities, IEntity, onCellRender, onDestroy } from '../../entities';
@@ -14,7 +14,7 @@ import { createPlayerAnimMachine, PlayerAnimData } from './anim-machine';
 import { PlayerHurt } from './hurt';
 import { PlayerMovementManager } from './movement-manager';
 
-const _sprites: Record<string, IVec2[]> = {
+const _sprites: Record<string, Vec2[]> = {
   'idle-down': [new Vec2(1, 0)],
   'idle-left': [new Vec2(1, 1)],
   'idle-right': [new Vec2(1, 2)],
@@ -35,11 +35,11 @@ export class PlayerEntity extends CellEntity {
   private _hp: Ref<number>;
   private _maxHP: Ref<number>;
 
-  readonly worldPos: Ref<IVec3>;
+  readonly worldPos: Ref<Vec3>;
 
   protected _grid: Grid<ICellData>;
 
-  private _loadCellCluster: (input: { startPos: IVec3 }) => boolean;
+  private _loadCellCluster: (input: { startPos: Vec3 }) => boolean;
 
   private _animMachine: StateMachine<PlayerAnimData>;
 
@@ -56,10 +56,10 @@ export class PlayerEntity extends CellEntity {
   constructor(input: {
     hp: Ref<number>;
     maxHP: Ref<number>;
-    worldPos: Ref<IVec3>;
+    worldPos: Ref<Vec3>;
     images: Images;
     grid: Grid<ICellData>;
-    loadCellCluster: (input: { startPos: IVec3 }) => boolean;
+    loadCellCluster: (input: { startPos: Vec3 }) => boolean;
     currentTime: Ref<number>;
     walkDuration: Ref<number>;
   }) {
@@ -108,7 +108,7 @@ export class PlayerEntity extends CellEntity {
         return;
       }
 
-      let screenPos: IVec2;
+      let screenPos: Vec2;
 
       let spriteIndex: number;
 

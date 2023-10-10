@@ -1,5 +1,5 @@
 import { lerp } from './math';
-import { IVec3 } from './vec3';
+import { Vec3 } from './vec3';
 
 export interface IVec2 {
   x: number;
@@ -10,112 +10,86 @@ export class Vec2 implements IVec2 {
   x: number;
   y: number;
 
-  constructor(x: number | IVec2 = 0, y = 0) {
+  constructor(x: number | IVec2 = 0, y?: number) {
     if (typeof x === 'object') {
       this.x = x.x;
       this.y = x.y;
+    } else if (y === undefined) {
+      this.x = x;
+      this.y = x;
     } else {
       this.x = x;
       this.y = y;
     }
   }
-}
 
-export function distSqr2D(a: IVec2, b: IVec2): number {
-  return (a.x - b.x) ** 2 + (a.y - b.y) ** 2;
-}
+  add(vec: IVec2 | number): Vec2 {
+    vec = new Vec2(vec);
 
-export function dist2D(a: IVec2, b: IVec2): number {
-  return Math.sqrt(distSqr2D(a, b));
-}
+    return new Vec2(this.x + vec.x, this.y + vec.y);
+  }
+  sub(vec: IVec2 | number): Vec2 {
+    vec = new Vec2(vec);
 
-export function equal2D(a: IVec2, b: IVec2): boolean {
-  return a.x === b.x && a.y === b.y;
-}
+    return new Vec2(this.x - vec.x, this.y - vec.y);
+  }
+  mul(vec: IVec2 | number): Vec2 {
+    vec = new Vec2(vec);
 
-export function vec3To2(input: IVec3): IVec2 {
-  return { x: input.x, y: input.y };
-}
+    return new Vec2(this.x * vec.x, this.y * vec.y);
+  }
+  div(vec: IVec2 | number): Vec2 {
+    vec = new Vec2(vec);
 
-export function distManhattan2D(a: IVec2, b: IVec2): number {
-  return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
-}
+    return new Vec2(this.x / vec.x, this.y / vec.y);
+  }
 
-export function distChebyshev2D(a: IVec2, b: IVec2): number {
-  return Math.max(Math.abs(a.x - b.x), Math.abs(a.y - b.y));
-}
+  min(vec: IVec2 | number): Vec2 {
+    vec = new Vec2(vec);
 
-export function add2(a: IVec2, b: IVec2): IVec2 {
-  return {
-    x: a.x + b.x,
-    y: a.y + b.y,
-  };
-}
-export function sub2(a: IVec2, b: IVec2): IVec2 {
-  return {
-    x: a.x - b.x,
-    y: a.y - b.y,
-  };
-}
-export function sub2Scalar(a: IVec2, b: number): IVec2 {
-  return {
-    x: a.x - b,
-    y: a.y - b,
-  };
-}
-export function mul2(a: IVec2, b: IVec2): IVec2 {
-  return {
-    x: a.x * b.x,
-    y: a.y * b.y,
-  };
-}
+    return new Vec2(Math.min(this.x, vec.x), Math.min(this.y, vec.y));
+  }
+  max(vec: IVec2 | number): Vec2 {
+    vec = new Vec2(vec);
 
-export function min2(a: IVec2, b: IVec2): IVec2 {
-  return {
-    x: Math.min(a.x, b.x),
-    y: Math.min(a.y, b.y),
-  };
-}
-export function max2(a: IVec2, b: IVec2): IVec2 {
-  return {
-    x: Math.max(a.x, b.x),
-    y: Math.max(a.y, b.y),
-  };
-}
+    return new Vec2(Math.max(this.x, vec.x), Math.max(this.y, vec.y));
+  }
 
-export function div2Scalar(a: IVec2, b: number): IVec2 {
-  return {
-    x: a.x / b,
-    y: a.y / b,
-  };
-}
+  round(): Vec2 {
+    return new Vec2(Math.round(this.x), Math.round(this.y));
+  }
+  floor(): Vec2 {
+    return new Vec2(Math.floor(this.x), Math.floor(this.y));
+  }
+  ceil(): Vec2 {
+    return new Vec2(Math.ceil(this.x), Math.ceil(this.y));
+  }
 
-export function round2(a: IVec2): IVec2 {
-  return {
-    x: Math.round(a.x),
-    y: Math.round(a.y),
-  };
-}
-export function floor2(a: IVec2): IVec2 {
-  return {
-    x: Math.floor(a.x),
-    y: Math.floor(a.y),
-  };
-}
-export function ceil2(a: IVec2): IVec2 {
-  return {
-    x: Math.ceil(a.x),
-    y: Math.ceil(a.y),
-  };
-}
+  lerp(vec: IVec2, t: number): Vec2 {
+    return new Vec2(lerp(this.x, vec.x, t), lerp(this.y, vec.y, t));
+  }
 
-export function lerp2(a: IVec2, b: IVec2, t: number): IVec2 {
-  return {
-    x: lerp(a.x, b.x, t),
-    y: lerp(a.y, b.y, t),
-  };
-}
+  distSqr(vec: IVec2): number {
+    return (this.x - vec.x) ** 2 + (this.y - vec.y) ** 2;
+  }
 
-export function clone2(input: IVec2): IVec2 {
-  return new Vec2(input.x, input.y);
+  dist(vec: IVec2): number {
+    return Math.sqrt(this.distSqr(vec));
+  }
+
+  equals(vec: IVec2): boolean {
+    return this.x === vec.x && this.y === vec.y;
+  }
+
+  to3D(z = 0): Vec3 {
+    return new Vec3(this.x, this.y, z);
+  }
+
+  distManhattan(vec: IVec2): number {
+    return Math.abs(this.x - vec.x) + Math.abs(this.y - vec.y);
+  }
+
+  distChebyshev(vec: IVec2): number {
+    return Math.max(Math.abs(this.x - vec.x), Math.abs(this.y - vec.y));
+  }
 }

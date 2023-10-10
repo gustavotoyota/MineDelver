@@ -2,8 +2,8 @@ import { Input } from 'src/code/game/input';
 import { ICellData } from 'src/code/game/map/cells';
 import { Grid } from 'src/code/game/map/grid';
 import { getShortestPath } from 'src/code/game/map/path-finding';
-import { equal2D } from 'src/code/misc/vec2';
-import { IVec3 } from 'src/code/misc/vec3';
+import { Vec2 } from 'src/code/misc/vec2';
+import { Vec3 } from 'src/code/misc/vec3';
 import { Ref } from 'vue';
 
 import { IEntity, onInput } from '../../entities';
@@ -12,12 +12,12 @@ import { PlayerMovementManager } from './movement-manager';
 export class ClickToWalk implements IEntity {
   private _grid: Grid<ICellData>;
   private _playerMovementManager: PlayerMovementManager;
-  private _pointerWorldPos: Ref<IVec3 | undefined>;
+  private _pointerWorldPos: Ref<Vec3 | undefined>;
 
   constructor(input: {
     grid: Grid<ICellData>;
     playerMovementManager: PlayerMovementManager;
-    pointerWorldPos: Ref<IVec3 | undefined>;
+    pointerWorldPos: Ref<Vec3 | undefined>;
   }) {
     this._grid = input.grid;
     this._playerMovementManager = input.playerMovementManager;
@@ -30,8 +30,7 @@ export class ClickToWalk implements IEntity {
     }
 
     if (
-      equal2D(
-        this._pointerWorldPos.value,
+      new Vec2(this._pointerWorldPos.value).equals(
         this._playerMovementManager.finalTargetPos
       )
     ) {
@@ -41,7 +40,7 @@ export class ClickToWalk implements IEntity {
     const shortestPath = getShortestPath({
       grid: this._grid,
       sourcePos: this._playerMovementManager.nextPlayerPos,
-      targetPos: this._pointerWorldPos.value,
+      targetPos: new Vec2(this._pointerWorldPos.value),
     });
 
     if (shortestPath == null) {
