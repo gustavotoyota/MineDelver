@@ -61,7 +61,7 @@ export function putItemsInSegments<T>(
 
   const targetSegment = segments[targetSegmentIndex];
   const targetSegmentContainsSegment =
-    targetSegment != null && targetSegment.from <= from;
+    targetSegment !== undefined && targetSegment.from <= from;
 
   const finalSegment: Segment<T> = {
     from: targetSegmentContainsSegment ? targetSegment.from : from,
@@ -121,7 +121,7 @@ export function getSliceFromSegments<T>(
   const startSegmentIndex = findSegmentIndex(segments, from);
   const startSegment = segments[startSegmentIndex];
 
-  if (startSegment == null) {
+  if (startSegment === undefined) {
     return [];
   }
 
@@ -165,7 +165,7 @@ export function getSliceFromSegments<T>(
 
   const endSegment = segments[endSegmentIndex];
 
-  if (startSegmentIndex !== endSegmentIndex && endSegment != null) {
+  if (startSegmentIndex !== endSegmentIndex && endSegment !== undefined) {
     result.push({
       from: endSegment.from,
       items: endSegment.items.slice(0, to - endSegment.from),
@@ -223,7 +223,7 @@ export function removeItemsFromSegments<T>(
 
   const removedItems: (T | undefined)[] = new Array(count).fill(undefined);
 
-  if (startSegment != null) {
+  if (startSegment !== undefined) {
     const removeStartIndex = startSegment.from - from;
     const removedStartItems = startSegment.items.splice(
       Math.max(0, -removeStartIndex),
@@ -253,7 +253,7 @@ export function removeItemsFromSegments<T>(
 
   const endSegment = segments[endSegmentIndex];
 
-  if (startSegmentIndex !== endSegmentIndex && endSegment != null) {
+  if (startSegmentIndex !== endSegmentIndex && endSegment !== undefined) {
     const endRemovedItems = endSegment.items.splice(0, to - endSegment.from);
 
     removedItems.splice(

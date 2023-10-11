@@ -37,10 +37,10 @@ export function createPlayerAnimMachine(input: {
     transitions: [
       {
         condition: ({ data }) =>
-          data.walking != null && data.currentTime < data.walking.endTime,
+          data.walking !== undefined && data.currentTime < data.walking.endTime,
         to: ({ data }) => {
-          if (data.walking == null) {
-            throw new Error('Walking is null');
+          if (data.walking === undefined) {
+            throw new Error('Walking is undefined');
           }
 
           const prefix = data.walking.targetIsObstacle ? 'mine' : 'walk';
@@ -59,7 +59,8 @@ export function createPlayerAnimMachine(input: {
       {
         condition: ({ state, data }) =>
           (state.startsWith('walk') || state.startsWith('mine')) &&
-          (data.walking == null || data.currentTime >= data.walking.endTime),
+          (data.walking === undefined ||
+            data.currentTime >= data.walking.endTime),
         to: ({ prevState }) => `idle-${prevState.slice(5)}`,
       },
     ],

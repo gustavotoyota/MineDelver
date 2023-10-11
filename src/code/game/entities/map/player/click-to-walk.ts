@@ -25,7 +25,7 @@ export class ClickToWalk implements IEntity {
   }
 
   private _clickToWalk(): void {
-    if (!Input.pointerDown[0] || this._pointerWorldPos.value == null) {
+    if (!Input.pointerDown[0] || this._pointerWorldPos.value === undefined) {
       return;
     }
 
@@ -43,7 +43,7 @@ export class ClickToWalk implements IEntity {
       targetPos: new Vec2(this._pointerWorldPos.value),
     });
 
-    if (shortestPath == null) {
+    if (shortestPath === undefined) {
       return;
     }
 

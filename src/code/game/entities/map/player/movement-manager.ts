@@ -58,11 +58,11 @@ export class PlayerMovementManager {
   }
 
   get isWalking(): boolean {
-    return this._walkData.value != null;
+    return this._walkData.value !== undefined;
   }
 
   get progress(): number {
-    if (this._walkData.value != null) {
+    if (this._walkData.value !== undefined) {
       return Math.min(
         1,
         (this._currentTime.value - this._walkData.value.startTime) /
@@ -74,7 +74,7 @@ export class PlayerMovementManager {
   }
 
   get nextPlayerPos(): Vec3 {
-    if (this._walkData.value != null) {
+    if (this._walkData.value !== undefined) {
       return this._walkData.value.targetPos;
     } else {
       return this._playerPos.value;
@@ -82,7 +82,7 @@ export class PlayerMovementManager {
   }
 
   get finalPlayerPos(): Vec3 {
-    if (this._walkData.value != null) {
+    if (this._walkData.value !== undefined) {
       return this._playerPos.value.lerp(
         this._walkData.value.targetPos,
         this.progress
@@ -143,8 +143,8 @@ export class PlayerMovementManager {
 
     const newCell = this._grid.getCell(targetPos3);
 
-    if (newCell == null) {
-      throw new Error('New cell is null');
+    if (newCell === undefined) {
+      throw new Error('New cell is undefined');
     }
 
     if (newCell.flag) {
@@ -167,13 +167,13 @@ export class PlayerMovementManager {
 
     onRender(() => {
       if (
-        this._walkData.value != null &&
+        this._walkData.value !== undefined &&
         this._currentTime.value >= this._walkData.value.endTime
       ) {
         const newCell = this._grid.getCell(this._walkData.value.targetPos);
 
-        if (newCell == null) {
-          throw new Error('New cell is null');
+        if (newCell === undefined) {
+          throw new Error('New cell is undefined');
         }
 
         if (newCell.unrevealed || newCell.hasBomb) {

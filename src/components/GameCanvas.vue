@@ -205,7 +205,7 @@ watch(screenSize, () => {
   canvasRef.value!.width = screenSize.value.x;
   canvasRef.value!.height = screenSize.value.y;
 
-  if (canvasCtx.value != null) {
+  if (canvasCtx.value !== undefined) {
     canvasCtx.value.imageSmoothingEnabled = false;
   }
 
@@ -518,14 +518,14 @@ onMounted(async () => {
 
   await images.allImagesLoaded();
 
-  if (canvasRef.value == null) {
-    throw new Error('Canvas is null');
+  if (canvasRef.value === undefined) {
+    throw new Error('Canvas is undefined');
   }
 
   canvasCtx.value = canvasRef.value.getContext('2d')!;
 
-  if (canvasCtx.value == null) {
-    throw new Error('Canvas context is null');
+  if (canvasCtx.value === undefined) {
+    throw new Error('Canvas context is undefined');
   }
 
   canvasCtx.value.imageSmoothingEnabled = false;

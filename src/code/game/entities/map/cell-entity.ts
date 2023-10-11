@@ -20,14 +20,14 @@ export abstract class CellEntity implements ICellEntity {
   move(input: { targetPos: Vec3 }) {
     const newCell = this._grid.getCell(input.targetPos);
 
-    if (newCell == null) {
-      throw new Error('New cell is null');
+    if (newCell === undefined) {
+      throw new Error('New cell is undefined');
     }
 
     const oldCell = this._grid.getCell(this.worldPos.value);
 
-    if (oldCell == null) {
-      throw new Error('Cell is null');
+    if (oldCell === undefined) {
+      throw new Error('Cell is undefined');
     }
 
     pull(oldCell.entities ?? [], this);

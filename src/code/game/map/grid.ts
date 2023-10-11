@@ -28,7 +28,7 @@ export class Grid<T> {
       count: 1,
     })?.[0];
 
-    if (layer == null) {
+    if (layer === undefined) {
       layer = [];
 
       putItemsInSegments(this._segments, startPos.z, [layer]);
@@ -36,7 +36,7 @@ export class Grid<T> {
 
     let row = getItemsFromSegments(layer, startPos.y, { count: 1 })?.[0];
 
-    if (row == null) {
+    if (row === undefined) {
       row = [];
 
       putItemsInSegments(layer, startPos.y, [row]);
@@ -55,13 +55,13 @@ export class Grid<T> {
       count: 1,
     })?.[0];
 
-    if (layer == null) {
+    if (layer === undefined) {
       return new Array(count).fill(undefined);
     }
 
     const row = getItemsFromSegments(layer, startPos.y, { count: 1 })?.[0];
 
-    if (row == null) {
+    if (row === undefined) {
       return new Array(count).fill(undefined);
     }
 
@@ -74,13 +74,13 @@ export class Grid<T> {
       count: 1,
     })?.[0];
 
-    if (layer == null) {
+    if (layer === undefined) {
       return new Array(count).fill(undefined);
     }
 
     const row = getItemsFromSegments(layer, startPos.y, { count: 1 })?.[0];
 
-    if (row == null) {
+    if (row === undefined) {
       return new Array(count).fill(undefined);
     }
 
@@ -93,7 +93,7 @@ export class Grid<T> {
   getOrCreateCell(pos: Vec3, create: () => T): T {
     let cell = this.getCell(pos);
 
-    if (cell == null) {
+    if (cell === undefined) {
       cell = create();
 
       this.setCell(pos, cell);
@@ -103,7 +103,7 @@ export class Grid<T> {
   }
 
   hasCell(pos: Vec3): boolean {
-    return this.getCell(pos) != null;
+    return this.getCell(pos) !== undefined;
   }
 
   getSlice(input: { rect: IRect3 }): Grid<T> {

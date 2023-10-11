@@ -118,7 +118,7 @@ export function getShortestPath(input: {
 
       let neighbourInfo = posInfos.get(key);
 
-      if (neighbourInfo == null) {
+      if (neighbourInfo === undefined) {
         neighbourInfo = {
           pos: neighbourPos,
           prevPos: currentPosInfo.pos,

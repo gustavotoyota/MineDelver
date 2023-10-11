@@ -26,7 +26,7 @@ export class Flagging implements IEntity {
       if (
         (!(this._flagMode.value && Input.pointerDown[0]) &&
           !Input.pointerDown[2]) ||
-        this._pointerWorldPos.value == null
+        this._pointerWorldPos.value === undefined
       ) {
         return;
       }
