@@ -13,7 +13,7 @@ export interface ICellData {
   bombProcessed?: boolean;
 
   numAdjacentBombs?: number;
-  revealed?: boolean;
+  unrevealed?: boolean;
 
   entities?: ICellEntity[];
 
@@ -37,6 +37,7 @@ export function cellHasBomb(input: {
 export function createCell(input: { hasBomb: boolean }): ICellData {
   return {
     hidden: true,
+    unrevealed: true,
     ...(input.hasBomb ? { hasBomb: true, bombProcessed: false } : {}),
   };
 }
@@ -86,13 +87,7 @@ function processBomb(input: {
   );
 
   for (const neighbourCell of neighbourCells) {
-    if (neighbourCell.hasBomb) {
-      // processBomb({
-      //   cell: neighbourCell,
-      //   worldPos: neighbourPositions[neighbourCells.indexOf(neighbourCell)],
-      //   getOrCreateCell: input.getOrCreateCell,
-      // });
-    } else {
+    if (!neighbourCell.hasBomb) {
       neighbourCell.numAdjacentBombs =
         (neighbourCell.numAdjacentBombs ?? 0) + 1;
     }
@@ -113,7 +108,7 @@ export function loadCellCluster(input: {
   delete startCell.hidden;
 
   if (
-    !startCell.revealed &&
+    startCell.unrevealed &&
     !startCell.hasBomb &&
     input.numCorrectGuesses !== undefined
   ) {
@@ -133,12 +128,12 @@ export function loadCellCluster(input: {
 
     const cell = input.getOrCreateCell({ worldPos });
 
-    if (!cell.revealed) {
+    if (cell.unrevealed) {
       if (input.numRevealedCells !== undefined) {
         input.numRevealedCells.value++;
       }
 
-      cell.revealed = true;
+      delete cell.unrevealed;
     }
 
     // Load neighbours

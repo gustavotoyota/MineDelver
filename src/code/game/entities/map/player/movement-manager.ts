@@ -154,7 +154,7 @@ export class PlayerMovementManager {
     this._walkData.value = {
       sourcePos: new Vec3(this._playerPos.value),
       targetPos: new Vec3(targetPos3),
-      targetIsObstacle: !newCell.revealed || !!newCell.hasBomb,
+      targetIsObstacle: newCell.unrevealed || !!newCell.hasBomb,
       startTime: this._currentTime.value,
       endTime: this._currentTime.value + this._walkDuration.value,
     };
@@ -176,7 +176,7 @@ export class PlayerMovementManager {
           throw new Error('New cell is null');
         }
 
-        if (!newCell.revealed || newCell.hasBomb) {
+        if (newCell.unrevealed || newCell.hasBomb) {
           if (
             !this._loadCellCluster({ startPos: this._walkData.value.targetPos })
           ) {

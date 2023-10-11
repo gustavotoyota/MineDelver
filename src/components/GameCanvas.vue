@@ -152,7 +152,7 @@ const halfCellSize = computed(() => cellSize.value / 2);
 
 const entities = new Entities();
 
-const numCorrectGuesses = ref(-1);
+const numCorrectGuesses = ref(0);
 
 const flagMode = ref(false);
 
@@ -259,7 +259,7 @@ const mapEntity = new GameMap({
       return;
     }
 
-    if (!input_.cellData?.revealed) {
+    if (input_.cellData?.unrevealed) {
       drawCellImage({
         canvasCtx: input_.canvasCtx,
         halfCellSize: halfCellSize.value,
@@ -279,7 +279,7 @@ const mapEntity = new GameMap({
       }
     }
 
-    if (input_.cellData?.revealed && input_.cellData?.hasBomb) {
+    if (!input_.cellData?.unrevealed && input_.cellData?.hasBomb) {
       drawCellImage({
         canvasCtx: input_.canvasCtx,
         halfCellSize: halfCellSize.value,
@@ -296,7 +296,7 @@ const mapEntity = new GameMap({
       }
 
       if (
-        input_.cellData?.revealed &&
+        !input_.cellData?.unrevealed &&
         input_.cellData?.numAdjacentBombs !== undefined
       ) {
         const isPlayerOnCell = new Vec2(input_.worldPos).equals(
@@ -410,7 +410,7 @@ watch(playerHP, () => {
 
     gridSlice.iterateCells(({ cell }) => {
       if (cell?.hasBomb) {
-        cell.revealed = true;
+        delete cell.unrevealed;
       }
     });
 

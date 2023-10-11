@@ -98,7 +98,7 @@ export function getShortestPath(input: {
         neighbourPos.to3D(input.sourcePos.z)
       );
 
-      if (!neighbourCell?.revealed || neighbourCell?.hasBomb) {
+      if (neighbourCell?.unrevealed || neighbourCell?.hasBomb) {
         if (neighbourPos.equals(input.targetPos)) {
           const path = _reconstructPath({
             posInfos: posInfos,

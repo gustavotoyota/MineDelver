@@ -222,9 +222,9 @@ export class GameMap implements IEntity {
         });
 
         input.canvasCtx.save();
-        input.canvasCtx.strokeStyle = pointerCell?.revealed
-          ? '#f0f0f0'
-          : '#00d000';
+        input.canvasCtx.strokeStyle = pointerCell?.unrevealed
+          ? '#00d000'
+          : '#f0f0f0';
         input.canvasCtx.lineWidth = 2;
         input.canvasCtx.strokeRect(
           pointerScreenPos.x -

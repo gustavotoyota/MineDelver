@@ -33,7 +33,7 @@ export class Flagging implements IEntity {
 
       const cell = this._grid.getCell(this._pointerWorldPos.value);
 
-      if (cell == null || cell.revealed) {
+      if (!cell?.unrevealed) {
         return;
       }
 

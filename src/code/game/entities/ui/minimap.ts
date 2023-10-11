@@ -81,28 +81,30 @@ export class Minimap implements IEntity {
       const gridSlice = this._grid.getSlice({ rect: minimapWorldRect });
 
       gridSlice.iterateCells(({ pos: cellPos, cell }) => {
-        if (cell.revealed) {
-          const relativeCellPos = new Vec2(cellPos).sub(halfWorldPos);
-
-          let cellScreenPos = centerScreenPos
-            .add(relativeCellPos.sub(0.5).mul(cellScreenSize2))
-            .round();
-
-          const endCellScreenPos = cellScreenPos
-            .add(cellScreenSize2)
-            .min(endScreenPos);
-
-          cellScreenPos = cellScreenPos.max(this._pos.value);
-
-          const cellScreenSize = endCellScreenPos.sub(cellScreenPos).max(0);
-
-          input.canvasCtx.fillRect(
-            cellScreenPos.x,
-            cellScreenPos.y,
-            cellScreenSize.x,
-            cellScreenSize.y
-          );
+        if (cell.unrevealed) {
+          return;
         }
+
+        const relativeCellPos = new Vec2(cellPos).sub(halfWorldPos);
+
+        let cellScreenPos = centerScreenPos
+          .add(relativeCellPos.sub(0.5).mul(cellScreenSize2))
+          .round();
+
+        const endCellScreenPos = cellScreenPos
+          .add(cellScreenSize2)
+          .min(endScreenPos);
+
+        cellScreenPos = cellScreenPos.max(this._pos.value);
+
+        const cellScreenSize = endCellScreenPos.sub(cellScreenPos).max(0);
+
+        input.canvasCtx.fillRect(
+          cellScreenPos.x,
+          cellScreenPos.y,
+          cellScreenSize.x,
+          cellScreenSize.y
+        );
       });
 
       // Render border
