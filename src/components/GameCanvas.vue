@@ -316,7 +316,7 @@ const mapEntity = new GameMap({
 
         if (isPlayerOnCell) {
           input_.canvasCtx.strokeStyle = 'black';
-          input_.canvasCtx.lineWidth = 2 * camera.value.zoom;
+          input_.canvasCtx.lineWidth = 2.5 * camera.value.zoom;
 
           input_.canvasCtx.strokeText(
             input_.cellData.numAdjacentBombs.toString(),

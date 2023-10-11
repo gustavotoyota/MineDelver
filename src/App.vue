@@ -18,8 +18,15 @@ useMeta(() => ({
 </script>
 
 <style>
+@font-face {
+  font-family: Play;
+  src: url(/public/fonts/Play/Play-Regular.ttf);
+}
+
 * {
   user-select: none;
+
+  font-family: Play, sans-serif;
 }
 
 body {

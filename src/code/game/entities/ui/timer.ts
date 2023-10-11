@@ -23,7 +23,7 @@ export class Timer implements IEntity {
 
       input.canvasCtx.fillStyle = '#e0e0e0';
       input.canvasCtx.textBaseline = 'top';
-      input.canvasCtx.font = '14px Arial';
+      input.canvasCtx.font = '14.5px Play';
       input.canvasCtx.fillText(
         `Time: ${Intl.DateTimeFormat('en-US', {
           minute: 'numeric',

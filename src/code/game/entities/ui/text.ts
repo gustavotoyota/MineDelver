@@ -16,7 +16,7 @@ export class Text implements IEntity {
     onRender((input) => {
       input.canvasCtx.fillStyle = '#e0e0e0';
       input.canvasCtx.textBaseline = 'top';
-      input.canvasCtx.font = '14px Arial';
+      input.canvasCtx.font = '14.5px Play';
       input.canvasCtx.fillText(
         this._text.value,
         this._pos.value.x,
