@@ -64,7 +64,11 @@
 <script setup lang="ts">
 import { useEventListener } from 'src/code/composables/use-event-listener';
 import { useInterval } from 'src/code/composables/use-interval';
-import { Camera, screenToWorld } from 'src/code/game/camera';
+import {
+  Camera,
+  getVisibleWorldRect,
+  screenToWorld,
+} from 'src/code/game/camera';
 import { Entities } from 'src/code/game/entities/entities';
 import { getBombCountColor } from 'src/code/game/entities/map/bomb-count';
 import { CellHover } from 'src/code/game/entities/map/cell-hover';
@@ -87,7 +91,6 @@ import {
   loadCellCluster,
 } from 'src/code/game/map/cells';
 import { Grid } from 'src/code/game/map/grid';
-import { getVisibleWorldRect } from 'src/code/game/map/visible-cells';
 import { lerpBetween } from 'src/code/misc/math';
 import { Vec2 } from 'src/code/misc/vec2';
 import { Vec3 } from 'src/code/misc/vec3';

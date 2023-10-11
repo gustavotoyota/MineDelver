@@ -2,10 +2,9 @@ import { Vec2 } from 'src/code/misc/vec2';
 import { Vec3 } from 'src/code/misc/vec3';
 import { Ref } from 'vue';
 
-import { ICamera, worldToScreen } from '../../camera';
+import { getVisibleWorldRect, ICamera, worldToScreen } from '../../camera';
 import { ICellData } from '../../map/cells';
 import { Grid } from '../../map/grid';
-import { getVisibleWorldRect } from '../../map/visible-cells';
 import {
   Entities,
   entityHooks,
