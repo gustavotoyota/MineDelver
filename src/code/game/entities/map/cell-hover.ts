@@ -3,8 +3,8 @@ import { Vec3 } from 'src/code/misc/vec3';
 import { Ref } from 'vue';
 
 import { ICamera, worldToScreen } from '../../camera';
-import { ICellData } from '../../map/cells';
-import { Grid } from '../../map/grid';
+import { ICellData } from '../../grid/cells';
+import { Grid } from '../../grid/grid';
 import { IEntity, onRender } from '../entities';
 
 export class CellHover implements IEntity {

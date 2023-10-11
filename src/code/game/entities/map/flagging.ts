@@ -1,9 +1,9 @@
 import { Vec3 } from 'src/code/misc/vec3';
 import { Ref } from 'vue';
 
+import { ICellData } from '../../grid/cells';
+import { Grid } from '../../grid/grid';
 import { Input } from '../../input';
-import { ICellData } from '../../map/cells';
-import { Grid } from '../../map/grid';
 import { IEntity, onInput } from '../entities';
 
 export class Flagging implements IEntity {

@@ -1,7 +1,7 @@
+import { ICellData } from 'src/code/game/grid/cells';
+import { Grid } from 'src/code/game/grid/grid';
+import { getShortestPath } from 'src/code/game/grid/path-finding';
 import { Input } from 'src/code/game/input';
-import { ICellData } from 'src/code/game/map/cells';
-import { Grid } from 'src/code/game/map/grid';
-import { getShortestPath } from 'src/code/game/map/path-finding';
 import { Vec2 } from 'src/code/misc/vec2';
 import { Vec3 } from 'src/code/misc/vec3';
 import { Ref } from 'vue';

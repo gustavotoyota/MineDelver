@@ -1,8 +1,8 @@
 import { worldToScreen } from 'src/code/game/camera';
 import { drawSprite } from 'src/code/game/graphics/draw-cell';
+import { ICellData } from 'src/code/game/grid/cells';
+import { Grid } from 'src/code/game/grid/grid';
 import { Images } from 'src/code/game/images';
-import { ICellData } from 'src/code/game/map/cells';
-import { Grid } from 'src/code/game/map/grid';
 import { StateMachine } from 'src/code/game/state-machine';
 import { Vec2 } from 'src/code/misc/vec2';
 import { Vec3 } from 'src/code/misc/vec3';

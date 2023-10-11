@@ -82,15 +82,15 @@ import { Minimap } from 'src/code/game/entities/ui/minimap';
 import { Text } from 'src/code/game/entities/ui/text';
 import { Timer } from 'src/code/game/entities/ui/timer';
 import { drawCellImage } from 'src/code/game/graphics/draw-cell';
-import { Images } from 'src/code/game/images';
-import { Input } from 'src/code/game/input';
 import {
   cellHasBomb,
   getOrCreateCell,
   ICellData,
   loadCellCluster,
-} from 'src/code/game/map/cells';
-import { Grid } from 'src/code/game/map/grid';
+} from 'src/code/game/grid/cells';
+import { Grid } from 'src/code/game/grid/grid';
+import { Images } from 'src/code/game/images';
+import { Input } from 'src/code/game/input';
 import { lerpBetween } from 'src/code/misc/math';
 import { Vec2 } from 'src/code/misc/vec2';
 import { Vec3 } from 'src/code/misc/vec3';
@@ -546,3 +546,4 @@ canvas {
   bottom: 0;
 }
 </style>
+src/code/game/grid/cellssrc/code/game/grid/grid

@@ -1,5 +1,5 @@
-import { ICellData } from 'src/code/game/map/cells';
-import { Grid } from 'src/code/game/map/grid';
+import { ICellData } from 'src/code/game/grid/cells';
+import { Grid } from 'src/code/game/grid/grid';
 import { Vec2 } from 'src/code/misc/vec2';
 import { Vec3 } from 'src/code/misc/vec3';
 import { Ref, ref } from 'vue';
