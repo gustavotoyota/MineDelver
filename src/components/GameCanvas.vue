@@ -67,6 +67,7 @@ import { useInterval } from 'src/code/composables/use-interval';
 import { Camera, screenToWorld } from 'src/code/game/camera';
 import { Entities } from 'src/code/game/entities/entities';
 import { getBombCountColor } from 'src/code/game/entities/map/bomb-count';
+import { CellHover } from 'src/code/game/entities/map/cell-hover';
 import { Flagging } from 'src/code/game/entities/map/flagging';
 import { GameMap } from 'src/code/game/entities/map/game-map';
 import { ClickToWalk } from 'src/code/game/entities/map/player/click-to-walk';
@@ -237,7 +238,6 @@ const mapEntity = new GameMap({
   grid: grid,
   cellSize: cellSize,
   camera: camera,
-  pointerScreenPos: pointerScreenPos,
   bgColor: ref('black'),
   renderCellOfLayerBelowEntities: [
     (input_) => {
@@ -340,6 +340,16 @@ const mapEntity = new GameMap({
 mapEntity.cellEntities.add(playerEntity);
 
 entities.add(mapEntity);
+
+entities.add(
+  new CellHover({
+    camera: camera,
+    grid: grid,
+    pointerWorldPos: pointerWorldPos,
+    cellSize: cellSize,
+    screenSize: screenSize,
+  })
+);
 
 entities.add(
   new HPBar({

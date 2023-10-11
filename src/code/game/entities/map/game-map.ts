@@ -2,7 +2,7 @@ import { Vec2 } from 'src/code/misc/vec2';
 import { Vec3 } from 'src/code/misc/vec3';
 import { Ref } from 'vue';
 
-import { ICamera, screenToWorld, worldToScreen } from '../../camera';
+import { ICamera, worldToScreen } from '../../camera';
 import { ICellData } from '../../map/cells';
 import { Grid } from '../../map/grid';
 import { getVisibleWorldRect } from '../../map/visible-cells';
@@ -30,7 +30,6 @@ export class GameMap implements IEntity {
   private _grid: Grid<ICellData>;
   private _camera: Ref<ICamera>;
   private _cellSize: Ref<number>;
-  private _pointerScreenPos: Ref<Vec2 | undefined>;
   private _bgColor: Ref<string>;
   private _renderCellOfLayerBelowEntities?: IRenderCell[];
   private _renderBeforeEntities?: IRenderCell;
@@ -42,7 +41,6 @@ export class GameMap implements IEntity {
     grid: Grid<ICellData>;
     camera: Ref<ICamera>;
     cellSize: Ref<number>;
-    pointerScreenPos: Ref<Vec2 | undefined>;
     bgColor: Ref<string>;
     renderCellOfLayerBelowEntities?: IRenderCell[];
     renderBeforeEntities?: IRenderCell;
@@ -51,7 +49,6 @@ export class GameMap implements IEntity {
   }) {
     this._camera = input.camera;
     this._cellSize = input.cellSize;
-    this._pointerScreenPos = input.pointerScreenPos;
     this._grid = input.grid;
     this._bgColor = input.bgColor;
     this._renderCellOfLayerBelowEntities = input.renderCellOfLayerBelowEntities;
@@ -190,51 +187,6 @@ export class GameMap implements IEntity {
             });
           },
         });
-      }
-
-      // Draw the hovered cell
-
-      if (this._pointerScreenPos.value !== undefined) {
-        let pointerWorldPos = screenToWorld({
-          camera: this._camera.value,
-          cellSize: this._cellSize.value,
-          screenSize: screenSize,
-          screenPos: this._pointerScreenPos.value,
-        });
-
-        pointerWorldPos = new Vec3(
-          Math.round(pointerWorldPos.x),
-          Math.round(pointerWorldPos.y),
-          Math.round(pointerWorldPos.z)
-        );
-
-        const pointerCell = gridSlice.getCell(pointerWorldPos);
-
-        const pointerScreenPos = worldToScreen({
-          camera: this._camera.value,
-          cellSize: this._cellSize.value,
-          screenSize: screenSize,
-          worldPos: new Vec3(
-            Math.round(pointerWorldPos.x),
-            Math.round(pointerWorldPos.y),
-            Math.round(pointerWorldPos.z)
-          ),
-        });
-
-        input.canvasCtx.save();
-        input.canvasCtx.strokeStyle = pointerCell?.unrevealed
-          ? '#00d000'
-          : '#f0f0f0';
-        input.canvasCtx.lineWidth = 2;
-        input.canvasCtx.strokeRect(
-          pointerScreenPos.x -
-            (this._cellSize.value / 2) * this._camera.value.zoom,
-          pointerScreenPos.y -
-            (this._cellSize.value / 2) * this._camera.value.zoom,
-          this._cellSize.value * this._camera.value.zoom,
-          this._cellSize.value * this._camera.value.zoom
-        );
-        input.canvasCtx.restore();
       }
     });
 
