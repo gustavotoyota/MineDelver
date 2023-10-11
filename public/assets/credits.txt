@@ -2,3 +2,4 @@ miner - Themo
 ground - Joe777
 bomb - Hyptosis and Zabin
 chests - Bonsaiheldin
+ores - bluecarrot16
