@@ -20,7 +20,7 @@ useMeta(() => ({
 <style>
 @font-face {
   font-family: Play;
-  src: url(/public/fonts/Play/Play-Regular.ttf);
+  src: url(/fonts/Play/Play-Regular.ttf);
 }
 
 * {
