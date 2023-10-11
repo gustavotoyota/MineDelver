@@ -44,7 +44,7 @@ import { onBeforeMount, reactive, ref } from 'vue';
 
 const key = ref(0);
 
-const configVisible = ref(false);
+const configVisible = ref(true);
 
 const died = ref(false);
 
