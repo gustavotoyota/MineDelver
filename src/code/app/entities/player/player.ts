@@ -1,6 +1,6 @@
+import { ICellData } from 'src/code/app/grid/cells';
 import { worldToScreen } from 'src/code/domain/camera';
 import { renderSprite } from 'src/code/domain/graphics/rendering';
-import { ICellData } from 'src/code/domain/grid/cells';
 import { Grid } from 'src/code/domain/grid/grid';
 import { Images } from 'src/code/domain/images';
 import { StateMachine } from 'src/code/domain/state-machine';

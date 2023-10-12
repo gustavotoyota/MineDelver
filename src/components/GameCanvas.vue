@@ -73,6 +73,12 @@ import { Minimap } from 'src/code/app/entities/ui/minimap';
 import { Text } from 'src/code/app/entities/ui/text';
 import { Timer } from 'src/code/app/entities/ui/timer';
 import {
+  cellHasBomb,
+  getOrCreateCell,
+  ICellData,
+  loadCellCluster,
+} from 'src/code/app/grid/cells';
+import {
   Camera,
   getVisibleWorldRect,
   screenToWorld,
@@ -80,12 +86,6 @@ import {
 import { Entities } from 'src/code/domain/entities/entities';
 import { GameMap } from 'src/code/domain/entities/map/game-map';
 import { renderCellImage } from 'src/code/domain/graphics/rendering';
-import {
-  cellHasBomb,
-  getOrCreateCell,
-  ICellData,
-  loadCellCluster,
-} from 'src/code/domain/grid/cells';
 import { Grid } from 'src/code/domain/grid/grid';
 import { Images } from 'src/code/domain/images';
 import { Input } from 'src/code/domain/input';
@@ -554,4 +554,4 @@ src/code/app/entities/ui/hp-barsrc/code/app/entities/ui/minimapsrc/code/app/enti
 src/code/app/entities/map/bomb-countsrc/code/app/entities/map/cell-hoversrc/code/app/entities/map/flagging
 src/composables/use-event-listenersrc/composables/use-interval
 src/code/app/entities/player/click-to-walksrc/code/app/entities/player/keyboard-movementsrc/code/app/entities/player/player
-src/code/domain/graphics/rendering
+src/code/domain/graphics/rendering src/code/app/grid/cells

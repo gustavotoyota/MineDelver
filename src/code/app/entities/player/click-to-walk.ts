@@ -1,4 +1,4 @@
-import { ICellData } from 'src/code/domain/grid/cells';
+import { ICellData } from 'src/code/app/grid/cells';
 import { Grid } from 'src/code/domain/grid/grid';
 import { getShortestPath2D } from 'src/code/domain/grid/path-finding';
 import { Input } from 'src/code/domain/input';

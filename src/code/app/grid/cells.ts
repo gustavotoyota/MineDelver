@@ -4,7 +4,7 @@ import { Vec3 } from 'src/code/misc/vec3';
 import { Ref } from 'vue';
 
 import { ICellEntity } from '../../domain/entities/map/cell-entity';
-import { Grid } from './grid';
+import { Grid } from '../../domain/grid/grid';
 
 export interface ICellData {
   hidden?: boolean;

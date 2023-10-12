@@ -2,7 +2,7 @@ import { pull } from 'lodash';
 import { Vec3 } from 'src/code/misc/vec3';
 import { Ref } from 'vue';
 
-import { ICellData } from '../../../domain/grid/cells';
+import { ICellData } from '../../../app/grid/cells';
 import { Grid } from '../../../domain/grid/grid';
 import { IEntity } from '../entities';
 

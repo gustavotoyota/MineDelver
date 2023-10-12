@@ -4,8 +4,8 @@ import { Ref } from 'vue';
 
 import { ICamera, worldToScreen } from '../../../domain/camera';
 import { IEntity, onRender } from '../../../domain/entities/entities';
-import { ICellData } from '../../../domain/grid/cells';
 import { Grid } from '../../../domain/grid/grid';
+import { ICellData } from '../../grid/cells';
 
 export class CellHover implements IEntity {
   private _grid: Grid<ICellData>;

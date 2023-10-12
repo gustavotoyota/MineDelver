@@ -1,4 +1,4 @@
-import { ICellData } from 'src/code/domain/grid/cells';
+import { ICellData } from 'src/code/app/grid/cells';
 import { Grid } from 'src/code/domain/grid/grid';
 import { Vec2 } from 'src/code/misc/vec2';
 import { Vec3 } from 'src/code/misc/vec3';

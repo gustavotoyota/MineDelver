@@ -2,12 +2,12 @@ import { Vec2 } from 'src/code/misc/vec2';
 import { Vec3 } from 'src/code/misc/vec3';
 import { Ref } from 'vue';
 
+import { ICellData } from '../../../app/grid/cells';
 import {
   getVisibleWorldRect,
   ICamera,
   worldToScreen,
 } from '../../../domain/camera';
-import { ICellData } from '../../../domain/grid/cells';
 import { Grid } from '../../../domain/grid/grid';
 import {
   Entities,
