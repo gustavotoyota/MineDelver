@@ -2,17 +2,17 @@ import { Vec3 } from 'src/code/misc/vec3';
 import { Ref } from 'vue';
 
 import { IEntity, onInput } from '../../../core/entities/entities';
-import { Grid } from '../../../core/grid/grid';
+import { Grid3 } from '../../../core/grid/grid3';
 import { Input } from '../../../core/input';
 import { ICellData } from '../../grid/cells';
 
 export class Flagging implements IEntity {
-  private _grid: Grid<ICellData>;
+  private _grid: Grid3<ICellData>;
   private _pointerWorldPos: Ref<Vec3 | undefined>;
   private _flagMode: Ref<boolean>;
 
   constructor(input: {
-    grid: Grid<ICellData>;
+    grid: Grid3<ICellData>;
     pointerWorldPos: Ref<Vec3 | undefined>;
     flagMode: Ref<boolean>;
   }) {

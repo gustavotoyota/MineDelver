@@ -1,9 +1,7 @@
+import { IRect } from './rect';
 import { Vec3 } from './vec3';
 
-export interface IRect3 {
-  min: Vec3;
-  max: Vec3;
-}
+export type IRect3 = IRect<Vec3>;
 
 export class Rect3 implements IRect3 {
   constructor(public min: Vec3 = new Vec3(), public max: Vec3 = new Vec3()) {}

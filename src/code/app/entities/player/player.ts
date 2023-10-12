@@ -1,7 +1,7 @@
 import { ICellData } from 'src/code/app/grid/cells';
 import { worldToScreen } from 'src/code/core/camera';
 import { renderSprite } from 'src/code/core/graphics/rendering';
-import { Grid } from 'src/code/core/grid/grid';
+import { Grid3 } from 'src/code/core/grid/grid3';
 import { Images } from 'src/code/core/images';
 import { StateMachine } from 'src/code/core/state-machine';
 import { Vec2 } from 'src/code/misc/vec2';
@@ -42,7 +42,7 @@ export class PlayerEntity extends CellEntity {
 
   readonly worldPos: Ref<Vec3>;
 
-  protected _grid: Grid<ICellData>;
+  protected _grid: Grid3<ICellData>;
 
   private _loadCellCluster: (input: { startPos: Vec3 }) => boolean;
 
@@ -63,7 +63,7 @@ export class PlayerEntity extends CellEntity {
     maxHP: Ref<number>;
     worldPos: Ref<Vec3>;
     images: Images;
-    grid: Grid<ICellData>;
+    grid: Grid3<ICellData>;
     loadCellCluster: (input: { startPos: Vec3 }) => boolean;
     currentTime: Ref<number>;
     walkDuration: Ref<number>;

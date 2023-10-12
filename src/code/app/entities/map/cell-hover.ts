@@ -4,18 +4,18 @@ import { Ref } from 'vue';
 
 import { ICamera, worldToScreen } from '../../../core/camera';
 import { IEntity, onRender } from '../../../core/entities/entities';
-import { Grid } from '../../../core/grid/grid';
+import { Grid3 } from '../../../core/grid/grid3';
 import { ICellData } from '../../grid/cells';
 
 export class CellHover implements IEntity {
-  private _grid: Grid<ICellData>;
+  private _grid: Grid3<ICellData>;
   private _camera: Ref<ICamera>;
   private _cellSize: Ref<number>;
   private _pointerWorldPos: Ref<Vec3 | undefined>;
   private _screenSize: Ref<Vec2>;
 
   constructor(input: {
-    grid: Grid<ICellData>;
+    grid: Grid3<ICellData>;
     camera: Ref<ICamera>;
     cellSize: Ref<number>;
     pointerWorldPos: Ref<Vec3 | undefined>;

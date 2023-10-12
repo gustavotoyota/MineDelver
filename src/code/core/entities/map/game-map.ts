@@ -4,7 +4,7 @@ import { Ref } from 'vue';
 
 import { ICellData } from '../../../app/grid/cells';
 import { getVisibleWorldRect, ICamera, worldToScreen } from '../../camera';
-import { Grid } from '../../grid/grid';
+import { Grid3 } from '../../grid/grid3';
 import {
   Entities,
   entityHooks,
@@ -26,7 +26,7 @@ export interface IRenderCell {
 }
 
 export class GameMap implements IEntity {
-  private _grid: Grid<ICellData>;
+  private _grid: Grid3<ICellData>;
   private _camera: Ref<ICamera>;
   private _cellSize: Ref<number>;
   private _renderCellOfLayerBelowEntities?: IRenderCell[];
@@ -36,7 +36,7 @@ export class GameMap implements IEntity {
   public readonly cellEntities: Entities<ICellEntity>;
 
   constructor(input: {
-    grid: Grid<ICellData>;
+    grid: Grid3<ICellData>;
     camera: Ref<ICamera>;
     cellSize: Ref<number>;
     renderCellOfLayerBelowEntities?: IRenderCell[];
@@ -55,7 +55,7 @@ export class GameMap implements IEntity {
   }
 
   private _drawLayer(input: {
-    gridSlice: Grid<ICellData | undefined>;
+    gridSlice: Grid3<ICellData | undefined>;
     screenSize: Vec2;
     canvasCtx: CanvasRenderingContext2D;
     drawCell: (input: {

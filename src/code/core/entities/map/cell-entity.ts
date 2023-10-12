@@ -3,7 +3,7 @@ import { Vec3 } from 'src/code/misc/vec3';
 import { Ref } from 'vue';
 
 import { ICellData } from '../../../app/grid/cells';
-import { Grid } from '../../grid/grid';
+import { Grid3 } from '../../grid/grid3';
 import { IEntity } from '../entities';
 
 export interface ICellEntity extends IEntity {
@@ -15,7 +15,7 @@ export abstract class CellEntity implements ICellEntity {
 
   abstract setup(): void;
 
-  protected abstract _grid: Grid<ICellData>;
+  protected abstract _grid: Grid3<ICellData>;
 
   move(input: { targetPos: Vec3 }) {
     const newCell = this._grid.getCell(input.targetPos);

@@ -1,5 +1,5 @@
 import { ICellData } from 'src/code/app/grid/cells';
-import { Grid } from 'src/code/core/grid/grid';
+import { Grid3 } from 'src/code/core/grid/grid3';
 import { Vec2 } from 'src/code/misc/vec2';
 import { Vec3 } from 'src/code/misc/vec3';
 import { Ref, ref } from 'vue';
@@ -21,7 +21,7 @@ export class PlayerMovementManager {
 
   private _playerPos: Ref<Vec3>;
 
-  private _grid: Grid<ICellData>;
+  private _grid: Grid3<ICellData>;
   private _currentTime: Ref<number>;
 
   private _loadCellCluster: (input: { startPos: Vec3 }) => boolean;
@@ -36,7 +36,7 @@ export class PlayerMovementManager {
   constructor(input: {
     walkDuration: Ref<number>;
     playerPos: Ref<Vec3>;
-    grid: Grid<ICellData>;
+    grid: Grid3<ICellData>;
     currentTime: Ref<number>;
     loadCellCluster: (input: { startPos: Vec3 }) => boolean;
     movePlayer: (input: { targetPos: Vec3 }) => void;

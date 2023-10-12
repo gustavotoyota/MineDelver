@@ -1,7 +1,7 @@
 import { Vec3 } from 'src/code/misc/vec3';
 
 import { ICellEntity } from '../../core/entities/map/cell-entity';
-import { Grid } from '../../core/grid/grid';
+import { Grid3 } from '../../core/grid/grid3';
 
 export interface ICellData {
   hidden?: boolean;
@@ -28,7 +28,7 @@ export function createCell(input: { hasBomb: boolean }): ICellData {
 export function getOrCreateCell(input: {
   worldPos: Vec3;
   cellHasBomb: (input: { worldPos: Vec3 }) => boolean;
-  grid: Grid<ICellData>;
+  grid: Grid3<ICellData>;
 }): ICellData {
   let cell = input.grid.getCell(input.worldPos);
 

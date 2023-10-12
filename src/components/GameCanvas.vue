@@ -73,12 +73,9 @@ import { HPBar } from 'src/code/app/entities/ui/hp-bar';
 import { Minimap } from 'src/code/app/entities/ui/minimap';
 import { Text } from 'src/code/app/entities/ui/text';
 import { Timer } from 'src/code/app/entities/ui/timer';
-import {
-  cellHasBomb,
-  getOrCreateCell,
-  ICellData,
-  loadCellCluster,
-} from 'src/code/app/grid/cells';
+import { cellHasBomb } from 'src/code/app/grid/bombs';
+import { getOrCreateCell, ICellData } from 'src/code/app/grid/cells';
+import { loadCellCluster } from 'src/code/app/grid/clusters';
 import {
   Camera,
   getVisibleWorldRect,
@@ -87,7 +84,7 @@ import {
 import { Entities } from 'src/code/core/entities/entities';
 import { GameMap } from 'src/code/core/entities/map/game-map';
 import { renderCellImage } from 'src/code/core/graphics/rendering';
-import { Grid } from 'src/code/core/grid/grid';
+import { Grid3 } from 'src/code/core/grid/grid3';
 import { Images } from 'src/code/core/images';
 import { Input } from 'src/code/core/input';
 import { lerpBetween } from 'src/code/misc/math';
@@ -123,7 +120,7 @@ function getOrCreateCell_(input_: { worldPos: Vec3 }) {
 function loadCellCluster_(input: {
   seed: number;
   startPos: Vec3;
-  grid: Grid<ICellData>;
+  grid: Grid3<ICellData>;
 }) {
   return loadCellCluster({
     startPos: input.startPos,
@@ -172,7 +169,7 @@ const screenSize = ref(new Vec2());
 const minimapScale = ref(3);
 const minimapSize = ref(new Vec2(200, 150));
 
-const grid = new Grid<ICellData>();
+const grid = new Grid3<ICellData>();
 
 let stopTimer = false;
 
@@ -553,3 +550,4 @@ canvas {
   bottom: 0;
 }
 </style>
+src/code/core/grid/grid3

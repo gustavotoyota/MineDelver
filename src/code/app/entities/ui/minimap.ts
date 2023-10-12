@@ -5,18 +5,18 @@ import { Ref } from 'vue';
 
 import { ICamera } from '../../../core/camera';
 import { IEntity, onRender } from '../../../core/entities/entities';
-import { Grid } from '../../../core/grid/grid';
+import { Grid3 } from '../../../core/grid/grid3';
 import { ICellData } from '../../grid/cells';
 
 export class Minimap implements IEntity {
-  private _grid: Grid<ICellData>;
+  private _grid: Grid3<ICellData>;
   private _pos: Ref<Vec2>;
   private _size: Ref<Vec2>;
   private _scale: Ref<number>;
   private _camera: Ref<ICamera>;
 
   constructor(input: {
-    grid: Grid<ICellData>;
+    grid: Grid3<ICellData>;
     pos: Ref<Vec2>;
     size: Ref<Vec2>;
     scale: Ref<number>;
