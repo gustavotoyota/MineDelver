@@ -1,7 +1,7 @@
 import { Vec2 } from 'src/code/misc/vec2';
 import { Ref } from 'vue';
 
-import { IEntity, onCreate, onRender } from '../../../core/entities/entities';
+import { IEntity, onRender } from '../../../core/entities/entities';
 
 export class Timer implements IEntity {
   private _currentTime: Ref<number>;
@@ -14,9 +14,7 @@ export class Timer implements IEntity {
   }
 
   setup() {
-    onCreate(() => {
-      this._startTime = this._currentTime.value;
-    });
+    this._startTime = this._currentTime.value;
 
     onRender((input) => {
       const timeSpent = this._currentTime.value - this._startTime;

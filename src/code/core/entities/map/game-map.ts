@@ -7,11 +7,12 @@ import { getVisibleWorldRect, ICamera, worldToScreen } from '../../camera';
 import { Grid3 } from '../../grid/grid3';
 import {
   Entities,
-  entityHooks,
+  getEntityHooks,
   IEntity,
   onDestroy,
   onInput,
   onRender,
+  onUpdate,
 } from '../entities';
 import { ICellEntity } from './cell-entity';
 
@@ -33,7 +34,12 @@ export class GameMap implements IEntity {
   private _renderBeforeEntities?: IRenderCell;
   private _renderAfterEntities?: IRenderCell;
   private _renderCellOfLayerAboveEntities?: IRenderCell[];
-  public readonly cellEntities: Entities<ICellEntity>;
+
+  private _cellEntities: Entities<ICellEntity>;
+
+  get cellEntities(): Entities<ICellEntity> {
+    return this._cellEntities;
+  }
 
   constructor(input: {
     grid: Grid3<ICellData>;
@@ -51,7 +57,7 @@ export class GameMap implements IEntity {
     this._renderBeforeEntities = input.renderBeforeEntities;
     this._renderAfterEntities = input.renderAfterEntities;
     this._renderCellOfLayerAboveEntities = input.renderCellOfLayerAboveEntities;
-    this.cellEntities = new Entities();
+    this._cellEntities = new Entities();
   }
 
   private _drawLayer(input: {
@@ -81,14 +87,16 @@ export class GameMap implements IEntity {
   }
 
   setup(): void {
-    this.cellEntities.list.forEach((entity) => entity.setup());
-
     onInput((input) => {
-      for (const entity of this.cellEntities.list) {
-        for (const listener of entityHooks.get(entity)?.onInput ?? []) {
+      for (const entity of this._cellEntities.list) {
+        for (const listener of getEntityHooks(entity)?.onInput ?? []) {
           listener(input);
         }
       }
+    });
+
+    onUpdate((input) => {
+      this._cellEntities.update(input);
     });
 
     onRender((input) => {
@@ -142,7 +150,7 @@ export class GameMap implements IEntity {
           });
 
           for (const entity of input_.cellData?.entities ?? []) {
-            entityHooks.get(entity)?.onCellRender?.forEach((listener) => {
+            getEntityHooks(entity)?.onCellRender?.forEach((listener) => {
               listener({
                 canvasCtx: input.canvasCtx,
                 worldPos: input_.worldPos,
@@ -180,10 +188,12 @@ export class GameMap implements IEntity {
           },
         });
       }
+
+      this._cellEntities.render(input);
     });
 
     onDestroy(() => {
-      this.cellEntities.clear();
+      this._cellEntities.clear();
     });
   }
 }

@@ -24,18 +24,29 @@ export class Entities<T extends IEntity> {
   add(entity: T) {
     this.list.push(entity);
 
-    _hooks = {};
+    let entityInfos = _entityInfos.get(entity);
+
+    if (entityInfos === undefined) {
+      entityInfos = { hooks: {}, count: 0 };
+
+      _entityInfos.set(entity, entityInfos);
+    }
+
+    entityInfos.count++;
+
+    if (entityInfos.count > 1) {
+      return;
+    }
+
+    _hooks = entityInfos.hooks;
 
     entity.setup();
-
-    _hooks.onCreate?.forEach((listener) => listener());
-
-    entityHooks.set(entity, _hooks);
   }
 
   input(input: InputParams): boolean | void {
     for (let i = this.list.length - 1; i >= 0; i--) {
-      for (const listener of entityHooks.get(this.list[i])?.onInput ?? []) {
+      for (const listener of _entityInfos.get(this.list[i])?.hooks.onInput ??
+        []) {
         if (listener(input)) {
           return true;
         }
@@ -45,22 +56,39 @@ export class Entities<T extends IEntity> {
 
   update(input: UpdateParams) {
     this.list.forEach((entity) => {
-      entityHooks.get(entity)?.onUpdate?.forEach((listener) => listener(input));
+      _entityInfos
+        .get(entity)
+        ?.hooks.onUpdate?.forEach((listener) => listener(input));
     });
   }
 
   render(input: RenderParams) {
     this.list.forEach((entity) => {
-      entityHooks.get(entity)?.onRender?.forEach((listener) => listener(input));
+      _entityInfos
+        .get(entity)
+        ?.hooks.onRender?.forEach((listener) => listener(input));
     });
   }
 
   remove(entity: T) {
-    pull(this.list, entity);
+    if (pull(this.list, entity).length === 0) {
+      return;
+    }
 
-    entityHooks.get(entity)?.onDestroy?.forEach((listener) => listener());
+    const entityInfos = _entityInfos.get(entity);
 
-    entityHooks.delete(entity);
+    if (entityInfos === undefined) {
+      return;
+    }
+
+    if (entityInfos.count > 1) {
+      return;
+    }
+
+    _entityInfos
+      .get(entity)
+      ?.hooks.onDestroy?.forEach((listener) => listener());
+    _entityInfos.delete(entity);
   }
 
   clear() {
@@ -70,12 +98,13 @@ export class Entities<T extends IEntity> {
 
 let _hooks: IEntityHooks;
 
-export const entityHooks: Map<IEntity, IEntityHooks> = new Map();
+const _entityInfos: Map<IEntity, { hooks: IEntityHooks; count: number }> =
+  new Map();
 
-export function onCreate(listener: () => void) {
-  _hooks.onCreate ??= [];
-  _hooks.onCreate.push(listener);
+export function getEntityHooks(entity: IEntity): IEntityHooks | undefined {
+  return _entityInfos.get(entity)?.hooks;
 }
+
 export function onInput(listener: (input: InputParams) => boolean | void) {
   _hooks.onInput ??= [];
   _hooks.onInput.push(listener);
