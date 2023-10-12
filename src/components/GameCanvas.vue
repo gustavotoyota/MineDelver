@@ -314,7 +314,7 @@ const mapEntity = new GameMap({
         input_.canvasCtx.textBaseline = 'middle';
         input_.canvasCtx.font = `500 ${
           (cellSize.value * input_.camera.zoom) / 1.6
-        }px "Segoe UI"`;
+        }px Play`;
 
         if (isPlayerOnCell) {
           input_.canvasCtx.strokeStyle = 'black';
