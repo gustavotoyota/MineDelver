@@ -1,14 +1,14 @@
 import { Vec2 } from '../../misc/vec2';
 import { ICamera } from '../camera';
 
-export function drawCellImage(input: {
-  canvasCtx: CanvasRenderingContext2D;
+export function renderCellImage(input: {
+  renderCellImage: CanvasRenderingContext2D;
   screenPos: Vec2;
   camera: ICamera;
   image: HTMLImageElement;
   halfCellSize: number;
 }) {
-  input.canvasCtx.drawImage(
+  input.renderCellImage.drawImage(
     input.image,
     input.screenPos.x +
       (-input.image.width + input.halfCellSize) * input.camera.zoom,
@@ -19,7 +19,7 @@ export function drawCellImage(input: {
   );
 }
 
-export function drawSprite(input: {
+export function renderSprite(input: {
   canvasCtx: CanvasRenderingContext2D;
   screenPos: Vec2;
   camera: ICamera;

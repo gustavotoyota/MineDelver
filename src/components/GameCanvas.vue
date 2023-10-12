@@ -79,7 +79,7 @@ import {
 } from 'src/code/domain/camera';
 import { Entities } from 'src/code/domain/entities/entities';
 import { GameMap } from 'src/code/domain/entities/map/game-map';
-import { drawCellImage } from 'src/code/domain/graphics/draw-cell';
+import { renderCellImage } from 'src/code/domain/graphics/rendering';
 import {
   cellHasBomb,
   getOrCreateCell,
@@ -248,8 +248,8 @@ const mapEntity = new GameMap({
         return;
       }
 
-      drawCellImage({
-        canvasCtx: input_.canvasCtx,
+      renderCellImage({
+        renderCellImage: input_.canvasCtx,
         halfCellSize: halfCellSize.value,
         screenPos: input_.screenPos,
         camera: input_.camera,
@@ -263,8 +263,8 @@ const mapEntity = new GameMap({
     }
 
     if (input_.cellData?.unrevealed) {
-      drawCellImage({
-        canvasCtx: input_.canvasCtx,
+      renderCellImage({
+        renderCellImage: input_.canvasCtx,
         halfCellSize: halfCellSize.value,
         screenPos: input_.screenPos,
         camera: input_.camera,
@@ -272,8 +272,8 @@ const mapEntity = new GameMap({
       });
 
       if (input_.cellData?.flag) {
-        drawCellImage({
-          canvasCtx: input_.canvasCtx,
+        renderCellImage({
+          renderCellImage: input_.canvasCtx,
           halfCellSize: halfCellSize.value,
           screenPos: input_.screenPos,
           camera: input_.camera,
@@ -283,8 +283,8 @@ const mapEntity = new GameMap({
     }
 
     if (!input_.cellData?.unrevealed && input_.cellData?.hasBomb) {
-      drawCellImage({
-        canvasCtx: input_.canvasCtx,
+      renderCellImage({
+        renderCellImage: input_.canvasCtx,
         halfCellSize: halfCellSize.value,
         screenPos: input_.screenPos,
         camera: input_.camera,
@@ -554,3 +554,4 @@ src/code/app/entities/ui/hp-barsrc/code/app/entities/ui/minimapsrc/code/app/enti
 src/code/app/entities/map/bomb-countsrc/code/app/entities/map/cell-hoversrc/code/app/entities/map/flagging
 src/composables/use-event-listenersrc/composables/use-interval
 src/code/app/entities/player/click-to-walksrc/code/app/entities/player/keyboard-movementsrc/code/app/entities/player/player
+src/code/domain/graphics/rendering

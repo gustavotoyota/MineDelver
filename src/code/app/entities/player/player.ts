@@ -1,5 +1,5 @@
 import { worldToScreen } from 'src/code/domain/camera';
-import { drawSprite } from 'src/code/domain/graphics/draw-cell';
+import { renderSprite } from 'src/code/domain/graphics/rendering';
 import { ICellData } from 'src/code/domain/grid/cells';
 import { Grid } from 'src/code/domain/grid/grid';
 import { Images } from 'src/code/domain/images';
@@ -137,7 +137,7 @@ export class PlayerEntity extends CellEntity {
         spriteIndex = 0;
       }
 
-      drawSprite({
+      renderSprite({
         canvasCtx: input.canvasCtx,
         halfCellSize: input.halfCellSize,
         screenPos: screenPos,
