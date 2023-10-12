@@ -11,7 +11,7 @@ export class Vec3 implements IVec3 {
   y: number;
   z: number;
 
-  constructor(x: Vec3 | number = 0, y?: number, z?: number) {
+  constructor(x: IVec3 | number = 0, y?: number, z?: number) {
     if (typeof x === 'object') {
       this.x = x.x;
       this.y = x.y;
@@ -25,6 +25,27 @@ export class Vec3 implements IVec3 {
       this.y = y;
       this.z = z;
     }
+  }
+
+  add(vec: IVec3 | number): Vec3 {
+    vec = new Vec3(vec);
+
+    return new Vec3(this.x + vec.x, this.y + vec.y, this.z + vec.z);
+  }
+  sub(vec: IVec3 | number): Vec3 {
+    vec = new Vec3(vec);
+
+    return new Vec3(this.x - vec.x, this.y - vec.y, this.z - vec.z);
+  }
+  mul(vec: IVec3 | number): Vec3 {
+    vec = new Vec3(vec);
+
+    return new Vec3(this.x * vec.x, this.y * vec.y, this.z * vec.z);
+  }
+  div(vec: IVec3 | number): Vec3 {
+    vec = new Vec3(vec);
+
+    return new Vec3(this.x / vec.x, this.y / vec.y, this.z / vec.z);
   }
 
   clone3(): Vec3 {

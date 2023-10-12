@@ -65,6 +65,7 @@
 import { getBombCountColor } from 'src/code/app/entities/map/bomb-count';
 import { CellHover } from 'src/code/app/entities/map/cell-hover';
 import { Flagging } from 'src/code/app/entities/map/flagging';
+import { MapGridEntity } from 'src/code/app/entities/map/grid';
 import { ClickToWalk } from 'src/code/app/entities/player/click-to-walk';
 import { PlayerKeyboardMovement } from 'src/code/app/entities/player/keyboard-movement';
 import { PlayerEntity } from 'src/code/app/entities/player/player';
@@ -342,6 +343,14 @@ const mapEntity = new GameMap({
 mapEntity.cellEntities.add(playerEntity);
 
 entities.add(mapEntity);
+
+entities.add(
+  new MapGridEntity({
+    camera: camera,
+    cellSize: cellSize,
+    screenSize: screenSize,
+  })
+);
 
 entities.add(
   new CellHover({
