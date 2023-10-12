@@ -62,38 +62,38 @@
 </template>
 
 <script setup lang="ts">
-import { useEventListener } from 'src/code/composables/use-event-listener';
-import { useInterval } from 'src/code/composables/use-interval';
+import { getBombCountColor } from 'src/code/app/entities/map/bomb-count';
+import { CellHover } from 'src/code/app/entities/map/cell-hover';
+import { Flagging } from 'src/code/app/entities/map/flagging';
+import { ClickToWalk } from 'src/code/app/entities/player/click-to-walk';
+import { PlayerKeyboardMovement } from 'src/code/app/entities/player/keyboard-movement';
+import { PlayerEntity } from 'src/code/app/entities/player/player';
+import { HPBar } from 'src/code/app/entities/ui/hp-bar';
+import { Minimap } from 'src/code/app/entities/ui/minimap';
+import { Text } from 'src/code/app/entities/ui/text';
+import { Timer } from 'src/code/app/entities/ui/timer';
 import {
   Camera,
   getVisibleWorldRect,
   screenToWorld,
-} from 'src/code/game/camera';
-import { Entities } from 'src/code/game/entities/entities';
-import { getBombCountColor } from 'src/code/game/entities/map/bomb-count';
-import { CellHover } from 'src/code/game/entities/map/cell-hover';
-import { Flagging } from 'src/code/game/entities/map/flagging';
-import { GameMap } from 'src/code/game/entities/map/game-map';
-import { ClickToWalk } from 'src/code/game/entities/map/player/click-to-walk';
-import { PlayerKeyboardMovement } from 'src/code/game/entities/map/player/keyboard-movement';
-import { PlayerEntity } from 'src/code/game/entities/map/player/player';
-import { HPBar } from 'src/code/game/entities/ui/hp-bar';
-import { Minimap } from 'src/code/game/entities/ui/minimap';
-import { Text } from 'src/code/game/entities/ui/text';
-import { Timer } from 'src/code/game/entities/ui/timer';
-import { drawCellImage } from 'src/code/game/graphics/draw-cell';
+} from 'src/code/domain/camera';
+import { Entities } from 'src/code/domain/entities/entities';
+import { GameMap } from 'src/code/domain/entities/map/game-map';
+import { drawCellImage } from 'src/code/domain/graphics/draw-cell';
 import {
   cellHasBomb,
   getOrCreateCell,
   ICellData,
   loadCellCluster,
-} from 'src/code/game/grid/cells';
-import { Grid } from 'src/code/game/grid/grid';
-import { Images } from 'src/code/game/images';
-import { Input } from 'src/code/game/input';
+} from 'src/code/domain/grid/cells';
+import { Grid } from 'src/code/domain/grid/grid';
+import { Images } from 'src/code/domain/images';
+import { Input } from 'src/code/domain/input';
 import { lerpBetween } from 'src/code/misc/math';
 import { Vec2 } from 'src/code/misc/vec2';
 import { Vec3 } from 'src/code/misc/vec3';
+import { useEventListener } from 'src/composables/use-event-listener';
+import { useInterval } from 'src/composables/use-interval';
 import { GameConfigData } from 'src/pages/IndexPage.vue';
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 
@@ -546,4 +546,11 @@ canvas {
   bottom: 0;
 }
 </style>
-src/code/game/grid/cellssrc/code/game/grid/grid
+src/code/domain/grid/cellssrc/code/domain/grid/grid src/code/domain/camera
+src/code/domain/input src/code/domain/images
+src/code/domain/grid/cellssrc/code/domain/grid/grid
+src/code/domain/graphics/draw-cell
+src/code/app/entities/ui/hp-barsrc/code/app/entities/ui/minimapsrc/code/app/entities/ui/textsrc/code/app/entities/ui/timer
+src/code/app/entities/map/bomb-countsrc/code/app/entities/map/cell-hoversrc/code/app/entities/map/flagging
+src/composables/use-event-listenersrc/composables/use-interval
+src/code/app/entities/player/click-to-walksrc/code/app/entities/player/keyboard-movementsrc/code/app/entities/player/player

@@ -3,7 +3,7 @@ import { posMod } from 'src/code/misc/math';
 import { Vec3 } from 'src/code/misc/vec3';
 import { Ref } from 'vue';
 
-import { ICellEntity } from '../entities/map/cell-entity';
+import { ICellEntity } from '../../domain/entities/map/cell-entity';
 import { Grid } from './grid';
 
 export interface ICellData {

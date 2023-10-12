@@ -1,6 +1,6 @@
 import { Ref, watch, WatchStopHandle } from 'vue';
 
-import { onDestroy } from '../../entities';
+import { onDestroy } from '../../../domain/entities/entities';
 
 export class PlayerHurt {
   private _hp: Ref<number>;

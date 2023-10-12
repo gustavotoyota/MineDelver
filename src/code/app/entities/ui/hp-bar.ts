@@ -1,8 +1,8 @@
 import { Vec2 } from 'src/code/misc/vec2';
 import { Ref } from 'vue';
 
-import { Images } from '../../images';
-import { IEntity, onRender } from '../entities';
+import { IEntity, onRender } from '../../../domain/entities/entities';
+import { Images } from '../../../domain/images';
 
 export class HPBar implements IEntity {
   private _hp: Ref<number>;

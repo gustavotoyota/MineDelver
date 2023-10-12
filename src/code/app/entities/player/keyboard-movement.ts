@@ -1,7 +1,7 @@
-import { Input } from 'src/code/game/input';
+import { Input } from 'src/code/domain/input';
 import { Vec2 } from 'src/code/misc/vec2';
 
-import { IEntity, onInput, onRender } from '../../entities';
+import { IEntity, onInput, onRender } from '../../../domain/entities/entities';
 
 export function performKeyboardMovement(input: {
   walkToDirection: (direction: Vec2) => void;

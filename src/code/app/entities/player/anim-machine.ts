@@ -1,4 +1,4 @@
-import { StateMachine } from 'src/code/game/state-machine';
+import { StateMachine } from 'src/code/domain/state-machine';
 import { Vec3 } from 'src/code/misc/vec3';
 import { Ref, ref } from 'vue';
 

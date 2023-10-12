@@ -1,7 +1,7 @@
 import { Vec2 } from 'src/code/misc/vec2';
 import { Ref } from 'vue';
 
-import { IEntity, onRender } from '../entities';
+import { IEntity, onRender } from '../../../domain/entities/entities';
 
 export class Text implements IEntity {
   private _pos: Ref<Vec2>;

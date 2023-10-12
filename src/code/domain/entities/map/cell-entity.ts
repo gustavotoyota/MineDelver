@@ -2,8 +2,8 @@ import { pull } from 'lodash';
 import { Vec3 } from 'src/code/misc/vec3';
 import { Ref } from 'vue';
 
-import { ICellData } from '../../grid/cells';
-import { Grid } from '../../grid/grid';
+import { ICellData } from '../../../domain/grid/cells';
+import { Grid } from '../../../domain/grid/grid';
 import { IEntity } from '../entities';
 
 export interface ICellEntity extends IEntity {

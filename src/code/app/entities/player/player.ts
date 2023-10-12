@@ -1,15 +1,20 @@
-import { worldToScreen } from 'src/code/game/camera';
-import { drawSprite } from 'src/code/game/graphics/draw-cell';
-import { ICellData } from 'src/code/game/grid/cells';
-import { Grid } from 'src/code/game/grid/grid';
-import { Images } from 'src/code/game/images';
-import { StateMachine } from 'src/code/game/state-machine';
+import { worldToScreen } from 'src/code/domain/camera';
+import { drawSprite } from 'src/code/domain/graphics/draw-cell';
+import { ICellData } from 'src/code/domain/grid/cells';
+import { Grid } from 'src/code/domain/grid/grid';
+import { Images } from 'src/code/domain/images';
+import { StateMachine } from 'src/code/domain/state-machine';
 import { Vec2 } from 'src/code/misc/vec2';
 import { Vec3 } from 'src/code/misc/vec3';
 import { Ref } from 'vue';
 
-import { Entities, IEntity, onCellRender, onDestroy } from '../../entities';
-import { CellEntity } from '../cell-entity';
+import {
+  Entities,
+  IEntity,
+  onCellRender,
+  onDestroy,
+} from '../../../domain/entities/entities';
+import { CellEntity } from '../../../domain/entities/map/cell-entity';
 import { createPlayerAnimMachine, PlayerAnimData } from './anim-machine';
 import { PlayerHurt } from './hurt';
 import { PlayerMovementManager } from './movement-manager';
