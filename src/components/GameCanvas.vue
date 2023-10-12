@@ -241,7 +241,6 @@ const mapEntity = new GameMap({
   grid: grid,
   cellSize: cellSize,
   camera: camera,
-  bgColor: ref('black'),
   renderCellOfLayerBelowEntities: [
     (input_) => {
       if (input_.cellData === undefined || input_.cellData.hidden) {
@@ -533,7 +532,7 @@ onMounted(async () => {
     throw new Error('Canvas is undefined');
   }
 
-  canvasCtx.value = canvasRef.value.getContext('2d')!;
+  canvasCtx.value = canvasRef.value.getContext('2d', { alpha: false })!;
 
   if (canvasCtx.value === undefined) {
     throw new Error('Canvas context is undefined');
@@ -554,12 +553,3 @@ canvas {
   bottom: 0;
 }
 </style>
-src/code/domain/grid/cellssrc/code/domain/grid/grid src/code/domain/camera
-src/code/domain/input src/code/domain/images
-src/code/domain/grid/cellssrc/code/domain/grid/grid
-src/code/domain/graphics/draw-cell
-src/code/app/entities/ui/hp-barsrc/code/app/entities/ui/minimapsrc/code/app/entities/ui/textsrc/code/app/entities/ui/timer
-src/code/app/entities/map/bomb-countsrc/code/app/entities/map/cell-hoversrc/code/app/entities/map/flagging
-src/composables/use-event-listenersrc/composables/use-interval
-src/code/app/entities/player/click-to-walksrc/code/app/entities/player/keyboard-movementsrc/code/app/entities/player/player
-src/code/domain/graphics/rendering src/code/app/grid/cells

@@ -33,7 +33,6 @@ export class GameMap implements IEntity {
   private _grid: Grid<ICellData>;
   private _camera: Ref<ICamera>;
   private _cellSize: Ref<number>;
-  private _bgColor: Ref<string>;
   private _renderCellOfLayerBelowEntities?: IRenderCell[];
   private _renderBeforeEntities?: IRenderCell;
   private _renderAfterEntities?: IRenderCell;
@@ -44,7 +43,6 @@ export class GameMap implements IEntity {
     grid: Grid<ICellData>;
     camera: Ref<ICamera>;
     cellSize: Ref<number>;
-    bgColor: Ref<string>;
     renderCellOfLayerBelowEntities?: IRenderCell[];
     renderBeforeEntities?: IRenderCell;
     renderAfterEntities?: IRenderCell;
@@ -53,7 +51,6 @@ export class GameMap implements IEntity {
     this._camera = input.camera;
     this._cellSize = input.cellSize;
     this._grid = input.grid;
-    this._bgColor = input.bgColor;
     this._renderCellOfLayerBelowEntities = input.renderCellOfLayerBelowEntities;
     this._renderBeforeEntities = input.renderBeforeEntities;
     this._renderAfterEntities = input.renderAfterEntities;
@@ -114,10 +111,7 @@ export class GameMap implements IEntity {
 
       // Clear the canvas
 
-      input.canvasCtx.save();
-      input.canvasCtx.fillStyle = this._bgColor.value;
-      input.canvasCtx.fillRect(0, 0, screenSize.x, screenSize.y);
-      input.canvasCtx.restore();
+      input.canvasCtx.clearRect(0, 0, screenSize.x, screenSize.y);
 
       // Draw the map
 
