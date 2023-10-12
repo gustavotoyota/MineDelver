@@ -1,11 +1,7 @@
 import Heap from 'heap';
 import { Vec2 } from 'src/code/misc/vec2';
-import { Vec3 } from 'src/code/misc/vec3';
 
-import { ICellData } from './cells';
-import { Grid } from './grid';
-
-interface PosInfo {
+interface _PosInfo {
   pos: Vec2;
   prevPos: Vec2;
   pathScore: number;
@@ -13,7 +9,7 @@ interface PosInfo {
 }
 
 function _reconstructPath(input: {
-  posInfos: Map<string, PosInfo>;
+  posInfos: Map<string, _PosInfo>;
   currentPos: Vec2;
   sourcePos: Vec2;
 }) {
@@ -32,14 +28,17 @@ function _reconstructPath(input: {
   return path;
 }
 
-export function getShortestPath(input: {
-  sourcePos: Vec3;
+export function getShortestPath2D<T>(input: {
+  sourcePos: Vec2;
   targetPos: Vec2;
-  grid: Grid<ICellData>;
+  getCellData: (input: { cellPos: Vec2 }) => T;
+  isCellObstacle: (input: { cellPos: Vec2; cellData: T }) => boolean;
+  acceptNearTarget?: boolean;
+  canGoOverTarget?: (input: { targetCellData: T }) => boolean;
 }): Vec2[] | undefined {
   const closedSet = new Set<string>();
 
-  const posInfos = new Map<string, PosInfo>();
+  const posInfos = new Map<string, _PosInfo>();
 
   const sourcePosInfo = {
     pos: new Vec2(input.sourcePos),
@@ -50,7 +49,7 @@ export function getShortestPath(input: {
 
   posInfos.set(`${input.sourcePos.x}:${input.sourcePos.y}`, sourcePosInfo);
 
-  const open = new Heap<PosInfo>((a, b) => a.guessScore - b.guessScore);
+  const open = new Heap<_PosInfo>((a, b) => a.guessScore - b.guessScore);
 
   open.push(sourcePosInfo);
 
@@ -94,26 +93,29 @@ export function getShortestPath(input: {
         continue;
       }
 
-      const neighbourCell = input.grid.getCell(
-        neighbourPos.to3D(input.sourcePos.z)
-      );
+      const neighbourCellData = input.getCellData({ cellPos: neighbourPos });
 
-      if (neighbourCell?.unrevealed || neighbourCell?.hasBomb) {
-        if (neighbourPos.equals(input.targetPos)) {
-          const path = _reconstructPath({
-            posInfos: posInfos,
-            currentPos: currentPosInfo.pos,
-            sourcePos: new Vec2(input.sourcePos),
-          });
-
-          if (neighbourCell?.flag) {
-            return path;
-          } else {
-            return [...path, new Vec2(input.targetPos)];
-          }
+      if (
+        input.isCellObstacle({
+          cellPos: neighbourPos,
+          cellData: neighbourCellData,
+        })
+      ) {
+        if (!neighbourPos.equals(input.targetPos) || !input.acceptNearTarget) {
+          continue;
         }
 
-        continue;
+        const path = _reconstructPath({
+          posInfos: posInfos,
+          currentPos: currentPosInfo.pos,
+          sourcePos: new Vec2(input.sourcePos),
+        });
+
+        if (input.canGoOverTarget?.({ targetCellData: neighbourCellData })) {
+          return [...path, new Vec2(input.targetPos)];
+        } else {
+          return path;
+        }
       }
 
       let neighbourInfo = posInfos.get(key);
