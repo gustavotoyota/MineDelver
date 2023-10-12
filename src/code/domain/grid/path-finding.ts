@@ -34,7 +34,10 @@ export function getShortestPath2D<T>(input: {
   getCellData: (input: { cellPos: Vec2 }) => T;
   isCellObstacle: (input: { cellPos: Vec2; cellData: T }) => boolean;
   acceptNearTarget?: boolean;
-  canGoOverTarget?: (input: { targetCellData: T }) => boolean;
+  canGoOverObstacleTarget?: (input: {
+    targetCellPos: Vec2;
+    targetCellData: T;
+  }) => boolean;
 }): Vec2[] | undefined {
   const closedSet = new Set<string>();
 
@@ -111,7 +114,12 @@ export function getShortestPath2D<T>(input: {
           sourcePos: new Vec2(input.sourcePos),
         });
 
-        if (input.canGoOverTarget?.({ targetCellData: neighbourCellData })) {
+        if (
+          input.canGoOverObstacleTarget?.({
+            targetCellPos: neighbourPos,
+            targetCellData: neighbourCellData,
+          })
+        ) {
           return [...path, new Vec2(input.targetPos)];
         } else {
           return path;

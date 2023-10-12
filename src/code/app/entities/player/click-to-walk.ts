@@ -47,7 +47,7 @@ export class ClickToWalk implements IEntity {
       isCellObstacle: ({ cellData }) =>
         cellData?.unrevealed || !!cellData?.hasBomb,
       acceptNearTarget: true,
-      canGoOverTarget: ({ targetCellData }) => !targetCellData?.flag,
+      canGoOverObstacleTarget: ({ targetCellData }) => !targetCellData?.flag,
     });
 
     if (shortestPath === undefined) {
