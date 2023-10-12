@@ -96,7 +96,6 @@ export function onCellRender(
     canvasCtx: CanvasRenderingContext2D;
     camera: ICamera;
     cellSize: number;
-    halfCellSize: number;
   }) => void
 ) {
   _hooks.onCellRender ??= [];

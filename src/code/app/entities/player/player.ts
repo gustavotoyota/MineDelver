@@ -139,7 +139,7 @@ export class PlayerEntity extends CellEntity {
 
       renderSprite({
         canvasCtx: input.canvasCtx,
-        halfCellSize: input.halfCellSize,
+        cellSize: input.cellSize,
         screenPos: screenPos,
         camera: input.camera,
         image: this._images.getImage('miner')!,

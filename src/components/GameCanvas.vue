@@ -152,7 +152,6 @@ const canvasCtx = ref<CanvasRenderingContext2D>();
 const images = new Images();
 
 const cellSize = ref(32);
-const halfCellSize = computed(() => cellSize.value / 2);
 
 const entities = new Entities();
 
@@ -250,7 +249,7 @@ const mapEntity = new GameMap({
 
       renderCellImage({
         renderCellImage: input_.canvasCtx,
-        halfCellSize: halfCellSize.value,
+        cellSize: cellSize.value,
         screenPos: input_.screenPos,
         camera: input_.camera,
         image: images.getImage('ground')!,
@@ -265,7 +264,7 @@ const mapEntity = new GameMap({
     if (input_.cellData?.unrevealed) {
       renderCellImage({
         renderCellImage: input_.canvasCtx,
-        halfCellSize: halfCellSize.value,
+        cellSize: cellSize.value,
         screenPos: input_.screenPos,
         camera: input_.camera,
         image: images.getImage('wall')!,
@@ -274,7 +273,7 @@ const mapEntity = new GameMap({
       if (input_.cellData?.flag) {
         renderCellImage({
           renderCellImage: input_.canvasCtx,
-          halfCellSize: halfCellSize.value,
+          cellSize: cellSize.value,
           screenPos: input_.screenPos,
           camera: input_.camera,
           image: images.getImage('flag')!,
@@ -285,7 +284,7 @@ const mapEntity = new GameMap({
     if (!input_.cellData?.unrevealed && input_.cellData?.hasBomb) {
       renderCellImage({
         renderCellImage: input_.canvasCtx,
-        halfCellSize: halfCellSize.value,
+        cellSize: cellSize.value,
         screenPos: input_.screenPos,
         camera: input_.camera,
         image: images.getImage('bomb')!,

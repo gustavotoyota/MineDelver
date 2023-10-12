@@ -161,7 +161,6 @@ export class GameMap implements IEntity {
                 cellData: input_.cellData,
                 camera: this._camera.value,
                 cellSize: this._cellSize.value,
-                halfCellSize: this._cellSize.value / 2,
               });
             });
           }
