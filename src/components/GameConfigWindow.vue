@@ -89,6 +89,7 @@
         <button
           ref="startGameButton"
           style="
+            padding: 6px;
             background-color: #404040;
             border: 1px solid #808080;
             color: #d0d0d0;
