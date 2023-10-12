@@ -1,7 +1,7 @@
 import { Vec2 } from 'src/code/misc/vec2';
 import { Vec3 } from 'src/code/misc/vec3';
 
-import { IRect3 } from '../misc/rect3';
+import { Rect3 } from '../misc/rect3';
 
 export interface ICamera {
   pos: Vec3;
@@ -59,7 +59,7 @@ export function getVisibleWorldRect(input: {
   camera: ICamera;
   cellSize: number;
   screenSize: Vec2;
-}): IRect3 {
+}): Rect3 {
   const topLeft = screenToWorld({
     camera: input.camera,
     screenPos: new Vec2(),
@@ -74,16 +74,16 @@ export function getVisibleWorldRect(input: {
     screenSize: input.screenSize,
   });
 
-  return {
-    min: new Vec3(
+  return new Rect3(
+    new Vec3(
       Math.floor(topLeft.x - 1),
       Math.floor(topLeft.y - 1),
       Math.floor(topLeft.z)
     ),
-    max: new Vec3(
+    new Vec3(
       Math.ceil(bottomRight.x + 1),
       Math.ceil(bottomRight.y + 1),
       Math.ceil(bottomRight.z)
-    ),
-  };
+    )
+  );
 }

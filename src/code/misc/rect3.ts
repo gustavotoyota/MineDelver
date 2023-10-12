@@ -1,10 +1,16 @@
 import { IRect } from './rect';
+import { IRect2, Rect2 } from './rect2';
+import { Vec2 } from './vec2';
 import { Vec3 } from './vec3';
 
 export type IRect3 = IRect<Vec3>;
 
 export class Rect3 implements IRect3 {
   constructor(public min: Vec3 = new Vec3(), public max: Vec3 = new Vec3()) {}
+
+  to2D(): IRect2 {
+    return new Rect2(new Vec2(this.min), new Vec2(this.max));
+  }
 }
 
 export function growRect3D(rect: IRect3, amount?: number): IRect3 {
