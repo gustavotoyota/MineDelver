@@ -1,7 +1,7 @@
 import { Vec2 } from 'src/code/misc/vec2';
 import { Ref } from 'vue';
 
-import { IEntity, onCreate, onRender } from '../../../domain/entities/entities';
+import { IEntity, onCreate, onRender } from '../../../core/entities/entities';
 
 export class Timer implements IEntity {
   private _currentTime: Ref<number>;

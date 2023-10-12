@@ -3,12 +3,8 @@ import { Vec3 } from 'src/code/misc/vec3';
 import { Ref } from 'vue';
 
 import { ICellData } from '../../../app/grid/cells';
-import {
-  getVisibleWorldRect,
-  ICamera,
-  worldToScreen,
-} from '../../../domain/camera';
-import { Grid } from '../../../domain/grid/grid';
+import { getVisibleWorldRect, ICamera, worldToScreen } from '../../camera';
+import { Grid } from '../../grid/grid';
 import {
   Entities,
   entityHooks,

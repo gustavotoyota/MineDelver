@@ -1,12 +1,12 @@
 import { ICellData } from 'src/code/app/grid/cells';
-import { Grid } from 'src/code/domain/grid/grid';
-import { getShortestPath2D } from 'src/code/domain/grid/path-finding';
-import { Input } from 'src/code/domain/input';
+import { Grid } from 'src/code/core/grid/grid';
+import { getShortestPath2D } from 'src/code/core/grid/path-finding';
+import { Input } from 'src/code/core/input';
 import { Vec2 } from 'src/code/misc/vec2';
 import { Vec3 } from 'src/code/misc/vec3';
 import { Ref } from 'vue';
 
-import { IEntity, onInput } from '../../../domain/entities/entities';
+import { IEntity, onInput } from '../../../core/entities/entities';
 import { PlayerMovementManager } from './movement-manager';
 
 export class ClickToWalk implements IEntity {

@@ -1,8 +1,8 @@
 import { pull } from 'lodash';
 import { Vec3 } from 'src/code/misc/vec3';
 
-import { ICamera } from '../../domain/camera';
 import { Vec2 } from '../../misc/vec2';
+import { ICamera } from '../camera';
 
 export interface IEntity {
   setup(): void;

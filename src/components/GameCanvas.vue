@@ -83,13 +83,13 @@ import {
   Camera,
   getVisibleWorldRect,
   screenToWorld,
-} from 'src/code/domain/camera';
-import { Entities } from 'src/code/domain/entities/entities';
-import { GameMap } from 'src/code/domain/entities/map/game-map';
-import { renderCellImage } from 'src/code/domain/graphics/rendering';
-import { Grid } from 'src/code/domain/grid/grid';
-import { Images } from 'src/code/domain/images';
-import { Input } from 'src/code/domain/input';
+} from 'src/code/core/camera';
+import { Entities } from 'src/code/core/entities/entities';
+import { GameMap } from 'src/code/core/entities/map/game-map';
+import { renderCellImage } from 'src/code/core/graphics/rendering';
+import { Grid } from 'src/code/core/grid/grid';
+import { Images } from 'src/code/core/images';
+import { Input } from 'src/code/core/input';
 import { lerpBetween } from 'src/code/misc/math';
 import { Vec2 } from 'src/code/misc/vec2';
 import { Vec3 } from 'src/code/misc/vec3';

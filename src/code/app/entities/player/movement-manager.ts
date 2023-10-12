@@ -1,10 +1,10 @@
 import { ICellData } from 'src/code/app/grid/cells';
-import { Grid } from 'src/code/domain/grid/grid';
+import { Grid } from 'src/code/core/grid/grid';
 import { Vec2 } from 'src/code/misc/vec2';
 import { Vec3 } from 'src/code/misc/vec3';
 import { Ref, ref } from 'vue';
 
-import { onRender } from '../../../domain/entities/entities';
+import { onRender } from '../../../core/entities/entities';
 
 export type PlayerWalkData =
   | {

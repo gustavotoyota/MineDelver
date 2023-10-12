@@ -3,7 +3,7 @@ import { Vec3 } from 'src/code/misc/vec3';
 import { Ref } from 'vue';
 
 import { ICellData } from '../../../app/grid/cells';
-import { Grid } from '../../../domain/grid/grid';
+import { Grid } from '../../grid/grid';
 import { IEntity } from '../entities';
 
 export interface ICellEntity extends IEntity {

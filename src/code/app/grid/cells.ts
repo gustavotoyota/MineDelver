@@ -3,8 +3,8 @@ import { posMod } from 'src/code/misc/math';
 import { Vec3 } from 'src/code/misc/vec3';
 import { Ref } from 'vue';
 
-import { ICellEntity } from '../../domain/entities/map/cell-entity';
-import { Grid } from '../../domain/grid/grid';
+import { ICellEntity } from '../../core/entities/map/cell-entity';
+import { Grid } from '../../core/grid/grid';
 
 export interface ICellData {
   hidden?: boolean;

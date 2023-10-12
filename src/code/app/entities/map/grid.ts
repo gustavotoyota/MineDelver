@@ -2,8 +2,8 @@ import {
   getVisibleWorldRect,
   ICamera,
   worldToScreen,
-} from 'src/code/domain/camera';
-import { IEntity, onRender } from 'src/code/domain/entities/entities';
+} from 'src/code/core/camera';
+import { IEntity, onRender } from 'src/code/core/entities/entities';
 import { lerpBetween } from 'src/code/misc/math';
 import { Rect2 } from 'src/code/misc/rect2';
 import { Rect3 } from 'src/code/misc/rect3';

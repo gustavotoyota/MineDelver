@@ -1,9 +1,9 @@
 import { ICellData } from 'src/code/app/grid/cells';
-import { worldToScreen } from 'src/code/domain/camera';
-import { renderSprite } from 'src/code/domain/graphics/rendering';
-import { Grid } from 'src/code/domain/grid/grid';
-import { Images } from 'src/code/domain/images';
-import { StateMachine } from 'src/code/domain/state-machine';
+import { worldToScreen } from 'src/code/core/camera';
+import { renderSprite } from 'src/code/core/graphics/rendering';
+import { Grid } from 'src/code/core/grid/grid';
+import { Images } from 'src/code/core/images';
+import { StateMachine } from 'src/code/core/state-machine';
 import { Vec2 } from 'src/code/misc/vec2';
 import { Vec3 } from 'src/code/misc/vec3';
 import { Ref } from 'vue';
@@ -13,8 +13,8 @@ import {
   IEntity,
   onCellRender,
   onDestroy,
-} from '../../../domain/entities/entities';
-import { CellEntity } from '../../../domain/entities/map/cell-entity';
+} from '../../../core/entities/entities';
+import { CellEntity } from '../../../core/entities/map/cell-entity';
 import { createPlayerAnimMachine, PlayerAnimData } from './anim-machine';
 import { PlayerHurt } from './hurt';
 import { PlayerMovementManager } from './movement-manager';

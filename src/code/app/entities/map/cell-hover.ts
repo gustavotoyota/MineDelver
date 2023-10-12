@@ -2,9 +2,9 @@ import { Vec2 } from 'src/code/misc/vec2';
 import { Vec3 } from 'src/code/misc/vec3';
 import { Ref } from 'vue';
 
-import { ICamera, worldToScreen } from '../../../domain/camera';
-import { IEntity, onRender } from '../../../domain/entities/entities';
-import { Grid } from '../../../domain/grid/grid';
+import { ICamera, worldToScreen } from '../../../core/camera';
+import { IEntity, onRender } from '../../../core/entities/entities';
+import { Grid } from '../../../core/grid/grid';
 import { ICellData } from '../../grid/cells';
 
 export class CellHover implements IEntity {
