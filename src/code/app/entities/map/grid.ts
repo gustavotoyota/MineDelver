@@ -10,7 +10,7 @@ import { Rect3 } from 'src/code/misc/rect3';
 import { Vec2 } from 'src/code/misc/vec2';
 import { Ref } from 'vue';
 
-export class MapGridEntity implements IEntity {
+export class MapGrid implements IEntity {
   private _camera: Ref<ICamera>;
   private _cellSize: Ref<number>;
   private _screenSize: Ref<Vec2>;

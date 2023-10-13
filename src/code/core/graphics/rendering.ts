@@ -2,7 +2,7 @@ import { Vec2 } from '../../misc/vec2';
 import { ICamera } from '../camera';
 
 export function renderCellImage(input: {
-  renderCellImage: CanvasRenderingContext2D;
+  canvasCtx: CanvasRenderingContext2D;
   screenPos: Vec2;
   camera: ICamera;
   image: HTMLImageElement;
@@ -10,7 +10,7 @@ export function renderCellImage(input: {
 }) {
   const halfCellSize = input.cellSize / 2;
 
-  input.renderCellImage.drawImage(
+  input.canvasCtx.drawImage(
     input.image,
     input.screenPos.x + (-input.image.width + halfCellSize) * input.camera.zoom,
     input.screenPos.y +

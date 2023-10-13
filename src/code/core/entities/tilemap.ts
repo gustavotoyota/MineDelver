@@ -1,12 +1,12 @@
 import { Vec2 } from 'src/code/misc/vec2';
-import { Ref } from 'vue';
+import { Ref, ShallowRef } from 'vue';
 
 import { getVisibleWorldRect, ICamera, worldToScreen } from '../camera';
 import { Grid2 } from '../grid/grid2';
 import { IEntity, onRender } from './entities';
 
 export class Tilemap<TCellData> implements IEntity {
-  private _grid: Grid2<TCellData>;
+  private _grid: ShallowRef<Grid2<TCellData>>;
   private _camera: Ref<ICamera>;
   private _cellSize: Ref<number>;
 
@@ -19,13 +19,21 @@ export class Tilemap<TCellData> implements IEntity {
   }) => void;
 
   constructor(input: {
-    grid: Grid2<TCellData>;
+    grid: ShallowRef<Grid2<TCellData>>;
     camera: Ref<ICamera>;
     cellSize: Ref<number>;
+    onCellRender?: (input: {
+      canvasCtx: CanvasRenderingContext2D;
+      worldPos: Vec2;
+      screenPos: Vec2;
+      cellData: TCellData;
+      camera: ICamera;
+    }) => void;
   }) {
     this._camera = input.camera;
     this._cellSize = input.cellSize;
     this._grid = input.grid;
+    this._onCellRender = input.onCellRender;
   }
 
   setup(): void {
@@ -41,7 +49,9 @@ export class Tilemap<TCellData> implements IEntity {
         cellSize: this._cellSize.value,
       });
 
-      const gridSlice = this._grid.getSlice({ rect: visibleWorldRect.to2D() });
+      const gridSlice = this._grid.value.getSlice({
+        rect: visibleWorldRect.to2D(),
+      });
 
       gridSlice.iterateCells(({ pos, cell }) => {
         const screenPos = worldToScreen({

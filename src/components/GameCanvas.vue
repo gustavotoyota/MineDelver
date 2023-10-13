@@ -65,7 +65,7 @@
 import { getBombCountColor } from 'src/code/app/entities/map/bomb-count';
 import { CellHover } from 'src/code/app/entities/map/cell-hover';
 import { Flagging } from 'src/code/app/entities/map/flagging';
-import { MapGridEntity } from 'src/code/app/entities/map/grid';
+import { MapGrid } from 'src/code/app/entities/map/grid';
 import { ClickToWalk } from 'src/code/app/entities/player/click-to-walk';
 import { PlayerKeyboardMovement } from 'src/code/app/entities/player/keyboard-movement';
 import { PlayerEntity } from 'src/code/app/entities/player/player';
@@ -81,8 +81,10 @@ import {
   getVisibleWorldRect,
   screenToWorld,
 } from 'src/code/core/camera';
+import { BackgroundEntity } from 'src/code/core/entities/background';
 import { Entities } from 'src/code/core/entities/entities';
 import { GameMap } from 'src/code/core/entities/map/game-map';
+import { Tilemap } from 'src/code/core/entities/tilemap';
 import { renderCellImage } from 'src/code/core/graphics/rendering';
 import { Grid3 } from 'src/code/core/grid/grid3';
 import { Images } from 'src/code/core/images';
@@ -234,25 +236,41 @@ watch(screenSize, () => {
   );
 });
 
-const mapEntity = new GameMap({
-  grid: grid,
-  cellSize: cellSize,
-  camera: camera,
-  renderCellOfLayerBelowEntities: [
-    (input_) => {
-      if (input_.cellData === undefined || input_.cellData.hidden) {
+entities.add(new BackgroundEntity());
+
+entities.add(
+  new Tilemap({
+    camera: camera,
+    cellSize: cellSize,
+    grid: computed(() => grid.getLayer(camera.value.pos.z)),
+    onCellRender: (input) => {
+      if (input.cellData === undefined || input.cellData.hidden) {
         return;
       }
 
       renderCellImage({
-        renderCellImage: input_.canvasCtx,
+        canvasCtx: input.canvasCtx,
         cellSize: cellSize.value,
-        screenPos: input_.screenPos,
-        camera: input_.camera,
+        screenPos: input.screenPos,
+        camera: input.camera,
         image: images.getImage('ground')!,
       });
     },
-  ],
+  })
+);
+
+entities.add(
+  new MapGrid({
+    camera: camera,
+    cellSize: cellSize,
+    screenSize: screenSize,
+  })
+);
+
+const mapEntity = new GameMap({
+  grid: grid,
+  cellSize: cellSize,
+  camera: camera,
   renderBeforeEntities: (input_) => {
     if (input_.cellData === undefined || input_.cellData.hidden) {
       return;
@@ -260,7 +278,7 @@ const mapEntity = new GameMap({
 
     if (input_.cellData?.unrevealed) {
       renderCellImage({
-        renderCellImage: input_.canvasCtx,
+        canvasCtx: input_.canvasCtx,
         cellSize: cellSize.value,
         screenPos: input_.screenPos,
         camera: input_.camera,
@@ -269,7 +287,7 @@ const mapEntity = new GameMap({
 
       if (input_.cellData?.flag) {
         renderCellImage({
-          renderCellImage: input_.canvasCtx,
+          canvasCtx: input_.canvasCtx,
           cellSize: cellSize.value,
           screenPos: input_.screenPos,
           camera: input_.camera,
@@ -280,7 +298,7 @@ const mapEntity = new GameMap({
 
     if (!input_.cellData?.unrevealed && input_.cellData?.hasBomb) {
       renderCellImage({
-        renderCellImage: input_.canvasCtx,
+        canvasCtx: input_.canvasCtx,
         cellSize: cellSize.value,
         screenPos: input_.screenPos,
         camera: input_.camera,
@@ -288,8 +306,18 @@ const mapEntity = new GameMap({
       });
     }
   },
-  renderCellOfLayerAboveEntities: [
-    (input_) => {
+});
+
+mapEntity.cellEntities.add(playerEntity);
+
+entities.add(mapEntity);
+
+entities.add(
+  new Tilemap({
+    camera: camera,
+    cellSize: cellSize,
+    grid: computed(() => grid.getLayer(camera.value.pos.z)),
+    onCellRender: (input_) => {
       if (input_.cellData === undefined || input_.cellData.hidden) {
         return;
       }
@@ -333,18 +361,6 @@ const mapEntity = new GameMap({
         input_.canvasCtx.restore();
       }
     },
-  ],
-});
-
-mapEntity.cellEntities.add(playerEntity);
-
-entities.add(mapEntity);
-
-entities.add(
-  new MapGridEntity({
-    camera: camera,
-    cellSize: cellSize,
-    screenSize: screenSize,
   })
 );
 

@@ -113,10 +113,6 @@ export class GameMap implements IEntity {
 
       const gridSlice = this._grid.getSlice({ rect: visibleWorldRect });
 
-      // Clear the canvas
-
-      input.canvasCtx.clearRect(0, 0, screenSize.x, screenSize.y);
-
       // Draw the map
 
       for (const renderFunc of this._renderCellOfLayerBelowEntities ?? []) {
@@ -162,6 +158,7 @@ export class GameMap implements IEntity {
               });
             });
           }
+
           this._renderAfterEntities?.({
             canvasCtx: input.canvasCtx,
             worldPos: input_.worldPos,

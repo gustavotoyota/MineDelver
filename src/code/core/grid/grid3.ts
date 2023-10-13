@@ -10,6 +10,7 @@ import {
 import { Vec3 } from 'src/code/misc/vec3';
 
 import { IGrid } from './grid';
+import { Grid2 } from './grid2';
 
 export type Grid3Segments<TCellData> = Segments<Segments<Segments<TCellData>>>;
 
@@ -20,6 +21,12 @@ export class Grid3<TCellData> extends IGrid<TCellData, Vec3> {
     super();
 
     this._segments = input?.segments ?? [];
+  }
+
+  getLayer(z: number): Grid2<TCellData> {
+    const layer = getItemsFromSegments(this._segments, z, { count: 1 })?.[0];
+
+    return new Grid2({ segments: layer });
   }
 
   private _setRowCells(startPos: Vec3, items: TCellData[]) {
