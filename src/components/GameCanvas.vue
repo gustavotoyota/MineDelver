@@ -259,13 +259,15 @@ entities.add(
   })
 );
 
-entities.add(
-  new MapGrid({
-    camera: camera,
-    cellSize: cellSize,
-    screenSize: screenSize,
-  })
-);
+if (props.config.displayGrid) {
+  entities.add(
+    new MapGrid({
+      camera: camera,
+      cellSize: cellSize,
+      screenSize: screenSize,
+    })
+  );
+}
 
 const mapEntity = new GameMap({
   grid: grid,

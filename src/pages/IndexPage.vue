@@ -34,6 +34,7 @@
 export interface GameConfigData {
   bombPercentage: number;
   numLives: number;
+  displayGrid: boolean;
 }
 </script>
 
@@ -48,9 +49,10 @@ const configVisible = ref(true);
 
 const died = ref(false);
 
-const gameConfig = reactive({
+const gameConfig: GameConfigData = reactive({
   bombPercentage: 20,
   numLives: 3,
+  displayGrid: false,
 });
 
 let _localStorage: Storage;

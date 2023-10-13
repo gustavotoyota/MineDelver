@@ -42,6 +42,14 @@
       <div style="height: 16px"></div>
 
       <div>
+        <label>
+          <input type="checkbox" v-model="_config.displayGrid" /> Display grid
+        </label>
+      </div>
+
+      <div style="height: 16px"></div>
+
+      <div>
         <div><b>Bomb percentage:</b> {{ _config.bombPercentage }}%</div>
         <input
           type="range"
