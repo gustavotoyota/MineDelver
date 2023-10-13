@@ -36,26 +36,24 @@ export class Minimap implements IEntity {
       input.canvasCtx.save();
       input.canvasCtx.fillStyle = 'white';
 
+      const roundCameraPos = this._camera.value.pos.round();
+
       const minimapWorldRect = new Rect3(
         new Vec3(
           Math.floor(
-            this._camera.value.pos.x -
-              this._size.value.x / 2 / this._scale.value
+            roundCameraPos.x - this._size.value.x / 2 / this._scale.value
           ),
           Math.floor(
-            this._camera.value.pos.y -
-              this._size.value.y / 2 / this._scale.value
+            roundCameraPos.y - this._size.value.y / 2 / this._scale.value
           ),
-          Math.floor(this._camera.value.pos.z)
+          Math.floor(roundCameraPos.z)
         ),
         new Vec3(
           Math.ceil(
-            this._camera.value.pos.x +
-              this._size.value.x / 2 / this._scale.value
+            roundCameraPos.x + this._size.value.x / 2 / this._scale.value
           ),
           Math.ceil(
-            this._camera.value.pos.y +
-              this._size.value.y / 2 / this._scale.value
+            roundCameraPos.y + this._size.value.y / 2 / this._scale.value
           ),
           Math.ceil(this._camera.value.pos.z)
         )

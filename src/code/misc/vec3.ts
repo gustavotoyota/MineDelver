@@ -59,4 +59,8 @@ export class Vec3 implements IVec3 {
       lerp(this.z, vec.z, progress)
     );
   }
+
+  round(): Vec3 {
+    return new Vec3(Math.round(this.x), Math.round(this.y), Math.round(this.z));
+  }
 }
