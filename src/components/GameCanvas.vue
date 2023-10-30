@@ -188,7 +188,7 @@ const playerEntity = new PlayerEntity({
       startPos: input.startPos,
     }),
   currentTime: currentTime,
-  walkDuration: ref(150),
+  walkDuration: ref(200),
 });
 
 grid.setCell(new Vec3(), { entities: [playerEntity] });
